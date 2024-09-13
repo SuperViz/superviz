@@ -7,6 +7,7 @@ module.exports = {
   extends: ["eslint:recommended", "prettier", "airbnb-base", "plugin:import/recommended", "plugin:import/typescript"],
   plugins: ["only-warn", "@typescript-eslint", "eslint-plugin-import"],
   globals: {
+    browser: true,
     React: true,
     JSX: true,
   },
