@@ -4,6 +4,7 @@
     { "name": "beta", "channel": "beta", "prerelease": true },
     { "name": "lab", "channel": "lab", "prerelease": true }
   ],
+  "tagFormat": "@superviz/socket-client/${version}",
   "plugins": [
     "@semantic-release/commit-analyzer",
     "semantic-release-version-file",
