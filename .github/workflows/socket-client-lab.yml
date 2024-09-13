@@ -1,0 +1,54 @@
+name: Publish Package
+on:
+  push:
+    branches:
+      - lab
+    paths:
+      - 'packages/socket-client/**'
+      - '.github/workflows/socket-client-lab.yml'
+jobs:
+  publish-socket-client-package-lab:
+    if: github.ref == 'refs/heads/lab'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [20]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.9.0
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'pnpm'
+      - name: Install dependencies
+        run: pnpm install
+        env:
+          NPM_CONFIG_USERCONFIG: .npmrc.ci
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - run: git config --global user.name SuperViz
+      - run: git config --global user.email ci@superviz.com
+      - name: Build
+        run: pnpm run build
+      - name: Publish npm package
+        run: npm whoami && npm run semantic-release
+        env:
+          NPM_CONFIG_USERCONFIG: .npmrc.ci
+          GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+  slack:
+    needs: publish-socket-client-package-lab
+    name: Slack Notification
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Slack Notification
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          SLACK_ICON: https://avatars.slack-edge.com/2020-11-18/1496892993975_af721d1c045bea2d5a46_48.png
+          MSG_MINIMAL: true
+          SLACK_USERNAME: Deploy socket client version
