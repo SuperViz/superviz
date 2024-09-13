@@ -84,4 +84,4 @@ export const routeList: RouteObject[] = [
   },
 ];
 
-export const router = createBrowserRouter(routeList);
+export const router: ReturnType<typeof createBrowserRouter> = createBrowserRouter(routeList);
