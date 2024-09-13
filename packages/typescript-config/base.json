@@ -2,19 +2,20 @@
   "$schema": "https://json.schemastore.org/tsconfig",
   "display": "Default",
   "compilerOptions": {
+    "rootDirs": ["./src", "."],
+    "target": "ES2020",
+    "module": "ES2020",
+    "outDir": "./dist",
+    "lib": ["ES2020", "DOM"],
+    "preserveWatchOutput": true,
+    "emitDeclarationOnly": true,
     "declaration": true,
-    "declarationMap": true,
     "esModuleInterop": true,
-    "incremental": false,
-    "isolatedModules": true,
-    "lib": ["es2022", "DOM", "DOM.Iterable"],
-    "module": "NodeNext",
-    "moduleDetection": "force",
-    "moduleResolution": "NodeNext",
-    "noUncheckedIndexedAccess": true,
-    "resolveJsonModule": true,
+    "moduleResolution": "Node",
+    "experimentalDecorators": true,
     "skipLibCheck": true,
-    "strict": true,
-    "target": "ES2022"
-  }
+    "allowJs": true
+  },
+  "include": ["./src"],
+  "exclude": ["./src/**/*.test.ts", "node_modules"]
 }
