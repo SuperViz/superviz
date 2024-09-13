@@ -19,7 +19,8 @@
       "persistent": true
     },
     "watch": {
-      "dependsOn": ["^watch"]
+      "cache": false,
+      "persistent": true
     },
     "build": {
       "cache": false,

@@ -1,0 +1,63 @@
+/*!
+ * Matterport Showcase SDK
+ *
+ * © 2022 Matterport, Inc. All rights reserved.
+ *
+ * Matterport Showcase SDK ("Showcase SDK") must be used according to
+ * the Matterport Terms of Service located at https://matterport.com/terms-of-use, the Platform Subscription Agreement ("PSA") available at https://matterport.com/legal/platform-subscription-agreement and the SDK License terms included in the PSA ("SDK License"). Any use of the Showcase SDK requires a current active Matterport account and associated developer key.
+ *
+ * -------------------------------------------------------------------------------
+ *
+ * Redistribution and use in source and binary forms, without modification, is permitted in accordance with the SDK License provided that the following conditions are met:
+ *
+ * * Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+ * * Neither the name of Matterport nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+ *
+ * THE SHOWCASE SDK IS PROVIDED BY MATTERPORT AS THE COPYRIGHT HOLDER AND, IF APPLICABLE, ITS CONTRIBUTORS "AS IS" AND WITHOUT WARRANTIES OF ANY KIND. TO THE FULLEST EXTENT PERMISSIBLE PURSUANT TO APPLICABLE LAW, MATTERPORT DISCLAIMS, ON BEHALF OF ITSELF AND ITS AFFILIATES AND LICENSORS, ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. MATTERPORT DOES NOT WARRANT THAT THE AVAILABILITY OF THE SHOWCASE SDK WILL BE UNINTERRUPTED OR ERROR-FREE, THAT DEFECTS WILL BE CORRECTED, OR THAT THE SHOWCASE SDK WILL BE FREE OF VIRUSES OR OTHER HARMFUL COMPONENTS. MATTERPORT DOES NOT MAKE ANY REPRESENTATIONS OR WARRANTIES REGARDING THE USE OR THE RESULTS OF THE USE OF THE SHOWCASE SDK OR FUNCTIONS ON THE SHOWCASE SDK IN TERMS OF THEIR CORRECTNESS, ACCURACY, RELIABILITY, RESULTS TO BE ACHIEVED, OR OTHERWISE. APPLICABLE LAW MAY NOT ALLOW THE EXCLUSION OF IMPLIED WARRANTIES, SO SOME OR ALL OF THE FOREGOING DISCLAIMERS MAY NOT APPLY TO YOU.
+ *
+ * TO THE EXTENT PERMITTED UNDER APPLICABLE LAW UNDER NO CIRCUMSTANCES, INCLUDING, BUT NOT LIMITED TO, NEGLIGENCE, SHALL MATTERPORT OR ITS AFFILIATES OR LICENSORS BE LIABLE FOR ANY CONSEQUENTIAL, EXEMPLARY, PUNITIVE, SPECIAL, INCIDENTAL OR OTHER INDIRECT DAMAGES, EVEN IF MATTERPORT OR A MATTERPORT AUTHORIZED REPRESENTATIVE HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES. APPLICABLE LAW MAY NOT ALLOW SOME OR ALL OF THIS LIMITATION OF LIABILITY, SO IT MAY NOT APPLY TO YOU.
+ *
+ */
+
+/*!
+ Transformation Matrix v2.0
+ (c) Epistemex 2014-2015
+ www.epistemex.com
+ By Ken Fyrstenberg
+ Contributions by leeoniya.
+ License: MIT, header required.
+ */
+
+/*! chevrotain - v9.0.1 */
+
+/*! https://mths.be/codepointat v0.2.0 by @mathias */
+
+/**
+ * potpack - by [@mourner](https://github.com/mourner)
+ * 
+ * A tiny JavaScript function for packing 2D rectangles into a near-square container, 
+ * which is useful for generating CSS sprites and WebGL textures. Similar to 
+ * [shelf-pack](https://github.com/mapbox/shelf-pack), but static (you can't add items 
+ * once a layout is generated), and aims for maximal space utilization.
+ *
+ * A variation of algorithms used in [rectpack2D](https://github.com/TeamHypersomnia/rectpack2D)
+ * and [bin-pack](https://github.com/bryanburgers/bin-pack), which are in turn based 
+ * on [this article by Blackpawn](http://blackpawn.com/texts/lightmaps/default.html).
+ * 
+ * @license
+ * ISC License
+ * 
+ * Copyright (c) 2018, Mapbox
+ * 
+ * Permission to use, copy, modify, and/or distribute this software for any purpose
+ * with or without fee is hereby granted, provided that the above copyright notice
+ * and this permission notice appear in all copies.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+ * REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND
+ * FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+ * INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS
+ * OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
+ * TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
+ * THIS SOFTWARE.
+ */

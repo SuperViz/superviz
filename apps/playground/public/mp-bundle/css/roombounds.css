@@ -1,0 +1,23 @@
+/*!
+ * Matterport Showcase SDK
+ *
+ * © 2022 Matterport, Inc. All rights reserved.
+ *
+ * Matterport Showcase SDK ("Showcase SDK") must be used according to
+ * the Matterport Terms of Service located at https://matterport.com/terms-of-use, the Platform Subscription Agreement ("PSA") available at https://matterport.com/legal/platform-subscription-agreement and the SDK License terms included in the PSA ("SDK License"). Any use of the Showcase SDK requires a current active Matterport account and associated developer key.
+ *
+ * -------------------------------------------------------------------------------
+ *
+ * Redistribution and use in source and binary forms, without modification, is permitted in accordance with the SDK License provided that the following conditions are met:
+ *
+ * * Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+ * * Neither the name of Matterport nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+ *
+ * THE SHOWCASE SDK IS PROVIDED BY MATTERPORT AS THE COPYRIGHT HOLDER AND, IF APPLICABLE, ITS CONTRIBUTORS "AS IS" AND WITHOUT WARRANTIES OF ANY KIND. TO THE FULLEST EXTENT PERMISSIBLE PURSUANT TO APPLICABLE LAW, MATTERPORT DISCLAIMS, ON BEHALF OF ITSELF AND ITS AFFILIATES AND LICENSORS, ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. MATTERPORT DOES NOT WARRANT THAT THE AVAILABILITY OF THE SHOWCASE SDK WILL BE UNINTERRUPTED OR ERROR-FREE, THAT DEFECTS WILL BE CORRECTED, OR THAT THE SHOWCASE SDK WILL BE FREE OF VIRUSES OR OTHER HARMFUL COMPONENTS. MATTERPORT DOES NOT MAKE ANY REPRESENTATIONS OR WARRANTIES REGARDING THE USE OR THE RESULTS OF THE USE OF THE SHOWCASE SDK OR FUNCTIONS ON THE SHOWCASE SDK IN TERMS OF THEIR CORRECTNESS, ACCURACY, RELIABILITY, RESULTS TO BE ACHIEVED, OR OTHERWISE. APPLICABLE LAW MAY NOT ALLOW THE EXCLUSION OF IMPLIED WARRANTIES, SO SOME OR ALL OF THE FOREGOING DISCLAIMERS MAY NOT APPLY TO YOU.
+ *
+ * TO THE EXTENT PERMITTED UNDER APPLICABLE LAW UNDER NO CIRCUMSTANCES, INCLUDING, BUT NOT LIMITED TO, NEGLIGENCE, SHALL MATTERPORT OR ITS AFFILIATES OR LICENSORS BE LIABLE FOR ANY CONSEQUENTIAL, EXEMPLARY, PUNITIVE, SPECIAL, INCIDENTAL OR OTHER INDIRECT DAMAGES, EVEN IF MATTERPORT OR A MATTERPORT AUTHORIZED REPRESENTATIVE HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES. APPLICABLE LAW MAY NOT ALLOW SOME OR ALL OF THIS LIMITATION OF LIABILITY, SO IT MAY NOT APPLY TO YOU.
+ *
+ */
+.room-view{color:#222;padding:12px 16px 0;margin-bottom:32px}
+.room-title{font-family:IBM Plex Sans,sans-serif;font-style:normal;font-weight:700;font-size:28px;line-height:1.285;letter-spacing:.4px;overflow-wrap:break-word}
+.room-size-info{display:flex;flex-direction:column;margin-top:32px}.room-size-info .room-info-title{font-family:IBM Plex Sans,sans-serif;font-style:normal;font-weight:700;font-size:14px;line-height:1.57;letter-spacing:.6px}.room-size-info .area{display:flex;justify-content:space-between;align-items:baseline}.room-size-info .area-info{margin-bottom:24px;border-radius:8px;background-color:#f5f4f3;padding:16px}.room-size-info .area-info .p3{color:#444}.room-size-info .area-info .area-info-detail:not(:first-child){margin-top:16px}

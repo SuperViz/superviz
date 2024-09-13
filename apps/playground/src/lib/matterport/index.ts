@@ -1,0 +1,1 @@
+export { MatterportPin, Presence3D as MatterportPresence3D } from '@superviz/matterport-plugin'
