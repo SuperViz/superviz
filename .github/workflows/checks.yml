@@ -37,11 +37,11 @@ jobs:
               NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           - name: Create a .version.js file
             run: |
-              touch .version.js && echo "echo \"export const version = 'test'\" > .version.js" | bash -
+              touch packages/realtime/.version.js && echo "echo \"export const version = 'test'\" > .version.js" | bash -
           - name: Create a .remote-config.js file
             run: |
-              touch .remote-config.js && echo "echo \"module.exports = { remoteConfig: { apiUrl: 'https://dev.nodeapi.superviz.com' }};\" > .remote-config.js" | bash -
-          - name: Run tests
+              touch packages/realtime/.remote-config.js && echo "echo \"module.exports = { remoteConfig: { apiUrl: 'https://dev.nodeapi.superviz.com' }};\" > .remote-config.js" | bash -
+          - name: Run builds
             run: pnpm run build
   test-unit-realtime:
     runs-on: ubuntu-latest
@@ -66,10 +66,10 @@ jobs:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
       - name: Create a .version.js file
         run: |
-          touch .version.js && echo "echo \"export const version = 'test'\" > .version.js" | bash -
+          touch packages/realtime/.version.js && echo "echo \"export const version = 'test'\" > .version.js" | bash -
       - name: Create a .remote-config.js file
         run: |
-          touch .remote-config.js && echo "echo \"module.exports = { remoteConfig: { apiUrl: 'https://dev.nodeapi.superviz.com' }};\" > .remote-config.js" | bash -
+          touch packages/realtime/.remote-config.js && echo "echo \"module.exports = { remoteConfig: { apiUrl: 'https://dev.nodeapi.superviz.com' }};\" > .remote-config.js" | bash -
       - name: Run tests
         run: pnpm run test:unit:ci --filter=@superviz/realtime
       - name: Post PR Comment
