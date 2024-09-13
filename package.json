@@ -7,6 +7,10 @@
     "lint": "turbo lint",
     "watch": "turbo run watch",
     "semantic-release": "turbo run semantic-release",
+    "test:unit": "turbo run test:unit",
+    "test:unit:watch": "turbo run test:unit:watch",
+    "test:unit:coverage": "turbo run test:unit:coverage",
+    "test:unit:ci": "turbo run test:unit:ci",
     "format": "prettier --write \"**/*.{ts,tsx,md}\""
   },
   "devDependencies": {

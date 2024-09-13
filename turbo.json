@@ -5,6 +5,19 @@
     "semantic-release": {
       "env": ["GITHUB_TOKEN", "NPM_TOKEN"]
     },
+    "test:unit": {},
+    "test:unit:watch": {
+      "cache": false, 
+      "persistent": true
+    },
+    "test:unit:coverage": {
+      "cache": false,
+      "persistent": true
+    },
+    "test:unit:ci": {
+      "cache": false, 
+      "persistent": true
+    },
     "watch": {
       "dependsOn": ["^watch"]
     },

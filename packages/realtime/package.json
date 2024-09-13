@@ -1,0 +1,97 @@
+{
+  "name": "@superviz/realtime",
+  "version": "0.0.0-development",
+  "description": "SuperViz Real-Time",
+  "main": "./dist/node/index.cjs.js",
+  "module": "./dist/browser/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "node": {
+        "import": "./dist/node/index.js",
+        "require": "./dist/node/index.cjs.js"
+      },
+      "browser": {
+        "import": "./dist/browser/index.js",
+        "require": "./dist/browser/index.cjs.js"
+      }
+    },
+    "./client": {
+      "import": "./dist/browser/index.js",
+      "require": "./dist/browser/index.cjs.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "prepare": "husky install",
+    "build": "node ./.esbuild/build.js",
+    "postbuild": "./node_modules/typescript/bin/tsc",
+    "watch": "concurrently -n code,types \"pnpm run watch:code\" \"pnpm watch:types\"",
+    "watch:code": "node ./.esbuild/watch.js",
+    "watch:types": "./node_modules/typescript/bin/tsc --watch --outDir ./dist",
+    "test:unit": "jest",
+    "test:unit:watch": "jest --watch",
+    "test:unit:coverage": "jest --coverage",
+    "test:unit:ci": "jest --ci",
+    "semantic-release": "semantic-release",
+    "commit": "git-cz"
+  },
+  "publishConfig": {
+    "access": "public",
+    "scope": "@superviz"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SuperViz/realtime.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/SuperViz/realtime/issues"
+  },
+  "homepage": "https://github.com/SuperViz/realtime#readme",
+  "devDependencies": {
+    "@superviz/eslint-config": "workspace:*",
+    "@superviz/typescript-config": "workspace:*",
+    "@commitlint/cli": "^19.3.0",
+    "@commitlint/config-conventional": "^19.2.2",
+    "@esm-bundle/chai": "^4.3.4-fix.0",
+    "@jest/globals": "^29.7.0",
+    "@types/debug": "^4.1.12",
+    "@types/jest": "^29.5.12",
+    "@types/node": "^20.14.8",
+    "concurrently": "^8.2.2",
+    "cz-conventional-changelog": "^3.3.0",
+    "esbuild": "^0.21.5",
+    "eslint": "8.56.0",
+    "husky": "^9.0.11",
+    "jest": "^29.7.0",
+    "semantic-release": "^24.0.0",
+    "semantic-release-version-file": "^1.0.2",
+    "ts-jest": "^29.2.5",
+    "tsc": "^2.0.4",
+    "typescript": "^5.5.2",
+    "yargs": "^17.7.2"
+  },
+  "dependencies": {
+    "@superviz/socket-client": "^1.12.0",
+    "browser-or-node": "^3.0.0",
+    "debug": "^4.3.4",
+    "lodash": "^4.17.21",
+    "rxjs": "^7.8.1"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged",
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+    }
+  }
+}

@@ -78,5 +78,11 @@ module.exports = {
     {
       files: ["*.js?(x)", "*.ts?(x)"],
     },
+    {
+      files: ['**/*.test.ts', '**/*.test.js'],
+      env: {
+        jest: true,
+      },
+    },
   ],
 };
