@@ -22,6 +22,8 @@
       "dependsOn": ["^watch"]
     },
     "build": {
+      "cache": false,
+      "persistent": false,
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
       "outputs": [".next/**", "!.next/cache/**"]
@@ -32,6 +34,9 @@
     "dev": {
       "cache": false,
       "persistent": true
+    },
+    "@superviz/realtime#build": {
+      "dependsOn": ["@superviz/socket-client#build"]
     }
   }
 }

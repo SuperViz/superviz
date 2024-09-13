@@ -51,8 +51,8 @@ importers:
   packages/realtime:
     dependencies:
       '@superviz/socket-client':
-        specifier: ^1.12.0
-        version: 1.12.1
+        specifier: workspace:*
+        version: link:../socket-client
       browser-or-node:
         specifier: ^3.0.0
         version: 3.0.0
@@ -111,6 +111,9 @@ importers:
       jest:
         specifier: ^29.7.0
         version: 29.7.0(@types/node@20.16.5)
+      jest-ctrf-json-reporter:
+        specifier: ^0.0.9
+        version: 0.0.9
       semantic-release:
         specifier: ^24.0.0
         version: 24.1.1(typescript@5.6.2)
@@ -881,9 +884,6 @@ packages:
 
   '@socket.io/component-emitter@3.1.2':
     resolution: {integrity: sha512-9BCxFwvbGg/RsZK9tjXd8s4UcwR0MWeFQ1XEKIQVVvAGJyINdrqKMcTRyLoK8Rse1GjzLV9cwjWV1olXRWEXVA==}
-
-  '@superviz/socket-client@1.12.1':
-    resolution: {integrity: sha512-ZUSVQJP4OJ+isujpeqkjSZnuCAd5qeqrbFR7rS6OiaQi/fnsALxZchm9Sy+46yVw5xMNuBp1j8p7lW19wCC4DA==}
 
   '@types/babel__core@7.20.5':
     resolution: {integrity: sha512-qoQprZvz5wQFJwMDqeseRXWv3rqMvhgpbXFfVyWhbx9X47POIA6i/+dXefEmZKoAgOaTdaIgNSMqMIU61yRyzA==}
@@ -2434,6 +2434,9 @@ packages:
         optional: true
       ts-node:
         optional: true
+
+  jest-ctrf-json-reporter@0.0.9:
+    resolution: {integrity: sha512-mxuUPZ/npUEoPyjE/vHQhdNVhuxV3NzdIPIWjoreW4rMisaDKlD7x4oERU4HEC9mlI7dQkwcOHo9BJzGIgieKw==}
 
   jest-diff@29.7.0:
     resolution: {integrity: sha512-LMIgiIrhigmPrs03JHpxUh2yISK3vLFPkAodPeo0+BuF7wA2FoQbkEg1u8gBYBThncu7e1oEDUfIXVuTqLRUjw==}
@@ -4704,20 +4707,6 @@ snapshots:
 
   '@socket.io/component-emitter@3.1.2': {}
 
-  '@superviz/socket-client@1.12.1':
-    dependencies:
-      '@reactivex/rxjs': 6.6.7
-      debug: 4.3.7
-      lodash: 4.17.21
-      rxjs: 7.8.1
-      semantic-release-version-file: 1.0.2
-      socket.io-client: 4.7.5
-      zod: 3.23.8
-    transitivePeerDependencies:
-      - bufferutil
-      - supports-color
-      - utf-8-validate
-
   '@types/babel__core@7.20.5':
     dependencies:
       '@babel/parser': 7.25.6
@@ -6671,6 +6660,8 @@ snapshots:
     transitivePeerDependencies:
       - babel-plugin-macros
       - supports-color
+
+  jest-ctrf-json-reporter@0.0.9: {}
 
   jest-diff@29.7.0:
     dependencies:

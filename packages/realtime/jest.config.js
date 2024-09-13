@@ -17,4 +17,8 @@ module.exports = {
     '^.+\\.js$': 'ts-jest',
   },
   setupFiles: ['<rootDir>/jest.setup.js'],
+  reporters: [
+    'default',
+    ['jest-ctrf-json-reporter', {}],
+  ],
 };
