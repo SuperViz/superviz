@@ -30,16 +30,11 @@ jobs:
         env:
           NPM_CONFIG_USERCONFIG: .npmrc.ci
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Create a .remote-config.js file
+        run: |
+          touch .remote-config.js && echo "echo \"module.exports = { remoteConfig: { apiUrl: 'https://api.superviz.com', version: 'prod'}};\" > .remote-config.js" | bash -
       - run: git config --global user.name SuperViz
       - run: git config --global user.email ci@superviz.com
-      - name: Build
-        run: pnpm run build
-      - name: Publish npm package
-        run: npm whoami && pnpm run semantic-release --filter=@superviz/realtime
-        env:
-          NPM_CONFIG_USERCONFIG: .npmrc.ci
-          GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
   slack:
     needs: package
     name: Slack Notification
