@@ -2,7 +2,9 @@
   "$schema": "https://turbo.build/schema.json",
   "ui": "tui",
   "tasks": {
-    "semantic-release": {},
+    "semantic-release": {
+      "env": ["GITHUB_TOKEN", "NPM_TOKEN"]
+    },
     "watch": {
       "dependsOn": ["^watch"]
     },
