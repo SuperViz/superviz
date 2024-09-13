@@ -1,0 +1,102 @@
+.realtime-presence {
+  flex: 1;
+  width: 50%;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  width: 100%;
+  border-radius: 6px;
+  padding: 20px;
+  gap: 10px;
+}
+
+.realtime-presence h1 {
+  font-size: 1rem;
+  margin: 0.5rem;
+  color: #39363e;
+  text-align: center;
+}
+
+.realtime-presence h2 {
+  font-size: 1rem;
+  line-height: 150%;
+  margin-bottom: 0.5rem;
+  color: #39363e;
+}
+
+.realtime-presence button {
+  all: unset;
+  border-radius: 6px;
+  font-size: 1rem;
+  padding-block: 10px;
+  box-sizing: border-box;
+  line-height: 1rem;
+  min-height: 2rem;
+  color: #efefef;
+  text-align: center;
+  background-color: #6210cc;
+  cursor: pointer;
+}
+
+.realtime-presence button:hover {
+  background-color: #baa9ff;
+  color: #39363e;
+}
+
+.realtime-presence .container {
+  background-color: #c9c4d1;
+  border-radius: 6px;
+  padding: 0.8rem 1rem;
+  width: 100%;
+}
+
+.realtime-presence hr {
+  margin: 1rem 0;
+  display: block;
+  height: 1px;
+  border: 0;
+  border-top: 1px solid #c9c4d1;
+  padding: 0;
+  width: 100%;
+}
+
+.realtime-presence .container * {
+  width: 100%;
+}
+
+.realtime-presence input {
+  all: unset;
+  border-radius: 6px;
+  font-size: 1rem;
+  line-height: 1rem;
+  height: calc(2rem - 6px);
+  color: #39363e;
+  background-color: #fff;
+  transition: 0.15s all ease-in;
+  padding: 3px 10px;
+  width: calc(100% - 20px) !important;
+}
+
+.realtime-presence code {
+  display: block;
+}
+
+.realtime-presence .subscribe-options {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.5rem 0;
+}
+
+.realtime-presence .events-info {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  width: 100%;
+}
+
+.realtime-presence .last-message {
+  margin-top: 1rem;
+  width: 100%;
+}

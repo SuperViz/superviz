@@ -18,7 +18,10 @@
       "cache": false, 
       "persistent": true
     },
-    "watch": {},
+    "watch": {
+      "cache": false,
+      "persistent": true
+    },
     "build": {
       "cache": false,
       "persistent": false,

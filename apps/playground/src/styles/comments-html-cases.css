@@ -1,0 +1,42 @@
+.examples {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  background-color: #eee;
+  width: 100%;
+  justify-items: center;
+  gap: 30px;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.element-example {
+  width: 100%;
+  height: 460px;
+  border-radius: 5px;
+  color: #333;
+  display: flex;
+  background-color: #39f414;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  position: relative;
+  font-family: "sans mono", monospace !important;
+}
+
+.toggle-button {
+  all: unset;
+  padding: 10px;
+  font-family: "Inter", Helvetica, Sans-Serif;
+  font-weight: 600;
+  background-color: #414f93;
+  cursor: pointer;
+  color: #fff;
+  transition: all 0.3s ease-in-out;
+  border-radius: 5px;
+  margin-bottom: 20px;
+}
+
+.toggle-button:hover {
+  background-color: #202d71;
+  border-radius: 8px;
+}

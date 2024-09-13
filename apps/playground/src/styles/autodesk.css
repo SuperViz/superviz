@@ -1,0 +1,11 @@
+.forge-viewer {
+  top: 0px !important;
+  position: fixed;
+  width: 100vw !important;
+  height: 100% !important;
+  z-index: 0;
+}
+
+#guiviewer3d-toolbar {
+  display: none;
+}
