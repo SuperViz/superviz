@@ -6,6 +6,7 @@
     "dev": "turbo dev",
     "lint": "turbo lint",
     "watch": "turbo run watch",
+    "semantic-release": "turbo run semantic-release",
     "format": "prettier --write \"**/*.{ts,tsx,md}\""
   },
   "devDependencies": {

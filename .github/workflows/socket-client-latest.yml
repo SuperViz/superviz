@@ -34,7 +34,7 @@ jobs:
       - name: Build
         run: pnpm run build
       - name: Publish npm package
-        run: npm whoami && npm run semantic-release
+        run: npm whoami && pnpm run semantic-release --filter=@superviz/socket-client
         env:
           NPM_CONFIG_USERCONFIG: .npmrc.ci
           GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
