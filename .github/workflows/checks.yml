@@ -73,7 +73,7 @@ jobs:
       - name: Run tests
         run: pnpm run test:unit:ci --filter=@superviz/realtime
       - name: Post PR Comment
-        run: npx github-actions-ctrf packages/realtime/ctrf/ctrf-report.json --pr-comment
+        run: npx github-actions-ctrf packages/realtime/ctrf/ctrf-report.json --pr-comment --title=Realtime
         if: always()
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
