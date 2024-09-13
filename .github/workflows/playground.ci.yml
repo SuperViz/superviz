@@ -6,6 +6,7 @@ on:
       - beta
       - main
     paths:
+      - 'apps/playground/**'
       - 'packages/realtime/**'
       - '.github/workflows/playground.ci.yml'
 jobs:
