@@ -1,6 +1,6 @@
 {
   "name": "@superviz/realtime",
-  "version": "0.0.0-development",
+  "version": "0.0.0",
   "description": "SuperViz Real-Time",
   "main": "./dist/node/index.cjs.js",
   "module": "./dist/browser/index.js",
@@ -45,14 +45,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/SuperViz/realtime.git"
+    "url": "https://github.com/SuperViz/superviz.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/SuperViz/realtime/issues"
+    "url": "https://github.com/SuperViz/superviz/issues"
   },
-  "homepage": "https://github.com/SuperViz/realtime#readme",
+  "homepage": "https://github.com/SuperViz/superviz/tree/main/packages/realtime#readme",
   "devDependencies": {
     "@commitlint/cli": "^19.3.0",
     "@commitlint/config-conventional": "^19.2.2",
