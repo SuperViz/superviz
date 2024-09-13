@@ -22,14 +22,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/SuperViz/sv-socket-client.git"
+    "url": "https://github.com/SuperViz/superviz.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/SuperViz/sv-socket-client/issues"
+    "url": "https://github.com/SuperViz/superviz/issues"
   },
-  "homepage": "https://github.com/SuperViz/sv-socket-client#readme",
+  "homepage": "https://github.com/SuperViz/superviz/tree/main/packages/socket-client#readme",
   "devDependencies": {
     "@superviz/eslint-config": "workspace:*",
     "@superviz/typescript-config": "workspace:*",
