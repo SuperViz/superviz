@@ -37,6 +37,18 @@
     },
     "@superviz/realtime#build": {
       "dependsOn": ["@superviz/socket-client#build"]
+    },
+    "@superviz/realtime#test:unit": {
+      "dependsOn": ["@superviz/socket-client#build"]
+    },
+    "@superviz/realtime#test:unit:watch": {
+      "dependsOn": ["@superviz/socket-client#build"]
+    },
+    "@superviz/realtime#test:unit:coverage": {
+      "dependsOn": ["@superviz/socket-client#build"]
+    },
+    "@superviz/realtime#test:unit:ci": {
+      "dependsOn": ["@superviz/socket-client#build"]
     }
   }
 }
