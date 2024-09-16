@@ -17,8 +17,9 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/SuperViz/matterport-plugin.git"
+    "url": "git+https://github.com/SuperViz/superviz.git"
   },
+  "homepage": "https://github.com/SuperViz/superviz/tree/main/packages/matterport#readme",
   "scripts": {
     "prepare": "husky install",
     "build": "node ./.esbuild/build.js",
