@@ -1,0 +1,15 @@
+{
+  "branches": [
+    "main", 
+    { "name": "beta", "channel": "beta", "prerelease": true },
+    { "name": "lab", "channel": "lab", "prerelease": true }
+  ],
+  "tagFormat": "@superviz/autodesk/${version}",
+  "plugins": [
+    "@semantic-release/commit-analyzer",
+    "semantic-release-version-file",
+    "@semantic-release/release-notes-generator",
+    "@semantic-release/github",
+    "@semantic-release/npm"
+  ]
+}

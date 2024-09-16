@@ -9,6 +9,7 @@ on:
       - 'apps/playground/**'
       - 'packages/realtime/**'
       - 'packages/matterport/**'
+      - 'packages/autodesk/**'
       - '.github/workflows/playground.ci.yml'
 jobs:
   package:

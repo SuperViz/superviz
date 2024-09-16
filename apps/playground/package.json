@@ -10,7 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@superviz/autodesk-viewer-plugin": "1.21.0",
+    "@superviz/autodesk-viewer-plugin": "workspace:*",
     "@superviz/matterport-plugin": "workspace:*",
     "@superviz/realtime": "workspace:*",
     "@superviz/sdk": "6.6.0",
