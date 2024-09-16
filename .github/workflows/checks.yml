@@ -37,10 +37,12 @@ jobs:
               NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           - name: Create a .version.js file
             run: |
-              touch packages/realtime/.version.js && echo "echo \"export const version = 'test'\" > .version.js" | bash -
+              touch packages/realtime/.version.js && echo "echo \"export const version = 'test'\" > packages/realtime/.version.js" | bash -
+              touch packages/sdk/.version.js && echo "echo \"export const version = 'test'\" > packages/sdk/.version.js" | bash -
           - name: Create a .remote-config.js file
             run: |
-              touch packages/realtime/.remote-config.js && echo "echo \"module.exports = { remoteConfig: { apiUrl: 'https://dev.nodeapi.superviz.com' }};\" > .remote-config.js" | bash -
+              touch packages/realtime/.remote-config.js && echo "echo \"module.exports = { remoteConfig: { apiUrl: 'https://dev.nodeapi.superviz.com' }};\" > packages/realtime/.remote-config.js" | bash -
+              touch packages/sdk/.remote-config.js && echo "echo \"module.exports = { remoteConfig: { apiUrl: 'https://dev.nodeapi.superviz.com', conferenceLayerUrl: 'https://video-frame.superviz.com/lab/index.html'}};\" > .remote-config.js" | bash -
           - name: Run builds
             run: pnpm run build
   test-unit-realtime:
@@ -77,3 +79,38 @@ jobs:
         if: always()
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  test-unit-sdk:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [20]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.10.0
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'pnpm'
+      - name: Install dependencies
+        run: pnpm install --no-frozen-lockfile
+        env:
+          NPM_CONFIG_USERCONFIG: .npmrc.ci
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Create a .version.js file
+        run: |
+          touch packages/sdk/.version.js && echo "echo \"export const version = 'test'\" > .version.js" | bash -
+      - name: Create a .remote-config.js file
+        run: |
+          touch packages/sdk/.remote-config.js && echo "echo \"module.exports = { remoteConfig: { apiUrl: 'https://dev.nodeapi.superviz.com', conferenceLayerUrl: 'https://video-frame.superviz.com/lab/index.html'}};\" > .remote-config.js" | bash -
+      - name: Run tests
+        run: pnpm run test:unit:ci --filter=@superviz/sdk
+      - name: Post PR Comment
+        run: npx github-actions-ctrf packages/sdk/ctrf/ctrf-report.json --pr-comment --title=SDK
+        if: always()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
