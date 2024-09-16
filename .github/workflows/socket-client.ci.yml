@@ -1,4 +1,4 @@
-name: Publish Package
+name: Socket Client - Publish Package
 on:
   push:
     branches:

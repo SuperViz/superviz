@@ -1,4 +1,4 @@
-name: Publish Package
+name: Real-time - Publish Package
 on:
   push:
     branches:
