@@ -14,7 +14,7 @@
     "@superviz/matterport-plugin": "workspace:*",
     "@superviz/realtime": "workspace:*",
     "@superviz/sdk": "6.6.0",
-    "@superviz/threejs-plugin": "1.1.0",
+    "@superviz/threejs-plugin": "workspace:*",
     "@types/three": "^0.167.1",
     "lodash": "^4.17.21",
     "react": "^18.3.1",

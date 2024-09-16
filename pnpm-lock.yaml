@@ -33,8 +33,8 @@ importers:
         specifier: 6.6.0
         version: 6.6.0
       '@superviz/threejs-plugin':
-        specifier: 1.1.0
-        version: 1.1.0
+        specifier: workspace:*
+        version: link:../../packages/three
       '@types/three':
         specifier: ^0.167.1
         version: 0.167.2
@@ -433,6 +433,76 @@ importers:
       semantic-release:
         specifier: ^24.0.0
         version: 24.1.1(typescript@5.6.2)
+      tsc:
+        specifier: ^2.0.4
+        version: 2.0.4
+      typescript:
+        specifier: ^5.5.2
+        version: 5.6.2
+
+  packages/three:
+    dependencies:
+      '@superviz/sdk':
+        specifier: 6.4.3
+        version: 6.4.3
+      debug:
+        specifier: ^4.3.5
+        version: 4.3.7
+      lodash:
+        specifier: ^4.17.21
+        version: 4.17.21
+      three:
+        specifier: 0.167.1
+        version: 0.167.1
+      three-mesh-bvh:
+        specifier: 0.7.6
+        version: 0.7.6(three@0.167.1)
+      three-spritetext:
+        specifier: 1.8.2
+        version: 1.8.2(three@0.167.1)
+    devDependencies:
+      '@commitlint/cli':
+        specifier: ^19.3.0
+        version: 19.5.0(@types/node@20.16.5)(typescript@5.6.2)
+      '@commitlint/config-conventional':
+        specifier: ^19.2.2
+        version: 19.5.0
+      '@superviz/eslint-config':
+        specifier: workspace:*
+        version: link:../eslint-config
+      '@superviz/typescript-config':
+        specifier: workspace:*
+        version: link:../typescript-config
+      '@types/debug':
+        specifier: ^4.1.12
+        version: 4.1.12
+      '@types/lodash':
+        specifier: ^4.17.5
+        version: 4.17.7
+      '@types/three':
+        specifier: ^0.165.0
+        version: 0.165.0
+      concurrently:
+        specifier: ^8.2.2
+        version: 8.2.2
+      cz-conventional-changelog:
+        specifier: ^3.3.0
+        version: 3.3.0(@types/node@20.16.5)(typescript@5.6.2)
+      dotenv:
+        specifier: ^16.4.5
+        version: 16.4.5
+      esbuild:
+        specifier: ^0.21.5
+        version: 0.21.5
+      eslint:
+        specifier: ^9.5.0
+        version: 9.10.0(jiti@1.21.6)
+      husky:
+        specifier: ^9.0.11
+        version: 9.1.6
+      semantic-release:
+        specifier: 24.0.0
+        version: 24.0.0(typescript@5.6.2)
       tsc:
         specifier: ^2.0.4
         version: 2.0.4
@@ -1399,9 +1469,6 @@ packages:
   '@superviz/socket-client@1.12.1':
     resolution: {integrity: sha512-ZUSVQJP4OJ+isujpeqkjSZnuCAd5qeqrbFR7rS6OiaQi/fnsALxZchm9Sy+46yVw5xMNuBp1j8p7lW19wCC4DA==}
 
-  '@superviz/threejs-plugin@1.1.0':
-    resolution: {integrity: sha512-CyrTkuTQDK8mcHY4GV35oi6pO31Zl4RjNVuqKYff1J02Kaz3QFzhNDF36rV/nMO+nvy45+4MJJF8tpzCAKSSig==}
-
   '@tweenjs/tween.js@23.1.3':
     resolution: {integrity: sha512-vJmvvwFxYuGnF2axRtPYocag6Clbb5YS7kLL+SO/TeVFzHqDIWrNKYtcsPMibjDx9O+bu+psAy9NKfWklassUA==}
 
@@ -1485,6 +1552,9 @@ packages:
 
   '@types/stats.js@0.17.3':
     resolution: {integrity: sha512-pXNfAD3KHOdif9EQXZ9deK82HVNaXP5ZIF5RP2QG6OQFNTaY2YIetfrE9t528vEreGQvEPRDDc8muaoYeK0SxQ==}
+
+  '@types/three@0.165.0':
+    resolution: {integrity: sha512-AJK8JZAFNBF0kBXiAIl5pggYlzAGGA8geVYQXAcPCEDRbyA+oEjkpUBcJJrtNz6IiALwzGexFJGZG2yV3WsYBw==}
 
   '@types/three@0.167.2':
     resolution: {integrity: sha512-onxnIUNYpXcZJ5DTiIsxfnr4F9kAWkkxAUWx5yqzz/u0a4IygCLCjMuOl2DEeCxyJdJ2nOJZvKpu48sBMqfmkQ==}
@@ -5965,19 +6035,6 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  '@superviz/threejs-plugin@1.1.0':
-    dependencies:
-      '@superviz/sdk': 6.4.3
-      debug: 4.3.7
-      lodash: 4.17.21
-      three: 0.167.1
-      three-mesh-bvh: 0.7.6(three@0.167.1)
-      three-spritetext: 1.8.2(three@0.167.1)
-    transitivePeerDependencies:
-      - bufferutil
-      - supports-color
-      - utf-8-validate
-
   '@tweenjs/tween.js@23.1.3': {}
 
   '@types/babel__core@7.20.5':
@@ -6066,6 +6123,14 @@ snapshots:
   '@types/stack-utils@2.0.3': {}
 
   '@types/stats.js@0.17.3': {}
+
+  '@types/three@0.165.0':
+    dependencies:
+      '@tweenjs/tween.js': 23.1.3
+      '@types/stats.js': 0.17.3
+      '@types/webxr': 0.5.20
+      fflate: 0.8.2
+      meshoptimizer: 0.18.1
 
   '@types/three@0.167.2':
     dependencies:

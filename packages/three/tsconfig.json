@@ -1,0 +1,11 @@
+{
+  "extends": "@superviz/typescript-config/base.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "typeRoots": [
+      "./node_modules/@types"
+    ]
+  },
+  "include": ["src"],
+  "exclude": ["node_modules", "dist"]
+}
