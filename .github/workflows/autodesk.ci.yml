@@ -50,4 +50,4 @@ jobs:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
           SLACK_ICON: https://avatars.slack-edge.com/2020-11-18/1496892993975_af721d1c045bea2d5a46_48.png
           MSG_MINIMAL: true
-          SLACK_USERNAME: Deploy matterport version ${{ github.ref_name }}
+          SLACK_USERNAME: Deploy autodesk version ${{ github.ref_name }}

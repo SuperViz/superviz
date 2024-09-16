@@ -1,36 +1,41 @@
-import { v4 as uuid } from 'uuid'
-import { useCallback, useEffect, useRef } from "react"
-import * as THREE from 'three'
-import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
-import { GLTF, GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
-import { Presence3D } from '../lib/three';
-import { LauncherFacade, Room } from '../lib/sdk';
-import { getConfig } from '../config';
+import { Room, LauncherFacade } from "../lib/sdk";
+import { Presence3D } from "../lib/three";
+import { v4 as generateId } from "uuid";
 
+import * as THREE from "three";
+
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
+import {
+  computeBoundsTree,
+  disposeBoundsTree,
+  acceleratedRaycast,
+} from "three-mesh-bvh";
+
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { useCallback, useEffect, useRef } from "react";
+import { getConfig } from "../config";
 
 const SUPERVIZ_KEY = getConfig<string>("keys.superviz");
 const SUPERVIZ_ROOM_PREFIX = getConfig<string>("roomPrefix");
-const componentName = 'threejs'
-
 
 export function Three() {
-  const room = useRef<LauncherFacade | null>()
+  const three = useRef<Presence3D>();
+  const room = useRef<LauncherFacade>();
+  const loaded = useRef<boolean>(false);
+  const scene = useRef<THREE.Scene>(new THREE.Scene());
+  const camera = useRef<THREE.PerspectiveCamera>();
+  const controls = useRef<OrbitControls>();
+  const renderer = useRef<THREE.WebGLRenderer>();
 
-  useEffect(() => {
-    initializeThreeJs()
+  const initializeSuperViz = useCallback(async () => {
+    const uuid = generateId();
 
-    return () => {
-      room.current?.destroy()
-    }
-  }, [])
-
-  const initializeSuperViz = useCallback(async (scene: THREE.Scene, camera: THREE.Camera) => { 
     room.current = await Room(SUPERVIZ_KEY, {
-      roomId: `${SUPERVIZ_ROOM_PREFIX}-${componentName}`,
+      roomId: `${SUPERVIZ_ROOM_PREFIX}-form-elements`,
       participant: {
         name: "Participant",
-        id: uuid(),
+        id: uuid,
       },
       group: {
         name: SUPERVIZ_ROOM_PREFIX,
@@ -40,58 +45,109 @@ export function Three() {
       debug: true,
     });
 
-    const presence = new Presence3D(scene, camera, camera)
-    room.current.addComponent(presence)
-  }, [])
-
-  const initializeThreeJs = useCallback(async () => {
-    const canvas = document.getElementById('showcase') as HTMLCanvasElement
-    const width = canvas.clientWidth
-    const height = canvas.clientHeight
-
-    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
-    renderer.setSize(width, height)
-
-    const pmremGenerator = new THREE.PMREMGenerator(renderer);
-    const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0xb6b7b8);
-    scene.environment = pmremGenerator.fromScene(new RoomEnvironment(), 0.04).texture;
-    const camera = new THREE.PerspectiveCamera(60, width / height, 0.1, 300);
-    camera.position.set(2, 0, 2);
-  
-    const controls = new OrbitControls(camera, renderer.domElement);
-    controls.target.set(0, 0.5, 0);
-    controls.update();
-    controls.enablePan = false;
-    controls.enableDamping = true;
-  
-    const loader = new GLTFLoader();
-    loader.load(
-      "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/GlamVelvetSofa/glTF-Binary/GlamVelvetSofa.glb",
-      (model: GLTF) => { 
-        scene.add(model.scene)
-        initializeSuperViz(scene, camera)
-      },
-      undefined,
-      (e: unknown) => {
-        console.error(e)
+    three.current = new Presence3D(
+      scene.current as never,
+      camera.current as never,
+      camera.current as never,
+      {
+        avatarConfig: {
+          scale: 0,
+          height: -0.45,
+          laserOrigin: { x: 0, y: 0, z: 0 },
+        },
+        isAvatarsEnabled: true,
+        isLaserEnabled: true,
+        isNameEnabled: true,
+        renderLocalAvatar: false,
+        isMouseEnabled: true,
       }
     );
-  
-    const animate = () => {
-      requestAnimationFrame(animate);
-      controls.update();
-  
-      renderer.render(scene, camera);
-    };
-  
-    animate();
-  }, [initializeSuperViz])
 
+    room.current.addComponent(three.current);
+  }, []);
+
+  const threejs = useCallback(async () => {
+    if (loaded.current) return;
+    loaded.current = true;
+
+    const container = document.querySelector("#model");
+    THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
+    THREE.BufferGeometry.prototype.disposeBoundsTree = disposeBoundsTree;
+    THREE.Mesh.prototype.raycast = acceleratedRaycast;
+
+    renderer.current = new THREE.WebGLRenderer({ antialias: true });
+    renderer.current.setPixelRatio(window.devicePixelRatio);
+    renderer.current.setSize(window.innerWidth, window.innerHeight);
+
+    container!.appendChild(renderer.current.domElement);
+
+    const pmremGenerator = new THREE.PMREMGenerator(renderer.current);
+
+    scene.current = new THREE.Scene();
+    scene.current.background = new THREE.Color(0xb6b7b8);
+    scene.current.environment = pmremGenerator.fromScene(
+      new RoomEnvironment(),
+      0.04
+    ).texture;
+
+    camera.current = new THREE.PerspectiveCamera(
+      60,
+      window.innerWidth / window.innerHeight,
+      0.1,
+      300
+    );
+    camera.current.position.set(2, 0, 2);
+
+    controls.current = new OrbitControls(
+      camera.current,
+      renderer.current.domElement
+    );
+    controls.current.target.set(0, 0.5, 0);
+    controls.current.update();
+    controls.current.enablePan = false;
+    controls.current.enableDamping = true;
+    const loader = new GLTFLoader();
+    loader.load(
+      "/three_cylinder_motorcycle_engine.glb",
+      async (e) => {
+        console.log("model loaded");
+        const model = e.scene;
+        scene.current.add(model);
+        scene.current.traverse(function () {
+          // if (obj.type === "Mesh") {
+          //   (obj as any).geometry.computeBoundsTree();
+          // }
+        });
+
+        await animate();
+        await initializeSuperViz();
+      },
+      undefined,
+      function (e) {
+        console.error("aaaa", e);
+      }
+    );
+  }, []);
+
+  const animate = useCallback(() => {
+    requestAnimationFrame(animate);
+    controls.current!.update();
+    renderer.current!.render(scene.current, camera.current!);
+  }, []);
+
+  useEffect(() => {
+    threejs();
+
+    return () => {
+      room.current?.removeComponent(three.current);
+      room.current?.removeComponent(room.current);
+      room.current?.destroy();
+    };
+  }, []);
 
   return (
-    <main className='w-full h-full'>
-       <canvas id='showcase' className='w-full h-full' />
+    <main>
+      <section id="model"></section>
     </main>
   );
 }
