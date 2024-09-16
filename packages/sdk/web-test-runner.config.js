@@ -2,6 +2,7 @@ const { esbuildPlugin } = require('@web/dev-server-esbuild');
 const { importMapsPlugin } = require('@web/dev-server-import-maps');
 const { legacyPlugin } = require('@web/dev-server-legacy');
 const { playwrightLauncher } = require('@web/test-runner-playwright');
+const { defaultReporter } = require('@web/test-runner')
 
 module.exports = {
   nodeResolve: true,
@@ -19,7 +20,7 @@ module.exports = {
       inject: {
         importMap: {
           imports: {
-            lodash: '/node_modules/lodash-es/lodash.js',
+            lodash: 'https://cdn.jsdelivr.net/npm/lodash-es@4.17.21/lodash.js',
           },
         },
       },
@@ -46,9 +47,16 @@ module.exports = {
       },
     }),
   ],
+  reporters: [
+    defaultReporter({
+      reportTestProgress: true,
+      reportTestResults: true,
+    })
+  ],
   coverageConfig: {
     report: true,
     reportDir: 'coverage-components',
+    reporters: ['lcov', 'text'],
     threshold: {
       statements: 70,
       branches: 70,

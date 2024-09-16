@@ -18,6 +18,17 @@
       "cache": false, 
       "persistent": true
     },
+    "test:unit:web-components": {
+      "cache": false
+    },
+    "test:unit:web-components:watch": {
+      "cache": false,
+      "persistent": true
+    },
+    "test:unit:web-components:coverage": {
+      "cache": false, 
+      "persistent": false
+    },
     "watch": {
       "cache": false,
       "persistent": true
