@@ -8,6 +8,7 @@ on:
     paths:
       - 'apps/playground/**'
       - 'packages/realtime/**'
+      - 'packages/matterport/**'
       - '.github/workflows/playground.ci.yml'
 jobs:
   package:

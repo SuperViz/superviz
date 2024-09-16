@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@superviz/autodesk-viewer-plugin": "1.21.0",
-    "@superviz/matterport-plugin": "1.1.0",
+    "@superviz/matterport-plugin": "workspace:*",
     "@superviz/realtime": "workspace:*",
     "@superviz/sdk": "6.6.0",
     "@superviz/threejs-plugin": "1.1.0",

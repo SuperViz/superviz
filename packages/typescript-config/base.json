@@ -2,11 +2,12 @@
   "$schema": "https://json.schemastore.org/tsconfig",
   "display": "Default",
   "compilerOptions": {
+    
     "rootDirs": ["./src", "."],
     "target": "ES2020",
     "module": "ES2020",
     "outDir": "./dist",
-    "lib": ["ES2020", "DOM"],
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "preserveWatchOutput": true,
     "emitDeclarationOnly": true,
     "declaration": true,
