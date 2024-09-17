@@ -40,10 +40,12 @@ jobs:
         run: pnpm install --no-frozen-lockfile
       - name: Create a .version.js file
         run: |
-          touch packages/realtime/.version.js && echo "echo \"export const version = 'test'\" > .version.js" | bash -
+          touch packages/realtime/.version.js && echo "echo \"export const version = 'lab'\" > packages/realtime/.version.js" | bash -
+          touch packages/sdk/.version.js && echo "echo \"export const version = 'lab'\" > packages/sdk/.version.js" | bash -
       - name: Create a .remote-config.js file
         run: |
-          touch packages/realtime/.remote-config.js && echo "echo \"module.exports = { remoteConfig: { apiUrl: 'https://dev.nodeapi.superviz.com' }};\" > .remote-config.js" | bash -
+          touch packages/realtime/.remote-config.js && echo "echo \"module.exports = { remoteConfig: { apiUrl: 'https://dev.nodeapi.superviz.com' }};\" > packages/realtime/.remote-config.js" | bash -
+          touch packages/sdk/.remote-config.js && echo "echo \"module.exports = { remoteConfig: { apiUrl: 'https://dev.nodeapi.superviz.com', conferenceLayerUrl: 'https://video-frame.superviz.com/lab/index.html'}};\" > .remote-config.js" | bash -
       - name: Build package
         run: pnpm run build
       - name: Configure AWS Credentials
