@@ -2,9 +2,10 @@ import * as Y from "yjs";
 import { Params } from "./types";
 import { Awareness } from "./services";
 import { ObservableV2 } from "lib0/observable";
-import { ProviderStatusEvents } from "./common/events.types";
+import { ProviderStatusEvents } from "./common/types/events.types";
 import { Realtime, type Room, type SocketEvent } from "@superviz/socket-client";
 import { config } from "./services/config";
+import { createRoom } from "./common/utils/createRoom";
 
 export class SuperVizYjsProvider extends ObservableV2<any> {
   public awareness: Awareness;
@@ -19,7 +20,7 @@ export class SuperVizYjsProvider extends ObservableV2<any> {
   constructor(private doc: Y.Doc, private opts: Params) {
     super();
     this. setConfig();
-    
+
     this.document = doc;
     this.doc.on("updateV2", this.onDocUpdate);
 
@@ -49,15 +50,10 @@ export class SuperVizYjsProvider extends ObservableV2<any> {
 
   // #region Private methods
   private async startRealtime() {
-    const room = this.opts.room ? `yjs:${this.opts.room}` : "yjs:provider";
-    this.realtime = new Realtime(
-      this.opts.apiKey,
-      this.opts.environment,
-      this.opts.participant,
-      "",
-      ""
-    );
-    this.room = this.realtime.connect(room);
+    const roomName = this.opts.room ? `yjs:${this.opts.room}` : "yjs:sv-provider";
+    const { realtime, room } = createRoom(roomName);
+    this.realtime = realtime;
+    this.room = room;
 
     this.room.on("update", (update: SocketEvent<any>) => {
       this.updateDocument(new Uint8Array(update.data.update));
