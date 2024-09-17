@@ -38,7 +38,7 @@
     "concurrently": "^8.2.2",
     "dotenv": "^16.4.5",
     "esbuild": "^0.22.0",
-    "eslint": "8.56.0",
+    "eslint": "9.10.0",
     "semantic-release": "24.0.0",
     "tsc": "^2.0.4",
     "typescript": "^5.5.2"
