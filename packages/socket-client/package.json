@@ -7,14 +7,17 @@
   "files": [
     "dist"
   ],
+  "exports": {
+    "node": "./dist/node/index.js",
+    "default": "./dist/browser/index.js"
+  },
   "scripts": {
     "build": "node ./.esbuild/build.js",
     "postbuild": "./node_modules/typescript/bin/tsc --emitDeclarationOnly --declaration",
     "watch": "concurrently -n code,types \"pnpm watch:code\" \"pnpm watch:types\"",
     "watch:code": "node ./.esbuild/watch.js",
     "watch:types": "./node_modules/typescript/bin/tsc --watch --outDir dist",
-    "semantic-release": "semantic-release",
-    "commit": "git-cz"
+    "semantic-release": "semantic-release"
   },
   "publishConfig": {
     "access": "public",
@@ -33,12 +36,9 @@
   "devDependencies": {
     "@superviz/eslint-config": "workspace:*",
     "@superviz/typescript-config": "workspace:*",
-    "@commitlint/cli": "^19.3.0",
-    "@commitlint/config-conventional": "^19.2.2",
     "@types/debug": "^4.1.12",
     "@types/node": "^20.14.8",
     "concurrently": "^8.2.2",
-    "cz-conventional-changelog": "^3.3.0",
     "esbuild": "^0.21.5",
     "eslint": "8.56.0",
     "semantic-release": "^24.0.0",
@@ -53,14 +53,5 @@
     "semantic-release-version-file": "^1.0.2",
     "socket.io-client": "^4.7.5",
     "zod": "^3.23.8"
-  },
-  "config": {
-    "commitizen": {
-      "path": "./node_modules/cz-conventional-changelog"
-    }
-  },
-  "exports": {
-    "node": "./dist/node/index.js",
-    "default": "./dist/browser/index.js"
   }
 }

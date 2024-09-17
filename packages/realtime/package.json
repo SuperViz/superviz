@@ -26,7 +26,6 @@
     "dist"
   ],
   "scripts": {
-    "prepare": "husky install",
     "build": "node ./.esbuild/build.js",
     "postbuild": "./node_modules/typescript/bin/tsc",
     "watch": "concurrently -n code,types \"pnpm run watch:code\" \"pnpm watch:types\"",
@@ -36,8 +35,7 @@
     "test:unit:watch": "jest --watch",
     "test:unit:coverage": "jest --coverage",
     "test:unit:ci": "jest --ci",
-    "semantic-release": "semantic-release",
-    "commit": "git-cz"
+    "semantic-release": "semantic-release"
   },
   "publishConfig": {
     "access": "public",
@@ -54,8 +52,6 @@
   },
   "homepage": "https://github.com/SuperViz/superviz/tree/main/packages/realtime#readme",
   "devDependencies": {
-    "@commitlint/cli": "^19.3.0",
-    "@commitlint/config-conventional": "^19.2.2",
     "@esm-bundle/chai": "^4.3.4-fix.0",
     "@jest/globals": "^29.7.0",
     "@superviz/eslint-config": "workspace:*",
@@ -64,7 +60,6 @@
     "@types/jest": "^29.5.12",
     "@types/node": "^20.14.8",
     "concurrently": "^8.2.2",
-    "cz-conventional-changelog": "^3.3.0",
     "esbuild": "^0.21.5",
     "eslint": "8.56.0",
     "husky": "^9.0.11",
@@ -83,16 +78,5 @@
     "debug": "^4.3.4",
     "lodash": "^4.17.21",
     "rxjs": "^7.8.1"
-  },
-  "config": {
-    "commitizen": {
-      "path": "./node_modules/cz-conventional-changelog"
-    }
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged",
-      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
-    }
   }
 }
