@@ -193,8 +193,9 @@ jobs:
           touch packages/sdk/.remote-config.js && echo "echo \"module.exports = { remoteConfig: { apiUrl: 'https://dev.nodeapi.superviz.com', conferenceLayerUrl: 'https://video-frame.superviz.com/lab/index.html'}};\" > .remote-config.js" | bash -
       - name: Run tests
         run: pnpm run test:unit:web-components:coverage --filter=@superviz/sdk
-      - name: Post PR Comment
+      - name: Post PR Comment - Test web Components
         uses: kefasjw/lcov-pull-request-report@v1
+        continue-on-error: true
         with:
           lcov-file: packages/sdk/coverage-components/lcov.info
           github-token: ${{ secrets.GITHUB_TOKEN }}
