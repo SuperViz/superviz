@@ -21,26 +21,19 @@
   },
   "homepage": "https://github.com/SuperViz/superviz/tree/main/packages/matterport#readme",
   "scripts": {
-    "prepare": "husky install",
     "build": "node ./.esbuild/build.js",
     "postbuild": "./node_modules/typescript/bin/tsc",
     "watch": "concurrently -n code,types \"pnpm watch:code\" \"pnpm watch:types\"",
     "watch:code": "node ./.esbuild/watch.js",
     "watch:types": "./node_modules/typescript/bin/tsc --watch",
-    "semantic-release": "semantic-release",
-    "commit": "git-cz"
+    "semantic-release": "semantic-release"
   },
   "devDependencies": {
     "@superviz/eslint-config": "workspace:*",
     "@superviz/typescript-config": "workspace:*",
-    "@commitlint/cli": "^19.3.0",
-    "@commitlint/config-conventional": "^19.2.2",
     "@types/debug": "^4.1.12",
     "@types/lodash": "^4.17.5",
-    "@typescript-eslint/eslint-plugin": "^7.14.1",
-    "@typescript-eslint/parser": "^7.14.1",
     "concurrently": "^8.2.2",
-    "cz-conventional-changelog": "^3.3.0",
     "dotenv": "^16.4.5",
     "esbuild": "^0.21.5",
     "eslint": "8.56.0",
@@ -49,17 +42,6 @@
     "three": "0.167.1",
     "tsc": "^2.0.4",
     "typescript": "^5.5.2"
-  },
-  "config": {
-    "commitizen": {
-      "path": "./node_modules/cz-conventional-changelog"
-    }
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged",
-      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
-    }
   },
   "dependencies": {
     "@superviz/sdk": "6.4.3",
