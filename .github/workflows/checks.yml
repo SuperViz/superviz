@@ -201,3 +201,43 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           comment-title: SDK Web Components Test Coverage Report
           artifact-name: sdk-web-components-coverage-report
+  test-unit-yjs:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [20]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.10.0
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'pnpm'
+      - name: Cache pnpm store
+        uses: actions/cache@v3
+        with:
+          path: ~/.pnpm-store
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-
+      - name: Cache node_modules
+        uses: actions/cache@v3
+        with:
+          path: '**/node_modules'
+          key: ${{ runner.os }}-modules-${{ hashFiles('**/pnpm-lock.yaml') }}
+      - name: Install dependencies
+        run: pnpm install --no-frozen-lockfile
+        env:
+          NPM_CONFIG_USERCONFIG: .npmrc.ci
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Run tests
+        run: pnpm run test:unit:ci --filter=@superviz/yjs
+      - name: Post PR Comment
+        run: npx github-actions-ctrf packages/yjs/ctrf/ctrf-report.json --pr-comment --title=YJS
+        if: always()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
