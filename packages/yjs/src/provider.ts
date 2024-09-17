@@ -4,6 +4,7 @@ import { Awareness } from "./services";
 import { ObservableV2 } from "lib0/observable";
 import { ProviderStatusEvents } from "./common/events.types";
 import { Realtime, type Room, type SocketEvent } from "@superviz/socket-client";
+import { config } from "./services/config";
 
 export class SuperVizYjsProvider extends ObservableV2<any> {
   public awareness: Awareness;
@@ -17,6 +18,8 @@ export class SuperVizYjsProvider extends ObservableV2<any> {
 
   constructor(private doc: Y.Doc, private opts: Params) {
     super();
+    this. setConfig();
+    
     this.document = doc;
     this.doc.on("updateV2", this.onDocUpdate);
 
@@ -110,4 +113,10 @@ export class SuperVizYjsProvider extends ObservableV2<any> {
   private updateDocument = (update: Uint8Array) => {
     Y.applyUpdateV2(this.doc, update, this);
   };
+
+  private setConfig() {
+    config.set("apiKey", this.opts.apiKey);
+    config.set("environment", this.opts.environment);
+    config.set("participant", this.opts.participant);
+  }
 }

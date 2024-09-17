@@ -1,4 +1,4 @@
-enum EnvironmentTypes {
+export enum EnvironmentTypes {
   DEV = "dev",
   PROD = "prod",
 }
