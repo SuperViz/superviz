@@ -150,6 +150,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   test-web-components-sdk:
+    permissions: write-all
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -197,6 +198,5 @@ jobs:
         with:
           lcov-file: packages/sdk/coverage-components/lcov.info
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          working-directory: packages/sdk
           comment-title: SDK Web Components Test Coverage Report
           artifact-name: sdk-web-components-coverage-report
