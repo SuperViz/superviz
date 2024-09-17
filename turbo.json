@@ -18,6 +18,17 @@
       "cache": false, 
       "persistent": true
     },
+    "test:unit:web-components": {
+      "cache": false
+    },
+    "test:unit:web-components:watch": {
+      "cache": false,
+      "persistent": true
+    },
+    "test:unit:web-components:coverage": {
+      "cache": false, 
+      "persistent": false
+    },
     "watch": {
       "cache": false,
       "persistent": true
@@ -49,6 +60,21 @@
       "dependsOn": ["@superviz/socket-client#build"]
     },
     "@superviz/realtime#test:unit:ci": {
+      "dependsOn": ["@superviz/socket-client#build"]
+    },
+    "@superviz/sdk#build": {
+      "dependsOn": ["@superviz/socket-client#build"]
+    },
+    "@superviz/sdk#test:unit": {
+      "dependsOn": ["@superviz/socket-client#build"]
+    },
+    "@superviz/sdk#test:unit:watch": {
+      "dependsOn": ["@superviz/socket-client#build"]
+    },
+    "@superviz/sdk#test:unit:coverage": {
+      "dependsOn": ["@superviz/socket-client#build"]
+    },
+    "@superviz/sdk#test:unit:ci": {
       "dependsOn": ["@superviz/socket-client#build"]
     }
   }

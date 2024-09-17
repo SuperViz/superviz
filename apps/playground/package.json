@@ -13,7 +13,7 @@
     "@superviz/autodesk-viewer-plugin": "workspace:*",
     "@superviz/matterport-plugin": "workspace:*",
     "@superviz/realtime": "workspace:*",
-    "@superviz/sdk": "6.6.0",
+    "@superviz/sdk": "workspace:*",
     "@superviz/threejs-plugin": "workspace:*",
     "@types/three": "^0.167.1",
     "lodash": "^4.17.21",

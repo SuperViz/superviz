@@ -10,6 +10,9 @@
     "test:unit": "turbo run test:unit",
     "test:unit:watch": "turbo run test:unit:watch",
     "test:unit:coverage": "turbo run test:unit:coverage",
+    "test:unit:web-components": "turbo run test:unit:web-components",
+    "test:unit:web-components:watch": "turbo run test:unit:web-components:watch",
+    "test:unit:web-components:coverage": "turbo run test:unit:web-components:coverage",
     "test:unit:ci": "turbo run test:unit:ci",
     "format": "prettier --write \"**/*.{ts,tsx,md}\""
   },

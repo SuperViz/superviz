@@ -1,0 +1,80 @@
+@import url('https://unpkg.com/@superviz/sv-icons@0.8.13/css/style.css');
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;700&family=Roboto:wght@400;500;700&display=swap');
+
+:root {
+  --sv-primary: 98, 16, 204;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+#sv-video-wrapper iframe {
+  position: fixed;
+  border: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  z-index: 1000;
+}
+
+#sv-video-wrapper iframe.sv-video-frame--right {
+  top: var(--superviz-offset-top);
+  right: var(--superviz-offset-right);
+}
+
+#sv-video-wrapper iframe.sv-video-frame--left {
+  top: var(--superviz-offset-top);
+  left: var(--superviz-offset-left);
+}
+
+#sv-video-wrapper iframe.sv-video-frame--bottom {
+  bottom: var(--superviz-offset-bottom);
+  right: var(--superviz-offset-right);
+  width: 100%;
+}
+
+#sv-video-wrapper iframe.sv-video-frame--top {
+  top: var(--superviz-offset-top);
+  right: var(--superviz-offset-right);
+  width: 100%;
+}
+
+#sv-video-wrapper iframe.sv-video-frame--no-overlay {
+  display: none;
+}
+
+/* Presence Mouse */
+
+.pointer-mouse {
+  display: flex;
+  height: 15px;
+  width: 16px;
+  background-image: url(https://production.cdn.superviz.com/static/pointers/0.svg);
+  background-repeat: no-repeat;
+}
+
+.mouse-user-name {
+  display: block;
+  position: absolute;
+  border-radius: 30px;
+  padding: 2px 8px;
+  font-weight: 700;
+  font-size: 14px;
+  font-family: Roboto, sans-serif;
+  line-height: 22px;
+  margin-left: 10px;
+  margin-top: -6px;
+  background: yellow;
+  white-space: nowrap;
+}
+
+.mouse-follower {
+  position: absolute;
+  display: block;
+  z-index: 2;
+  transition: all 150ms linear, opacity 100s ease-in;
+}
