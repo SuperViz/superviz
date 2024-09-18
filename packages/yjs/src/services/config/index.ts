@@ -9,6 +9,7 @@ class Config {
       name: '',
     },
     environment: '' as EnvironmentTypes,
+    roomName: '',
   };
 
   public set<T extends keyof ConfigurationInterface>(key: T, value: ConfigurationInterface[T]): void {

@@ -1,18 +1,22 @@
-import { Realtime } from "@superviz/socket-client";
+import { Realtime, Room } from '@superviz/socket-client';
+import { config } from '../../services/config';
 
-export function createRoom(roomName: string) {
+export function createRoom(roomName: string): {
+  realtime: Realtime;
+  room: Room;
+} {
   const realtime = new Realtime(
-    this.opts.apiKey,
-    this.opts.environment,
-    this.opts.participant,
-    "",
-    ""
+    config.get('apiKey'),
+    config.get('environment'),
+    config.get('participant'),
+    '',
+    '',
   );
-  
-  const room = this.realtime.connect(roomName);
+
+  const room = realtime.connect(`yjs:${roomName}`);
 
   return {
     realtime,
     room,
-  }
+  };
 }

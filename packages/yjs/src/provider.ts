@@ -1,11 +1,12 @@
-import * as Y from "yjs";
-import { Params } from "./types";
-import { Awareness } from "./services";
-import { ObservableV2 } from "lib0/observable";
-import { ProviderStatusEvents } from "./common/types/events.types";
-import { Realtime, type Room, type SocketEvent } from "@superviz/socket-client";
-import { config } from "./services/config";
-import { createRoom } from "./common/utils/createRoom";
+import * as Y from 'yjs';
+import { Params } from './types';
+import { Awareness } from './services';
+import { ObservableV2 } from 'lib0/observable';
+import { ProviderStatusEvents } from './common/types/events.types';
+import { Realtime, type Room, type SocketEvent } from '@superviz/socket-client';
+import { config } from './services/config';
+import { createRoom } from './common/utils/createRoom';
+import { HostService } from './services/host';
 
 export class SuperVizYjsProvider extends ObservableV2<any> {
   public awareness: Awareness;
@@ -17,13 +18,19 @@ export class SuperVizYjsProvider extends ObservableV2<any> {
   private realtime: Realtime | null = null;
   private room: Room | null = null;
 
-  constructor(private doc: Y.Doc, private opts: Params) {
+  private hostService: HostService | null = null;
+
+  constructor(
+    private doc: Y.Doc,
+    private opts: Params,
+  ) {
     super();
-    this. setConfig();
+    this.setConfig();
 
     this.document = doc;
-    this.doc.on("updateV2", this.onDocUpdate);
+    this.doc.on('updateV2', this.onDocUpdate);
 
+    this.hostService = new HostService(this.opts.participant.id);
     this.awareness = new Awareness(this.doc);
 
     this.connect();
@@ -38,7 +45,7 @@ export class SuperVizYjsProvider extends ObservableV2<any> {
   public destroy() {
     this.awareness.destroy();
     this.realtime?.destroy();
-    this.doc.off("updateV2", this.onDocUpdate);
+    this.doc.off('updateV2', this.onDocUpdate);
     this.room?.disconnect();
   }
 
@@ -49,25 +56,20 @@ export class SuperVizYjsProvider extends ObservableV2<any> {
   }
 
   // #region Private methods
-  private async startRealtime() {
-    const roomName = this.opts.room ? `yjs:${this.opts.room}` : "yjs:sv-provider";
-    const { realtime, room } = createRoom(roomName);
+  private createRoom() {
+    const { realtime, room } = createRoom(`yjs:${config.get('roomName')}`);
     this.realtime = realtime;
     this.room = room;
+  }
 
-    this.room.on("update", (update: SocketEvent<any>) => {
-      this.updateDocument(new Uint8Array(update.data.update));
-    });
+  private listenToRealtimeEvents() {
+    this.room.on('update', this.onRemoteDocUpdate);
+    this.room.presence.on('presence.joined-room', this.onLocalJoinRoom);
+  }
 
-    this.room.presence.on("presence.joined-room", () => {
-      this.connected = true;
-      this.emit("status", [ProviderStatusEvents.CONNECTED]);
-
-      this.room!.on("update-step-1", this.updateStepOne);
-      this.room!.on("update-step-2", this.updateStepTwo);
-
-      this.syncClients();
-    });
+  private startRealtime() {
+    this.createRoom();
+    this.listenToRealtimeEvents();
   }
 
   private updateStepOne = (msg: SocketEvent<any>) => {
@@ -75,12 +77,9 @@ export class SuperVizYjsProvider extends ObservableV2<any> {
 
     this._synced = false;
 
-    const update = Y.encodeStateAsUpdateV2(
-      this.doc,
-      new Uint8Array(msg.data.stateVector)
-    );
+    const update = Y.encodeStateAsUpdateV2(this.doc, new Uint8Array(msg.data.stateVector));
 
-    this.room!.emit("update-step-2", {
+    this.room!.emit('update-step-2', {
       update,
       origin: this.doc.guid,
     });
@@ -95,7 +94,7 @@ export class SuperVizYjsProvider extends ObservableV2<any> {
   private syncClients = () => {
     const stateVector = Y.encodeStateVector(this.doc);
 
-    this.room!.emit("update-step-1", {
+    this.room!.emit('update-step-1', {
       stateVector,
       origin: this.doc.guid,
     });
@@ -103,7 +102,7 @@ export class SuperVizYjsProvider extends ObservableV2<any> {
 
   private onDocUpdate = (update: Uint8Array, origin: any) => {
     if (origin === this) return;
-    this.room!.emit("update", { update });
+    this.room!.emit('update', { update });
   };
 
   private updateDocument = (update: Uint8Array) => {
@@ -111,8 +110,24 @@ export class SuperVizYjsProvider extends ObservableV2<any> {
   };
 
   private setConfig() {
-    config.set("apiKey", this.opts.apiKey);
-    config.set("environment", this.opts.environment);
-    config.set("participant", this.opts.participant);
+    config.set('apiKey', this.opts.apiKey);
+    config.set('environment', this.opts.environment);
+    config.set('participant', this.opts.participant);
+    config.set('roomName', this.opts.room || 'sv-provider');
   }
+
+  // #region events callbacks
+  private onLocalJoinRoom = () => {
+    this.connected = true;
+    this.emit('status', [ProviderStatusEvents.CONNECTED]);
+
+    this.room!.on('update-step-1', this.updateStepOne);
+    this.room!.on('update-step-2', this.updateStepTwo);
+
+    this.syncClients();
+  };
+
+  private onRemoteDocUpdate = (update: SocketEvent<any>) => {
+    this.updateDocument(new Uint8Array(update.data.update));
+  };
 }
