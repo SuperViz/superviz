@@ -11,13 +11,18 @@ export class HostService {
   private _hostId: string = '';
   private room: Room;
   private realtime: Realtime;
+  private callback: (hostId: string) => void;
 
-  constructor(private participantId: string) {
+  constructor(
+    private participantId: string,
+    callback: (hostId: string) => void,
+  ) {
     const roomName = 'host-service:' + config.get('roomName');
     const { realtime, room } = createRoom(roomName);
 
     this.realtime = realtime;
     this.room = room;
+    this.onHostChange(callback);
 
     room.presence.on('presence.leave', this.onPresenceLeave);
     room.presence.on('presence.joined-room', this.onPresenceEnter);
@@ -32,6 +37,10 @@ export class HostService {
 
     this.room.disconnect();
     this.realtime.destroy();
+  }
+
+  private onHostChange(callback: (hostId: string) => void) {
+    this.callback = callback;
   }
 
   /**
@@ -98,6 +107,10 @@ export class HostService {
   private setHostId(hostId: string): void {
     this._hostId = hostId;
     this._isHost = this.participantId === hostId;
+
+    if (this.callback) {
+      this.callback(hostId);
+    }
   }
 
   /**

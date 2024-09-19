@@ -1,5 +1,5 @@
 import * as Y from 'yjs';
-import { Params } from './types';
+import { Params, ProviderState } from './types';
 import { Awareness } from './services';
 import { ObservableV2 } from 'lib0/observable';
 import { ProviderStatusEvents } from './common/types/events.types';
@@ -8,12 +8,26 @@ import { config } from './services/config';
 import { createRoom } from './common/utils/createRoom';
 import { HostService } from './services/host';
 
+type MessageToHost = {
+  update: Uint8Array;
+  originId: string;
+};
+
+type MessageToTarget = {
+  update: Uint8Array;
+  targetId: string;
+};
+
+type DocUpdate = {
+  update: Uint8Array;
+};
+
 export class SuperVizYjsProvider extends ObservableV2<any> {
   public awareness: Awareness;
   public document: Y.Doc;
 
   private _synced: boolean = false;
-  private connected: boolean = false;
+  private state: ProviderState = ProviderState.DISCONNECTED;
 
   private realtime: Realtime | null = null;
   private room: Room | null = null;
@@ -26,27 +40,32 @@ export class SuperVizYjsProvider extends ObservableV2<any> {
   ) {
     super();
     this.setConfig();
-
     this.document = doc;
-    this.doc.on('updateV2', this.onDocUpdate);
 
-    this.hostService = new HostService(this.opts.participant.id);
-    this.awareness = new Awareness(this.doc);
+    if (!this.opts.connect) return;
 
     this.connect();
   }
 
   // #region Public methods
-  public connect() {
-    if (this.connected) return;
+  public connect = () => {
+    if (this.state !== ProviderState.DISCONNECTED) return;
+    this.changeState(ProviderState.CONNECTING);
+
+    this.doc.on('updateV2', this.onDocUpdate);
+    this.hostService = new HostService(this.opts.participant.id, this.onHostChange);
+    this.awareness = new Awareness(this.doc);
     this.startRealtime();
-  }
+  };
 
   public destroy() {
-    this.awareness.destroy();
+    if (this.state === ProviderState.DISCONNECTED) return;
+    this.awareness?.destroy();
     this.realtime?.destroy();
     this.doc.off('updateV2', this.onDocUpdate);
     this.room?.disconnect();
+
+    this.changeState(ProviderState.DISCONNECTED);
   }
 
   public disconnect() {}
@@ -72,37 +91,48 @@ export class SuperVizYjsProvider extends ObservableV2<any> {
     this.listenToRealtimeEvents();
   }
 
-  private updateStepOne = (msg: SocketEvent<any>) => {
-    if (msg.presence?.id === this.opts.participant.id) return;
+  private onRequestHostState = (event: SocketEvent<MessageToHost>) => {
+    if (!this.hostService.isHost) return;
 
     this._synced = false;
 
-    const update = Y.encodeStateAsUpdateV2(this.doc, new Uint8Array(msg.data.stateVector));
+    const comingUpdate = new Uint8Array(event.data.update);
+    this.updateDocument(comingUpdate);
+    const update = Y.encodeStateAsUpdateV2(this.doc, comingUpdate);
 
-    this.room!.emit('update-step-2', {
+    if (update.length > 0) {
+      // if the content was new to host, it is new to all users
+      this.broadcastUpdate(update);
+      return;
+    }
+
+    this.room!.emit<MessageToTarget>('message-to-specific-user', {
       update,
-      origin: this.doc.guid,
+      targetId: event.data.originId,
     });
   };
 
-  private updateStepTwo = (msg: SocketEvent<any>) => {
-    if (msg.presence?.id === this.opts.participant.id) return;
+  private onMessageFromHost = (msg: SocketEvent<MessageToTarget>) => {
+    if (msg.data.targetId !== this.opts.participant.id) return;
+
     this.updateDocument(new Uint8Array(msg.data.update));
-    this._synced = false;
+    this._synced = true;
   };
 
-  private syncClients = () => {
-    const stateVector = Y.encodeStateVector(this.doc);
+  private fetch = () => {
+    this._synced = false;
 
-    this.room!.emit('update-step-1', {
-      stateVector,
-      origin: this.doc.guid,
+    const update = Y.encodeStateAsUpdateV2(this.doc);
+
+    this.room!.emit<MessageToHost>('send-local-sv-to-host', {
+      update,
+      originId: this.opts.participant.id,
     });
   };
 
   private onDocUpdate = (update: Uint8Array, origin: any) => {
     if (origin === this) return;
-    this.room!.emit('update', { update });
+    this.room!.emit<DocUpdate>('update', { update });
   };
 
   private updateDocument = (update: Uint8Array) => {
@@ -118,16 +148,41 @@ export class SuperVizYjsProvider extends ObservableV2<any> {
 
   // #region events callbacks
   private onLocalJoinRoom = () => {
-    this.connected = true;
+    this.changeState(ProviderState.CONNECTED);
+
     this.emit('status', [ProviderStatusEvents.CONNECTED]);
 
-    this.room!.on('update-step-1', this.updateStepOne);
-    this.room!.on('update-step-2', this.updateStepTwo);
+    this.room!.on('send-local-sv-to-host', this.onRequestHostState);
+    this.room!.on('message-to-specific-user', this.onMessageFromHost);
+    this.room!.on('broadcast', this.onBroadcast);
 
-    this.syncClients();
+    this.fetch();
   };
 
-  private onRemoteDocUpdate = (update: SocketEvent<any>) => {
+  private onRemoteDocUpdate = (update: SocketEvent<DocUpdate>) => {
     this.updateDocument(new Uint8Array(update.data.update));
   };
+
+  private onBroadcast = (event: SocketEvent<DocUpdate>) => {
+    this.onRemoteDocUpdate(event);
+    this._synced = true;
+  };
+
+  private onHostChange = (hostId: string) => {
+    if (hostId === this.opts.participant.id) {
+      this._synced = true;
+      return;
+    }
+
+    this.fetch();
+  };
+
+  private changeState(state: ProviderState) {
+    this.emit('state', [state]);
+    this.state = state;
+  }
+
+  private broadcastUpdate(update: Uint8Array) {
+    this.room!.emit<DocUpdate>('broadcast', { update });
+  }
 }

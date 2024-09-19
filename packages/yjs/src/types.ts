@@ -1,6 +1,6 @@
 export enum EnvironmentTypes {
-  DEV = "dev",
-  PROD = "prod",
+  DEV = 'dev',
+  PROD = 'prod',
 }
 
 export interface Participant {
@@ -13,4 +13,11 @@ export type Params = {
   environment: EnvironmentTypes | `${EnvironmentTypes}`;
   participant: Participant;
   room?: string;
+  connect?: boolean;
 };
+
+export enum ProviderState {
+  CONNECTED = 'connected',
+  CONNECTING = 'connecting',
+  DISCONNECTED = 'disconnected',
+}
