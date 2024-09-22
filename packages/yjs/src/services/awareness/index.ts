@@ -48,6 +48,7 @@ export class Awareness extends ObservableV2<any> {
       this.room.presence.update<UpdatePresence>({
         clientId,
         [this.Y_PRESENCE_KEY]: {},
+        ...(this.states.get(clientId) || {}),
       });
 
       const update = { added, updated: [], removed: [] };
@@ -110,10 +111,9 @@ export class Awareness extends ObservableV2<any> {
       update.added.push(this.clientId);
     }
 
-    this.room?.presence.update<UpdatePresence>({
-      ...oldState,
-      [this.Y_PRESENCE_KEY]: state,
-    });
+    const newState = { ...oldState, [this.Y_PRESENCE_KEY]: state };
+    this.states.set(this.clientId, newState);
+    this.room?.presence.update<UpdatePresence>(newState);
 
     this.emit('change', [update, UpdateOrigin.LOCAL]);
     return;
