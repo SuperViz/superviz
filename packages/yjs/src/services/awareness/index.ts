@@ -66,6 +66,10 @@ export class Awareness extends ObservableV2<any> {
     this.removeDocumentListeners();
     this.removeRoomListeners();
 
+    this.room = null;
+    this.states.clear();
+    this.participantIdToClientId.clear();
+
     this.onLeave({ id: this.participantId } as unknown as PresenceEvent);
   }
 
