@@ -1,0 +1,80 @@
+{
+  "name": "@superviz/react-sdk",
+  "private": false,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "watch": "tsc && vite build --watch",
+    "build": "tsc && vite build && cp package.json dist/package.json && cp README.md dist/README.md",
+    "lint": "eslint 'src/**/*.{js,jsx,ts,tsx}'",
+    "lint:fix": "eslint --fix 'src/**/*.{jsx,ts,tsx}'",
+    "format": "prettier --write src//**/*.{ts,tsx,css} --config ./.prettierrc",
+    "semantic-release": "semantic-release",
+    "commit": "git-cz"
+  },
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "import": "./dist/superviz-sdk-react.es.js",
+      "require": "./dist/superviz-sdk-react.cjs.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./dist/style.css": "./dist/style.css"
+  },
+  "main": "./dist/superviz-sdk-react.cjs.js",
+  "module": "./dist/superviz-sdk-react.es.js",
+  "types": "./dist/index.d.ts",
+  "publishConfig": {
+    "access": "public",
+    "scope": "@superviz"
+  },
+  "dependencies": {
+    "@superviz/autodesk-viewer-plugin": "workspace:*",
+    "@superviz/matterport-plugin": "workspace:*",
+    "@superviz/sdk": "workspace:*",
+    "@superviz/socket-client": "workspace:*",
+    "@superviz/threejs-plugin": "workspace:*",
+    "lodash": "^4.17.21",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "peerDependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@rollup/plugin-replace": "^5.0.7",
+    "@eslint/compat": "^1.1.1",
+    "@types/forge-viewer": "^7.89.1",
+    "@types/lodash": "^4.17.6",
+    "@types/node": "^20.14.9",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "@types/three": "^0.166.0",
+    "@typescript-eslint/eslint-plugin": "^7.14.1",
+    "@typescript-eslint/parser": "^7.14.1",
+    "@vitejs/plugin-react": "^4.3.1",
+    "@vitejs/plugin-react-swc": "^3.7.0",
+    "eslint": "^9.6.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.1.3",
+    "eslint-plugin-react": "^7.34.3",
+    "eslint-plugin-react-hooks": "^4.6.2",
+    "eslint-plugin-react-refresh": "^0.4.7",
+    "eslint-plugin-simple-import-sort": "^12.1.0",
+    "glob": "^10.4.2",
+    "husky": "^9.0.11",
+    "lint-staged": "^15.2.7",
+    "prettier": "^3.3.2",
+    "react-hooks": "^1.0.1",
+    "semantic-release": "^24.0.0",
+    "semantic-release-version-file": "^1.0.2",
+    "typescript": "^5.5.2",
+    "vite": "^5.3.2",
+    "vite-plugin-dts": "^3.9.1",
+    "vite-plugin-linter": "^2.1.1",
+    "vite-tsconfig-paths": "^4.3.2"
+  }
+}
