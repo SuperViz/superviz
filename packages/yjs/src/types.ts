@@ -14,6 +14,8 @@ export type Params = {
   participant: Participant;
   room?: string;
   connect?: boolean;
+  // debug?: boolean;
+  // awareness?: boolean = true;
 };
 
 export enum ProviderState {

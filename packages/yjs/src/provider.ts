@@ -27,7 +27,7 @@ export class SuperVizYjsProvider extends ObservableV2<any> {
   public document: Y.Doc;
 
   private _synced: boolean = false;
-  private state: ProviderState = ProviderState.DISCONNECTED;
+  private state: ProviderState | `${ProviderState}` = ProviderState.DISCONNECTED;
 
   private realtime: Realtime | null = null;
   private room: Room | null = null;
@@ -41,6 +41,7 @@ export class SuperVizYjsProvider extends ObservableV2<any> {
     super();
     this.setConfig();
     this.document = doc;
+    this.awareness = new Awareness(this.doc, this.opts.participant.id);
 
     if (!this.opts.connect) return;
 
@@ -60,8 +61,6 @@ export class SuperVizYjsProvider extends ObservableV2<any> {
     this.changeState(ProviderState.CONNECTING);
 
     this.doc.on('updateV2', this.onDocUpdate);
-    this.hostService = new HostService(this.opts.participant.id, this.onHostChange);
-    this.awareness = new Awareness(this.doc);
     this.startRealtime();
   };
 
@@ -70,15 +69,20 @@ export class SuperVizYjsProvider extends ObservableV2<any> {
    * @description Disconnect from the room and reset the instance state.
    * @emits state @returns {void}
    */
-  public destroy(): void {
+  public destroy = (): void => {
     if (this.state === ProviderState.DISCONNECTED) return;
     this.awareness?.destroy();
     this.realtime?.destroy();
+    this.hostService?.destroy();
     this.doc.off('updateV2', this.onDocUpdate);
-    this.room?.disconnect();
+
+    if (this.room) {
+      this.room.disconnect();
+      this.room = null;
+    }
 
     this.changeState(ProviderState.DISCONNECTED);
-  }
+  };
 
   /**
    * @type {boolean}
@@ -102,6 +106,7 @@ export class SuperVizYjsProvider extends ObservableV2<any> {
 
   private startRealtime(): void {
     this.createRoom();
+    this.hostService = new HostService(this.opts.participant.id, this.onHostChange);
     this.listenToRealtimeEvents();
   }
 
@@ -161,8 +166,10 @@ export class SuperVizYjsProvider extends ObservableV2<any> {
 
   // #region events callbacks
   private onLocalJoinRoom = (): void => {
-    this.changeState(ProviderState.CONNECTED);
+    if (this.state === ProviderState.CONNECTED) return;
 
+    this.awareness.connect(this.room!);
+    this.changeState(ProviderState.CONNECTED);
     this.emit('status', [ProviderStatusEvents.CONNECTED]);
 
     this.room!.on('send-local-sv-to-host', this.onRequestHostState);

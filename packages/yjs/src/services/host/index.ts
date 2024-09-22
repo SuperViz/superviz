@@ -147,11 +147,6 @@ export class HostService {
 
   // #region events callbacks
   private onPresenceLeave = (presence: PresenceEvent) => {
-    if (presence.id === this.participantId) {
-      this.destroy();
-      return;
-    }
-
     if (presence.id !== this.hostId) return;
 
     this._hostId = '';
