@@ -43,7 +43,7 @@
     "eslint": "8.56.0",
     "semantic-release": "^24.0.0",
     "tsc": "^2.0.4",
-    "typescript": "^5.5.2"
+    "typescript": "^5.6.2"
   },
   "dependencies": {
     "@reactivex/rxjs": "^6.6.7",
