@@ -33,7 +33,7 @@
     "@superviz/typescript-config": "workspace:*",
     "@types/debug": "^4.1.12",
     "@types/lodash": "^4.17.5",
-    "@types/three": "^0.165.0",
+    "@types/three": "^0.168.0",
     "concurrently": "^8.2.2",
     "dotenv": "^16.4.5",
     "esbuild": "^0.21.5",
@@ -47,7 +47,7 @@
     "@superviz/sdk": "6.4.3",
     "debug": "^4.3.5",
     "lodash": "^4.17.21",
-    "three": "0.167.1",
+    "three": "0.168.0",
     "three-mesh-bvh": "0.7.6",
     "three-spritetext": "1.8.2"
   }
