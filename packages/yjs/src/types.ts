@@ -16,7 +16,7 @@ export type Params = {
   participant: Participant;
   room?: string;
   connect?: boolean;
-  // debug?: boolean;
+  debug?: boolean;
   // awareness?: boolean = true;
 };
 

@@ -3,6 +3,7 @@ import { PresenceEvent } from '@superviz/socket-client';
 import * as Y from 'yjs';
 import { Events, UpdateOrigin, UpdatePresence } from './types';
 import { RealtimeRoom } from '../../types';
+import { Logger } from '../logger';
 
 export class Awareness extends ObservableV2<Events> {
   public clientId: number = 0;
@@ -22,12 +23,15 @@ export class Awareness extends ObservableV2<Events> {
   constructor(
     public doc: Y.Doc,
     private participantId: string,
+    private logger: Logger,
   ) {
     super();
     this.clientId = this.doc.clientID;
   }
 
   public connect(room: RealtimeRoom): void {
+    this.logger.log('[SuperViz | Awareness] - Connect awareness to room');
+
     this.room = room;
     this.addRoomListeners();
     this.addDocumentListeners();
@@ -61,6 +65,8 @@ export class Awareness extends ObservableV2<Events> {
 
   //#region public
   public destroy(): void {
+    this.logger.log('[SuperViz | Awareness] - Destroy awareness');
+
     clearInterval(this.visibilityTimeout);
     this.visibilityTimeout = undefined;
 
@@ -75,6 +81,11 @@ export class Awareness extends ObservableV2<Events> {
   }
 
   public getLocalState(): Record<string, any> | null {
+    this.logger.log(
+      '[SuperViz | Awareness] - Get local state',
+      this.states.get(this.clientId)?.[this.Y_PRESENCE_KEY],
+    );
+
     const state = this.states.get(this.clientId);
     if (!state || !state[this.Y_PRESENCE_KEY]) return null;
 
@@ -87,10 +98,13 @@ export class Awareness extends ObservableV2<Events> {
       states.set(clientId, state[this.Y_PRESENCE_KEY]);
     });
 
+    this.logger.log('[SuperViz | Awareness] - Get states', states);
     return states;
   }
 
   public setLocalState = (state: Record<string, any> | null): void => {
+    this.logger.log('[SuperViz | Awareness] - Set local state', state);
+
     if (state === null) {
       if (!this.states.has(this.clientId)) return;
       this.states.delete(this.clientId);
@@ -124,6 +138,8 @@ export class Awareness extends ObservableV2<Events> {
   };
 
   public setLocalStateField(field: string, value: any): void {
+    this.logger.log('[SuperViz | Awareness] - Set local state field', { field, value });
+
     const state = this.getLocalState();
     this.setLocalState({
       ...(state || {}),
@@ -152,6 +168,8 @@ export class Awareness extends ObservableV2<Events> {
 
   private onLeave = (event: PresenceEvent): void => {
     const clientId = this.participantIdToClientId.get(event.id);
+    this.logger.log('[SuperViz | Awareness] - Participant left', { participant: event, clientId });
+
     if (!clientId) return;
 
     if (clientId === this.clientId) {
@@ -169,6 +187,8 @@ export class Awareness extends ObservableV2<Events> {
 
   private onUpdate = (event: PresenceEvent<UpdatePresence>): void => {
     if (event.id === this.participantId) return;
+
+    this.logger.log('[SuperViz | Awareness] - Participant updated', event);
 
     if (event.data[this.Y_PRESENCE_KEY] === null) {
       this.removeAwarenessStates([event.data.clientId], UpdateOrigin.PRESENCE);
@@ -196,6 +216,8 @@ export class Awareness extends ObservableV2<Events> {
   };
 
   private removeAwarenessStates(removed: number[], origin: UpdateOrigin): void {
+    this.logger.log('[SuperViz | Awareness] - Remove awareness states', { removed, origin });
+
     const update = { added: [], updated: [], removed: [] };
     removed.forEach((clientId) => {
       if (!this.states.get(clientId)) return;

@@ -31,6 +31,7 @@
     "@superviz/typescript-config": "workspace:*",
     "@superviz/socket-client": "workspace:*",
     "@types/jest": "^29.5.13",
+    "debug": "^4.3.7",
     "esbuild": "^0.23.1",
     "lib0": "^0.2.97",
     "rxjs": "^7.8.1",
