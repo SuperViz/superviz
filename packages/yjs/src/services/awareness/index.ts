@@ -1,7 +1,8 @@
 import { ObservableV2 } from 'lib0/observable';
-import { PresenceEvent, Room } from '@superviz/socket-client';
+import { PresenceEvent } from '@superviz/socket-client';
 import * as Y from 'yjs';
 import { UpdateOrigin, UpdatePresence } from './types';
+import { RealtimeRoom } from '../../types';
 
 export class Awareness extends ObservableV2<any> {
   public clientId: number = 0;
@@ -9,7 +10,7 @@ export class Awareness extends ObservableV2<any> {
   public states: Map<number, any> = new Map();
 
   private participantIdToClientId: Map<string, number> = new Map();
-  private room: Room | null = null;
+  private room: RealtimeRoom | null = null;
 
   private visibilityTimeout: number | undefined;
 
@@ -26,7 +27,7 @@ export class Awareness extends ObservableV2<any> {
     this.clientId = this.doc.clientID;
   }
 
-  public connect(room: Room): void {
+  public connect(room: RealtimeRoom): void {
     this.room = room;
     this.addRoomListeners();
     this.addDocumentListeners();
@@ -49,12 +50,12 @@ export class Awareness extends ObservableV2<any> {
         clientId,
         [this.Y_PRESENCE_KEY]: {},
         ...(this.states.get(clientId) || {}),
+        origin: 'on connect',
       });
 
       const update = { added, updated: [], removed: [] };
 
       this.emit('change', [update, UpdateOrigin.PRESENCE]);
-      this.emit('update', [update, UpdateOrigin.PRESENCE]);
     });
   }
 
@@ -96,11 +97,11 @@ export class Awareness extends ObservableV2<any> {
       this.room?.presence.update<UpdatePresence>({
         ...this.states.get(this.clientId),
         [this.Y_PRESENCE_KEY]: null,
+        origin: 'set local state null',
       });
 
       const update = { added: [], updated: [], removed: [this.clientId] };
       this.emit('change', [update, UpdateOrigin.LOCAL]);
-      this.emit('update', [update, UpdateOrigin.LOCAL]);
       return;
     }
 
@@ -115,12 +116,11 @@ export class Awareness extends ObservableV2<any> {
       update.added.push(this.clientId);
     }
 
-    const newState = { ...oldState, [this.Y_PRESENCE_KEY]: state };
+    const newState = { ...oldState, [this.Y_PRESENCE_KEY]: state, origin: 'set local state' };
     this.states.set(this.clientId, newState);
     this.room?.presence.update<UpdatePresence>(newState);
 
     this.emit('change', [update, UpdateOrigin.LOCAL]);
-    return;
   };
 
   public setLocalStateField(field: string, value: any): void {
@@ -164,11 +164,12 @@ export class Awareness extends ObservableV2<any> {
     this.participantIdToClientId.delete(event.id);
     this.states.delete(clientId);
 
-    this.emit('change', [update, UpdateOrigin.PRESENCE]);
     this.emit('update', [update, UpdateOrigin.PRESENCE]);
   };
 
   private onUpdate = (event: PresenceEvent<UpdatePresence>): void => {
+    if (event.id === this.participantId) return;
+
     if (event.data[this.Y_PRESENCE_KEY] === null) {
       this.removeAwarenessStates([event.data.clientId], UpdateOrigin.PRESENCE);
       return;
@@ -191,7 +192,6 @@ export class Awareness extends ObservableV2<any> {
       ...event.data,
     });
 
-    this.emit('change', [{ added, updated, removed: [] }, UpdateOrigin.PRESENCE]);
     this.emit('update', [{ added, updated, removed: [] }, UpdateOrigin.PRESENCE]);
   };
 
@@ -205,7 +205,6 @@ export class Awareness extends ObservableV2<any> {
     });
 
     this.emit('change', [update, origin]);
-    this.emit('update', [update, origin]);
   }
 
   private onVisibilityChange = (): void => {
