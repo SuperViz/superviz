@@ -1,10 +1,10 @@
 import { ObservableV2 } from 'lib0/observable';
 import { PresenceEvent } from '@superviz/socket-client';
 import * as Y from 'yjs';
-import { UpdateOrigin, UpdatePresence } from './types';
+import { Events, UpdateOrigin, UpdatePresence } from './types';
 import { RealtimeRoom } from '../../types';
 
-export class Awareness extends ObservableV2<any> {
+export class Awareness extends ObservableV2<Events> {
   public clientId: number = 0;
   public meta: Map<number, { clock: number; lastUpdated: number }> = new Map();
   public states: Map<number, any> = new Map();
@@ -195,7 +195,7 @@ export class Awareness extends ObservableV2<any> {
     this.emit('update', [{ added, updated, removed: [] }, UpdateOrigin.PRESENCE]);
   };
 
-  private removeAwarenessStates(removed: number[], origin: string): void {
+  private removeAwarenessStates(removed: number[], origin: UpdateOrigin): void {
     const update = { added: [], updated: [], removed: [] };
     removed.forEach((clientId) => {
       if (!this.states.get(clientId)) return;

@@ -5,7 +5,7 @@ import {
   Message,
   MessageToHost,
   MessageToTarget,
-  MyEvents,
+  Events,
   Params,
   ProviderEvents,
   ProviderState,
@@ -25,7 +25,7 @@ import { config } from './services/config';
 import { createRoom } from './common/utils/createRoom';
 import { HostService } from './services/host';
 
-export class SuperVizYjsProvider extends ObservableV2<MyEvents> {
+export class SuperVizYjsProvider extends ObservableV2<Events> {
   public awareness: Awareness;
   public document: Y.Doc;
 
@@ -75,6 +75,8 @@ export class SuperVizYjsProvider extends ObservableV2<MyEvents> {
   public destroy = (): void => {
     if (this.state === ProviderState.DISCONNECTED) return;
     this.emit('destroy', []);
+
+    this._synced = false;
 
     this.awareness?.destroy();
     this.realtime?.destroy();

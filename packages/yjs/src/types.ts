@@ -68,7 +68,7 @@ export type Emitter = <T extends Message['name']>(
   data: Extract<Message, { name: T }>['data'],
 ) => void;
 
-export type MyEvents = {
+export type Events = {
   connect: () => void;
   disconnect: () => void;
   synced: () => void;
