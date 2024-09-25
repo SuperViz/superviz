@@ -1,13 +1,9 @@
 import { PresenceEvent, Realtime, Room, SocketEvent } from '@superviz/socket-client';
 import { createRoom } from '../../common/utils/createRoom';
 import { config } from '../config';
-
-type RoomEvent = {
-  hostId: string;
-};
+import { RoomEvent } from './types';
 
 export class HostService {
-  private _isHost: boolean = false;
   private _hostId: string = '';
   private room: Room;
   private realtime: Realtime;
@@ -22,34 +18,40 @@ export class HostService {
 
     this.realtime = realtime;
     this.room = room;
-    this.onHostChange(callback);
+    this.callback = callback;
 
     room.presence.on('presence.leave', this.onPresenceLeave);
     room.presence.on('presence.joined-room', this.onPresenceEnter);
-    room.on('state', (event: SocketEvent<RoomEvent>) => {
-      this.setHostId(event.data.hostId);
-    });
+    room.on('state', this.onStateChange);
   }
 
-  public destroy() {
-    this._isHost = false;
+  // #region public methods
+
+  /**
+   * @function destroy
+   * @description Destroy the HostService instance. Make sure that no state is preserved, and the room is disconnected.
+   * @returns {void}
+   */
+  public destroy(): void {
     this._hostId = '';
+
+    this.room.presence.off('presence.leave');
+    this.room.presence.off('presence.joined-room');
+    this.room.off('state', this.onStateChange);
 
     this.room.disconnect();
     this.realtime.destroy();
   }
 
-  private onHostChange(callback: (hostId: string) => void) {
-    this.callback = callback;
-  }
+  // #region getters
 
   /**
    * @function isHost
-   * @description Check if the current participant is the host of the room
+   * @description Tell whether the current participant is the host of the room or not
    * @returns {boolean}
    */
   public get isHost(): boolean {
-    return this._isHost;
+    return this._hostId === this.participantId;
   }
 
   /**
@@ -67,7 +69,7 @@ export class HostService {
    * @returns {void}
    */
   private searchHost(): void {
-    this.room.history<RoomEvent>(({ events }) => {
+    this.room.history<RoomEvent>(({ events }): void => {
       if (events.length === 0) {
         this.updateHost();
         return;
@@ -75,14 +77,13 @@ export class HostService {
 
       if (this._hostId) return;
 
-      this.room.presence.get((participants) => {
+      this.room.presence.get((participants): void => {
         if (participants.length === 1 && participants[0].id === this.participantId) {
           this.setHostInRoom(participants[0].id);
           return;
         }
 
         const hostId = events[events.length - 1].data.hostId;
-
         if (!hostId) {
           this.updateHost(participants);
           return;
@@ -98,15 +99,15 @@ export class HostService {
     });
   }
 
+  // #region host logic
   /**
    * @function setHost
-   * @description Set the host of the room
+   * @description Set locally the id of the room's host
    * @param {string} hostId
    * @returns {void}
    */
   private setHostId(hostId: string): void {
     this._hostId = hostId;
-    this._isHost = this.participantId === hostId;
 
     if (this.callback) {
       this.callback(hostId);
@@ -127,7 +128,12 @@ export class HostService {
     this.room.presence.get(this.setOldestAsHost);
   }
 
-  private setOldestAsHost = (data: PresenceEvent[]) => {
+  /**
+   * @function setOldestAsHost
+   * @description Traverse through participants list and set the oldest one as the host. If the oldest is the current participant, set it as the host in the room. Otherwise, only set locally
+   * @param data
+   */
+  private setOldestAsHost = (data: PresenceEvent[]): void => {
     const oldestParticipant = data.reduce((prev, current) => {
       return prev.timestamp < current.timestamp ? prev : current;
     }, data[0]);
@@ -139,14 +145,26 @@ export class HostService {
     }
   };
 
-  private setHostInRoom(hostId: string) {
+  /**
+   * @function setHostInRoom
+   * @description Propagate the host id to the room
+   * @param {string} hostId
+   * @returns {void}
+   */
+  private setHostInRoom(hostId: string): void {
     this.room.emit('state', {
       hostId: hostId,
     });
   }
 
   // #region events callbacks
-  private onPresenceLeave = (presence: PresenceEvent) => {
+  /**
+   * @function onPresenceLeave
+   * @description If the host leaves the room, update the host
+   * @param {PresenceEvent} presence
+   * @returns {void}
+   */
+  private onPresenceLeave = (presence: PresenceEvent): void => {
     if (presence.id !== this.hostId) return;
 
     this._hostId = '';
@@ -154,9 +172,26 @@ export class HostService {
     this.updateHost();
   };
 
-  private onPresenceEnter = (presence: PresenceEvent) => {
+  /**
+   * @function onPresenceEnter
+   * @description When the current participant enters the room, search for the host
+   * @param {PresenceEvent} presence
+   * @returns {void}
+   */
+  private onPresenceEnter = (presence: PresenceEvent): void => {
     if (this.hostId || presence.id !== this.participantId) return;
 
     this.searchHost();
+  };
+
+  /**
+   * @function onStateChange
+   * @description When the state event comes from the room, update the host id
+   * @param {SocketEvent<RoomEvent>} event
+   * @returns {void}
+   */
+  private onStateChange = (event: SocketEvent<RoomEvent>): void => {
+    if (event.data.hostId === this.hostId) return;
+    this.setHostId(event.data.hostId);
   };
 }
