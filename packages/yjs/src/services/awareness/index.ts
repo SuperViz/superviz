@@ -13,7 +13,7 @@ export class Awareness extends ObservableV2<Events> {
   private participantIdToClientId: Map<string, number> = new Map();
   private room: RealtimeRoom | null = null;
 
-  private visibilityTimeout: number | undefined;
+  private visibilityTimeout: ReturnType<typeof setTimeout> | undefined;
 
   private readonly TIMEOUT_TIMER_MS = 30000;
   private readonly Y_PRESENCE_KEY = '__yjs';
