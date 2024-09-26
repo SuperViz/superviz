@@ -1,0 +1,12 @@
+{
+  "root": true,
+  "extends": ["@superviz/eslint-config/library.js"],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "project": "./tsconfig.lint.json",
+    "tsconfigRootDir": "."
+  },
+  "env": {
+    "jest": true
+  }
+}

@@ -1,9 +1,11 @@
-import { ObservableV2 } from 'lib0/observable';
 import { PresenceEvent } from '@superviz/socket-client';
+import { ObservableV2 } from 'lib0/observable';
 import * as Y from 'yjs';
-import { Events, UpdateOrigin, UpdatePresence } from './types';
-import { RealtimeRoom } from '../../types';
+
+import { RealtimeRoom } from '../../provider/types';
 import { Logger } from '../logger';
+
+import { Events, UpdateOrigin, UpdatePresence } from './types';
 
 export class Awareness extends ObservableV2<Events> {
   public clientId: number = 0;
@@ -16,7 +18,7 @@ export class Awareness extends ObservableV2<Events> {
   private visibilityTimeout: ReturnType<typeof setTimeout> | undefined;
 
   private readonly TIMEOUT_TIMER_MS = 30000;
-  private readonly Y_PRESENCE_KEY = '__yjs';
+  private readonly YJS_STATE = '__yjs';
 
   private previousState: any | null = null;
 
@@ -29,45 +31,31 @@ export class Awareness extends ObservableV2<Events> {
     this.clientId = this.doc.clientID;
   }
 
+  /**
+   * @function connect
+   * @description Start the awareness service
+   * @param {RealtimeRoom} room Main room in which it will propagete presence
+   * @returns {void}
+   */
   public connect(room: RealtimeRoom): void {
     this.logger.log('[SuperViz | Awareness] - Connect awareness to room');
 
     this.room = room;
     this.addRoomListeners();
     this.addDocumentListeners();
-
-    this.room.presence.get((presences: PresenceEvent<UpdatePresence>[]) => {
-      const added: number[] = [];
-
-      presences.forEach((presence) => {
-        const clientId = presence.data.clientId;
-        if (!clientId) return;
-        added.push(clientId);
-        this.participantIdToClientId.set(presence.id, clientId);
-        this.states.set(clientId, {
-          ...presence.data,
-        });
-      });
-
-      const clientId = this.doc.clientID;
-      this.room.presence.update<UpdatePresence>({
-        clientId,
-        [this.Y_PRESENCE_KEY]: {},
-        ...(this.states.get(clientId) || {}),
-        origin: 'on connect',
-      });
-
-      const update = { added, updated: [], removed: [] };
-
-      this.emit('change', [update, UpdateOrigin.PRESENCE]);
-    });
+    this.initializePresences();
   }
 
-  //#region public
+  // #region public methods
+  /**
+   * @function destroy
+   * @description Destroy the awareness service and clean up all the listeners, states, etc
+   * @returns {void}
+   */
   public destroy(): void {
     this.logger.log('[SuperViz | Awareness] - Destroy awareness');
 
-    clearInterval(this.visibilityTimeout);
+    clearTimeout(this.visibilityTimeout);
     this.visibilityTimeout = undefined;
 
     this.removeDocumentListeners();
@@ -80,22 +68,27 @@ export class Awareness extends ObservableV2<Events> {
     this.onLeave({ id: this.participantId } as unknown as PresenceEvent);
   }
 
+  /**
+   * @function getLocalState
+   * @description Get the local state of the current participant, stores in the field yjs_state
+   * @returns
+   */
   public getLocalState(): Record<string, any> | null {
     this.logger.log(
       '[SuperViz | Awareness] - Get local state',
-      this.states.get(this.clientId)?.[this.Y_PRESENCE_KEY],
+      this.states.get(this.clientId)?.[this.YJS_STATE],
     );
 
     const state = this.states.get(this.clientId);
-    if (!state || !state[this.Y_PRESENCE_KEY]) return null;
+    if (!state || !state[this.YJS_STATE]) return null;
 
-    return state[this.Y_PRESENCE_KEY];
+    return state[this.YJS_STATE];
   }
 
   public getStates(): Map<number, Record<string, any>> {
     const states = new Map<number, Record<string, any>>();
     this.states.forEach((state, clientId) => {
-      states.set(clientId, state[this.Y_PRESENCE_KEY]);
+      states.set(clientId, state[this.YJS_STATE]);
     });
 
     this.logger.log('[SuperViz | Awareness] - Get states', states);
@@ -110,7 +103,7 @@ export class Awareness extends ObservableV2<Events> {
       this.states.delete(this.clientId);
       this.room?.presence.update<UpdatePresence>({
         ...this.states.get(this.clientId),
-        [this.Y_PRESENCE_KEY]: null,
+        [this.YJS_STATE]: null,
         origin: 'set local state null',
       });
 
@@ -119,18 +112,16 @@ export class Awareness extends ObservableV2<Events> {
       return;
     }
 
-    if (this.previousState && document.visibilityState === 'hidden') return;
-
     const update = { added: [], updated: [], removed: [] };
     let oldState = this.states.get(this.clientId);
     if (oldState) {
       update.updated.push(this.clientId);
     } else {
-      oldState = { [this.Y_PRESENCE_KEY]: {}, clientId: this.clientId };
+      oldState = { [this.YJS_STATE]: {}, clientId: this.clientId };
       update.added.push(this.clientId);
     }
 
-    const newState = { ...oldState, [this.Y_PRESENCE_KEY]: state, origin: 'set local state' };
+    const newState = { ...oldState, [this.YJS_STATE]: state, origin: 'set local state' };
     this.states.set(this.clientId, newState);
     this.room?.presence.update<UpdatePresence>(newState);
 
@@ -147,7 +138,7 @@ export class Awareness extends ObservableV2<Events> {
     });
   }
 
-  //#region private
+  // #region events listeners
   private addRoomListeners(): void {
     this.room.presence.on<UpdatePresence>('presence.update', this.onUpdate);
     this.room.presence.on<UpdatePresence>('presence.leave', this.onLeave);
@@ -166,6 +157,7 @@ export class Awareness extends ObservableV2<Events> {
     document.removeEventListener('visibilitychange', this.onVisibilityChange);
   }
 
+  // #region events callbacks
   private onLeave = (event: PresenceEvent): void => {
     const clientId = this.participantIdToClientId.get(event.id);
     this.logger.log('[SuperViz | Awareness] - Participant left', { participant: event, clientId });
@@ -183,6 +175,7 @@ export class Awareness extends ObservableV2<Events> {
     this.states.delete(clientId);
 
     this.emit('update', [update, UpdateOrigin.PRESENCE]);
+    this.emit('update', [update, UpdateOrigin.PRESENCE]);
   };
 
   private onUpdate = (event: PresenceEvent<UpdatePresence>): void => {
@@ -190,7 +183,7 @@ export class Awareness extends ObservableV2<Events> {
 
     this.logger.log('[SuperViz | Awareness] - Participant updated', event);
 
-    if (event.data[this.Y_PRESENCE_KEY] === null) {
+    if (event.data[this.YJS_STATE] === null) {
       this.removeAwarenessStates([event.data.clientId], UpdateOrigin.PRESENCE);
       return;
     }
@@ -213,21 +206,8 @@ export class Awareness extends ObservableV2<Events> {
     });
 
     this.emit('update', [{ added, updated, removed: [] }, UpdateOrigin.PRESENCE]);
+    this.emit('change', [{ added, updated, removed: [] }, UpdateOrigin.PRESENCE]);
   };
-
-  private removeAwarenessStates(removed: number[], origin: UpdateOrigin): void {
-    this.logger.log('[SuperViz | Awareness] - Remove awareness states', { removed, origin });
-
-    const update = { added: [], updated: [], removed: [] };
-    removed.forEach((clientId) => {
-      if (!this.states.get(clientId)) return;
-
-      this.states.delete(clientId);
-      update.removed.push(clientId);
-    });
-
-    this.emit('change', [update, origin]);
-  }
 
   private onVisibilityChange = (): void => {
     if (document.visibilityState === 'visible') {
@@ -246,4 +226,47 @@ export class Awareness extends ObservableV2<Events> {
       this.setLocalState(null);
     }, this.TIMEOUT_TIMER_MS);
   };
+
+  // #region private methods
+  private initializePresences() {
+    this.room.presence.get((presences: PresenceEvent<UpdatePresence>[]) => {
+      const added: number[] = [];
+
+      presences.forEach((presence) => {
+        const { clientId } = presence.data;
+        if (!clientId) return;
+        added.push(clientId);
+        this.participantIdToClientId.set(presence.id, clientId);
+        this.states.set(clientId, {
+          ...presence.data,
+        });
+      });
+
+      const clientId = this.doc.clientID;
+      this.room.presence.update<UpdatePresence>({
+        clientId,
+        [this.YJS_STATE]: {},
+        ...(this.states.get(clientId) || {}),
+        origin: 'on connect',
+      });
+
+      const update = { added, updated: [], removed: [] };
+
+      this.emit('change', [update, UpdateOrigin.PRESENCE]);
+    });
+  }
+
+  private removeAwarenessStates(removed: number[], origin: UpdateOrigin): void {
+    this.logger.log('[SuperViz | Awareness] - Remove awareness states', { removed, origin });
+
+    const update = { added: [], updated: [], removed: [] };
+    removed.forEach((clientId) => {
+      if (!this.states.get(clientId)) return;
+
+      this.states.delete(clientId);
+      update.removed.push(clientId);
+    });
+
+    this.emit('change', [update, origin]);
+  }
 }

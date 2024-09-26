@@ -1,4 +1,4 @@
-import { EnvironmentTypes, Participant } from "../../types";
+import { EnvironmentTypes, Participant } from '../../provider/types';
 
 export interface ConfigurationInterface {
   apiKey: string;

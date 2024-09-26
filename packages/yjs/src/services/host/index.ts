@@ -1,6 +1,8 @@
 import { PresenceEvent, Realtime, Room, SocketEvent } from '@superviz/socket-client';
+
 import { createRoom } from '../../common/utils/createRoom';
 import { config } from '../config';
+
 import { RoomEvent } from './types';
 
 export class HostService {
@@ -13,7 +15,7 @@ export class HostService {
     private participantId: string,
     callback: (hostId: string) => void,
   ) {
-    const roomName = 'host-service:' + config.get('roomName');
+    const roomName = `host-service:${config.get('roomName')}`;
     const { realtime, room } = createRoom(roomName);
 
     this.realtime = realtime;
@@ -29,7 +31,8 @@ export class HostService {
 
   /**
    * @function destroy
-   * @description Destroy the HostService instance. Make sure that no state is preserved, and the room is disconnected.
+   * @description Destroy the HostService instance. Make sure that no state is preserved,
+   * and the room is disconnected.
    * @returns {void}
    */
   public destroy(): void {
@@ -83,7 +86,7 @@ export class HostService {
           return;
         }
 
-        const hostId = events[events.length - 1].data.hostId;
+        const { hostId } = events[events.length - 1].data;
         if (!hostId) {
           this.updateHost(participants);
           return;
@@ -130,7 +133,9 @@ export class HostService {
 
   /**
    * @function setOldestAsHost
-   * @description Traverse through participants list and set the oldest one as the host. If the oldest is the current participant, set it as the host in the room. Otherwise, only set locally
+   * @description Traverse through participants list and set the oldest one as the host
+   * If the oldest is the current participant, set it as the host in the room. Otherwise,
+   * only set locally
    * @param data
    */
   private setOldestAsHost = (data: PresenceEvent[]): void => {
@@ -153,7 +158,7 @@ export class HostService {
    */
   private setHostInRoom(hostId: string): void {
     this.room.emit('state', {
-      hostId: hostId,
+      hostId,
     });
   }
 

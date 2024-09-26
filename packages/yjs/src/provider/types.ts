@@ -28,7 +28,6 @@ export enum ProviderState {
 
 export enum ProviderEvents {
   MESSAGE_TO_HOST = 'message-to-host',
-  MESSAGE_TO_SPECIFIC_USER = 'message-to-specific-user',
   BROADCAST = 'broadcast',
   UPDATE = 'update',
 }
@@ -38,34 +37,19 @@ export type MessageToHost = {
   originId: string;
 };
 
-export type MessageToTarget = {
-  update: Uint8Array;
-  targetId: string;
-};
-
 export type DocUpdate = {
   update: Uint8Array;
 };
 
 // different values that the user can receive when event 'message'
 // is emitted based on the event name
-export type Message =
-  | {
-      name: ProviderEvents.MESSAGE_TO_HOST | `${ProviderEvents.MESSAGE_TO_HOST}`;
-      data: { update: Uint8Array; originId: string };
-    }
-  | {
-      name: ProviderEvents.MESSAGE_TO_SPECIFIC_USER | `${ProviderEvents.MESSAGE_TO_SPECIFIC_USER}`;
-      data: { update: Uint8Array; targetId: string };
-    }
-  | { name: ProviderEvents.BROADCAST | `${ProviderEvents.BROADCAST}`; data: { update: Uint8Array } }
-  | { name: ProviderEvents.UPDATE | `${ProviderEvents.UPDATE}`; data: { update: Uint8Array } };
+export type Message = { name: `${ProviderEvents}` | ProviderEvents; data: { update: Uint8Array } };
 
 export type MessageCallback = (message: Message) => void;
 
-export type Emitter = <T extends Message['name']>(
-  name: T,
-  data: Extract<Message, { name: T }>['data'],
+export type Emitter = (
+  name: `${ProviderEvents}` | ProviderEvents,
+  data: { update: Uint8Array },
 ) => void;
 
 export type Events = {

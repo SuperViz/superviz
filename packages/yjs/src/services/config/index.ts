@@ -1,5 +1,6 @@
-import { EnvironmentTypes } from "../../types";
-import { ConfigurationInterface } from "./types";
+import { EnvironmentTypes } from '../../provider/types';
+
+import { ConfigurationInterface } from './types';
 
 class Config {
   private config: ConfigurationInterface = {
@@ -12,7 +13,10 @@ class Config {
     roomName: '',
   };
 
-  public set<T extends keyof ConfigurationInterface>(key: T, value: ConfigurationInterface[T]): void {
+  public set<T extends keyof ConfigurationInterface>(
+    key: T,
+    value: ConfigurationInterface[T],
+  ): void {
     this.config[key] = value;
   }
 
