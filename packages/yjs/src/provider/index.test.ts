@@ -1,9 +1,8 @@
+import { Participant } from '@superviz/sdk';
 import type { PresenceEvent, SocketEvent } from '@superviz/socket-client';
-import debug from 'debug';
 import * as Y from 'yjs';
 
-import { MOCK_ROOM } from '../../__mocks__/io.mock';
-import { config } from '../services';
+import { MOCK_IO, MOCK_ROOM } from '../../__mocks__/io.mock';
 
 import { DocUpdate, MessageToHost } from './types';
 
@@ -22,6 +21,15 @@ function createProvider(connect: boolean = true, debug: boolean = false, room: s
     debug,
     room,
   });
+  provider['localParticipant'] = {
+    id: 'local-participant-id',
+  } as Participant;
+  provider['ioc'] = {
+    client: new MOCK_IO.Realtime('123', 'dev', {}, 'secret', 'clientId'),
+    createRoom() {
+      return this.client.connect();
+    },
+  } as any;
 
   provider['connect']();
 
@@ -33,33 +41,6 @@ describe('provider', () => {
     jest.clearAllMocks();
     jest.restoreAllMocks();
     jest.restoreAllMocks();
-  });
-
-  describe('start', () => {
-    test('should set config', () => {
-      createProvider();
-
-      expect(config.get('apiKey')).toEqual('123');
-      expect(config.get('environment')).toEqual('dev');
-      expect(config.get('participant')).toEqual({
-        id: 'local-participant-id',
-        name: 'Provider Test',
-      });
-      expect(config.get('roomName')).toEqual('sv-provider');
-    });
-
-    test('should set room name', () => {
-      createProvider(true, true, 'room-name');
-
-      expect(config.get('roomName')).toEqual('room-name');
-    });
-
-    test('should disable debug if debug is false', () => {
-      const spy = jest.spyOn(debug, 'disable');
-      createProvider(false, false);
-
-      expect(spy).toHaveBeenCalled();
-    });
   });
 
   describe('attach', () => {
@@ -75,6 +56,7 @@ describe('provider', () => {
         useStore: () => ({
           isDomainWhitelisted: { value: true },
           hasJoinedRoom: { value: true },
+          localParticipant: { value: { id: 'local-participant-id' } },
         }),
       } as any);
 
@@ -121,6 +103,7 @@ describe('provider', () => {
         useStore: () => ({
           isDomainWhitelisted: { value: true },
           hasJoinedRoom: value,
+          localParticipant: { value: { id: 'local-participant-id' } },
         }),
       } as any);
 
@@ -152,17 +135,14 @@ describe('provider', () => {
       });
 
       const awarenessSpy = jest.spyOn(provider['awareness'], 'destroy');
-      const realtimeSpy = jest.spyOn(provider['realtime']!, 'destroy');
       const hostServiceSpy = jest.spyOn(provider['hostService']!, 'destroy');
 
       provider['destroyProvider']();
 
       expect(awarenessSpy).toHaveBeenCalled();
-      expect(realtimeSpy).toHaveBeenCalled();
       expect(hostServiceSpy).toHaveBeenCalled();
 
       expect(provider['hostService']).toBeNull();
-      expect(provider['realtime']).toBeNull();
     });
 
     test('should disconnect from room', () => {
@@ -200,7 +180,6 @@ describe('provider', () => {
       });
 
       const awarenessSpy = jest.spyOn(provider['awareness'], 'destroy');
-      const realtimeSpy = jest.spyOn(provider['realtime']!, 'destroy');
       const hostServiceSpy = jest.spyOn(provider['hostService']!, 'destroy');
       const offSpy = jest.spyOn(provider['doc'], 'off');
       const disconnectSpy = jest.spyOn(provider['room']!, 'disconnect');
@@ -211,7 +190,6 @@ describe('provider', () => {
       provider['destroyProvider']();
 
       expect(awarenessSpy).toHaveBeenCalledTimes(1);
-      expect(realtimeSpy).toHaveBeenCalledTimes(1);
       expect(hostServiceSpy).toHaveBeenCalledTimes(1);
       expect(offSpy).toHaveBeenCalledTimes(1);
       expect(disconnectSpy).toHaveBeenCalledTimes(2);
@@ -264,7 +242,6 @@ describe('provider', () => {
       const provider = createProvider();
       provider['createRoom']();
 
-      expect(provider['realtime']).toBeDefined();
       expect(provider['room']).toBeDefined();
     });
   });

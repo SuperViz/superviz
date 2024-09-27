@@ -1,10 +1,27 @@
 import { PresenceEvent, SocketEvent } from '@superviz/socket-client';
 
-import { MOCK_ROOM, mockRoomHistoryOnce, mockPresenceListOnce } from '../../../__mocks__/io.mock';
+import {
+  MOCK_ROOM,
+  mockRoomHistoryOnce,
+  mockPresenceListOnce,
+  MOCK_IO,
+} from '../../../__mocks__/io.mock';
 
 import { RoomEvent } from './types';
 
 import { HostService } from '.';
+
+function createHostService(callback?: () => void) {
+  return new HostService(
+    {
+      createRoom() {
+        return new MOCK_IO.Realtime('apiKey', 'dev', {}, 'secret', 'clientId').connect();
+      },
+    } as any,
+    'participantId',
+    callback ?? (() => {}),
+  );
+}
 
 describe('HostService', () => {
   beforeEach(() => {
@@ -13,17 +30,17 @@ describe('HostService', () => {
 
   describe('start', () => {
     test('should create a new HostService instance', () => {
-      const hostService = new HostService('participantId', () => {});
+      const hostService = createHostService();
       expect(hostService).toBeInstanceOf(HostService);
     });
 
     test('should connect to host room', () => {
-      const hostService = new HostService('participantId', () => {});
+      const hostService = createHostService();
       expect(hostService['room']).toEqual(MOCK_ROOM);
     });
 
     test('should subscribe to room events', () => {
-      const hostService = new HostService('participantId', () => {});
+      const hostService = createHostService();
       expect(MOCK_ROOM.presence.on).toHaveBeenCalledTimes(2);
       expect(MOCK_ROOM.presence.on).toHaveBeenCalledWith(
         'presence.leave',
@@ -40,7 +57,7 @@ describe('HostService', () => {
 
   describe('destroy', () => {
     test('should destroy the HostService instance', () => {
-      const hostService = new HostService('participantId', () => {});
+      const hostService = createHostService();
       hostService.destroy();
 
       expect(MOCK_ROOM.presence.off).toHaveBeenCalledTimes(2);
@@ -50,24 +67,23 @@ describe('HostService', () => {
       expect(MOCK_ROOM.off).toHaveBeenCalledWith('state', hostService['onStateChange']);
       expect(MOCK_ROOM.disconnect).toHaveBeenCalledTimes(1);
       expect(MOCK_ROOM.presence.off).toHaveBeenCalledTimes(2);
-      expect(hostService!['realtime']['destroy']).toHaveBeenCalledTimes(1);
     });
   });
 
   describe('getters', () => {
     test('should return isHost', () => {
-      const ids = ['id1', 'ids2'];
-      const participantId = ids[Math.floor(Math.random() * 2)];
+      const ids = ['id1', 'ids2', 'local-participant-id'];
+      const participantId = 'local-participant-id';
       const hostId = ids[Math.floor(Math.random() * 2)];
 
-      const hostService = new HostService(participantId, () => {});
+      const hostService = createHostService();
       hostService['_hostId'] = hostId;
 
       expect(hostService.isHost).toBe(hostId === participantId);
     });
 
     test('should return hostId', () => {
-      const hostService = new HostService('participantId', () => {});
+      const hostService = createHostService();
       const hostId = Math.floor(Math.random() * 100000);
       hostService['_hostId'] = String(hostId);
 
@@ -77,7 +93,7 @@ describe('HostService', () => {
 
   describe('searchHost', () => {
     test('should update host if the room has no history', () => {
-      const hostService = new HostService('participantId', () => {});
+      const hostService = createHostService();
 
       hostService['updateHost'] = jest.fn();
       mockRoomHistoryOnce([]);
@@ -88,7 +104,7 @@ describe('HostService', () => {
     });
 
     test('should early return if there is already a host', () => {
-      const hostService = new HostService('participantId', () => {});
+      const hostService = createHostService();
 
       hostService['_hostId'] = 'hostId';
       hostService['updateHost'] = jest.fn();
@@ -106,7 +122,7 @@ describe('HostService', () => {
     });
 
     test("should set the participant as the host if it's alone in in the room", () => {
-      const hostService = new HostService('participantId', () => {});
+      const hostService = createHostService();
       hostService['setHostInRoom'] = jest.fn();
 
       mockRoomHistoryOnce([
@@ -127,7 +143,7 @@ describe('HostService', () => {
     });
 
     test('should update host if there is no hostId in the room history', () => {
-      const hostService = new HostService('participantId', () => {});
+      const hostService = createHostService();
 
       hostService['updateHost'] = jest.fn();
       mockRoomHistoryOnce([
@@ -150,7 +166,7 @@ describe('HostService', () => {
     });
 
     test('should update host if the hostId is not in the participants list', () => {
-      const hostService = new HostService('participantId', () => {});
+      const hostService = createHostService();
 
       hostService['updateHost'] = jest.fn();
       mockRoomHistoryOnce([
@@ -175,7 +191,7 @@ describe('HostService', () => {
     });
 
     test('should set hostId found in the room history', () => {
-      const hostService = new HostService('participantId', () => {});
+      const hostService = createHostService();
 
       hostService['setHostId'] = jest.fn();
       mockRoomHistoryOnce([
@@ -201,7 +217,7 @@ describe('HostService', () => {
   describe('setHostId', () => {
     test('should set the hostId and call the callback', () => {
       const callback = jest.fn();
-      const hostService = new HostService('participantId', callback);
+      const hostService = createHostService(callback);
 
       hostService['setHostId']('hostId');
 
@@ -212,7 +228,7 @@ describe('HostService', () => {
 
   describe('updateHost', () => {
     test('should set the oldest in the room with data coming from presence', () => {
-      const hostService = new HostService('participantId', () => {});
+      const hostService = createHostService();
 
       hostService['setOldestAsHost'] = jest.fn();
       const participants = [
@@ -232,7 +248,7 @@ describe('HostService', () => {
     });
 
     test('should set the oldest in the room with data passed as argument', () => {
-      const hostService = new HostService('participantId', () => {});
+      const hostService = createHostService();
 
       hostService['setOldestAsHost'] = jest.fn();
       const participants = [
@@ -253,7 +269,7 @@ describe('HostService', () => {
 
   describe('setOldestAsHost', () => {
     test('should set local participant as host in the room if it is the oldest', () => {
-      const hostService = new HostService('participantId', () => {});
+      const hostService = createHostService();
 
       hostService['setHostInRoom'] = jest.fn();
       hostService['setOldestAsHost']([
@@ -276,7 +292,7 @@ describe('HostService', () => {
     });
 
     test('should set remote participant as host locally if it is the oldest', () => {
-      const hostService = new HostService('participantId', () => {});
+      const hostService = createHostService();
 
       hostService['setHostId'] = jest.fn();
       hostService['setOldestAsHost']([
@@ -300,7 +316,7 @@ describe('HostService', () => {
 
     describe('setHostInRoom', () => {
       test('should emit the hostId to the room', () => {
-        const hostService = new HostService('participantId', () => {});
+        const hostService = createHostService();
 
         hostService['setHostInRoom']('hostId');
 
@@ -315,7 +331,7 @@ describe('HostService', () => {
   describe('room callbacks', () => {
     describe('onPresenceLeave', () => {
       test('should update host if the host leaves the room', () => {
-        const hostService = new HostService('participantId', () => {});
+        const hostService = createHostService();
         hostService['_hostId'] = 'hostId';
         hostService['updateHost'] = jest.fn();
 
@@ -328,7 +344,7 @@ describe('HostService', () => {
       });
 
       test('should do nothing if the host does not leave the room', () => {
-        const hostService = new HostService('participantId', () => {});
+        const hostService = createHostService();
         hostService['_hostId'] = 'hostId';
         hostService['updateHost'] = jest.fn();
 
@@ -343,7 +359,7 @@ describe('HostService', () => {
 
     describe('onStateChange', () => {
       test('should set host if the hostId changes', () => {
-        const hostService = new HostService('participantId', () => {});
+        const hostService = createHostService();
         hostService['setHostId'] = jest.fn();
 
         hostService['onStateChange']({
@@ -356,7 +372,7 @@ describe('HostService', () => {
       });
 
       test('should do nothing if the hostId does not change', () => {
-        const hostService = new HostService('participantId', () => {});
+        const hostService = createHostService();
         hostService['setHostId'] = jest.fn();
         hostService['_hostId'] = 'hostId';
 
@@ -372,7 +388,7 @@ describe('HostService', () => {
 
     describe('onPresenceEnter', () => {
       test('should search for the host if the participant when local participant enters the room', () => {
-        const hostService = new HostService('participantId', () => {});
+        const hostService = createHostService();
 
         hostService['searchHost'] = jest.fn();
         hostService['onPresenceEnter']({
@@ -383,7 +399,7 @@ describe('HostService', () => {
       });
 
       test('should do nothing when host is already set', () => {
-        const hostService = new HostService('participantId', () => {});
+        const hostService = createHostService();
         hostService['_hostId'] = 'hostId';
 
         hostService['searchHost'] = jest.fn();
@@ -395,7 +411,7 @@ describe('HostService', () => {
       });
 
       test('should do nothing when others enter room', () => {
-        const hostService = new HostService('participantId', () => {});
+        const hostService = createHostService();
 
         hostService['searchHost'] = jest.fn();
         hostService['onPresenceEnter']({

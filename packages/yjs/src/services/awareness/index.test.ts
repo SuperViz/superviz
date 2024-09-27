@@ -2,8 +2,7 @@ import { beforeAll } from '@jest/globals';
 import type { PresenceEvent } from '@superviz/socket-client';
 import * as Y from 'yjs';
 
-import { MOCK_ROOM, mockPresenceListOnce } from '../../../__mocks__/io.mock';
-import { createRoom } from '../../common/utils/createRoom';
+import { MOCK_ROOM, MOCK_IO, mockPresenceListOnce } from '../../../__mocks__/io.mock';
 import { Logger } from '../logger';
 
 import { UpdateOrigin, UpdatePresence } from './types';
@@ -12,9 +11,15 @@ import { Awareness } from '.';
 
 function createAwareness(): Awareness {
   const doc = new Y.Doc();
-  const participantId = 'local-participant-id';
   const logger = new Logger('awareness test', '[SuperVizYjsProvider | Tests] -');
-  return new Awareness(doc, participantId, logger);
+  return new Awareness(doc, logger);
+}
+const participantId = 'local-participant-id';
+
+function connectAwareness(awareness: Awareness) {
+  const room = new MOCK_IO.Realtime('api-key', 'dev', {}, 'secret', 'clientId').connect();
+
+  awareness.connect(participantId, room);
 }
 
 describe('Awareness', () => {
@@ -26,10 +31,8 @@ describe('Awareness', () => {
   describe('connect', () => {
     test('should subscribe to events', () => {
       const awareness = createAwareness();
-      const { room } = createRoom('awareness-test');
       const documentSpy = jest.spyOn(document, 'addEventListener');
-
-      awareness.connect(room);
+      connectAwareness(awareness);
 
       expect(awareness['room']!.presence.on).toHaveBeenCalledTimes(2);
       expect(documentSpy).toHaveBeenCalledTimes(1);
@@ -39,10 +42,9 @@ describe('Awareness', () => {
   describe('destroy', () => {
     test('should unsubscribe from events', () => {
       const awareness = createAwareness();
-      const { room } = createRoom('awareness-test');
       const documentSpy = jest.spyOn(document, 'removeEventListener');
 
-      awareness.connect(room);
+      connectAwareness(awareness);
       awareness.destroy();
 
       expect(MOCK_ROOM.presence.off).toHaveBeenCalledTimes(2);
@@ -51,9 +53,8 @@ describe('Awareness', () => {
 
     test('should clear states', () => {
       const awareness = createAwareness();
-      const { room } = createRoom('awareness-test');
 
-      awareness.connect(room);
+      connectAwareness(awareness);
       awareness.destroy();
 
       expect(awareness['states'].size).toBe(0);
@@ -61,9 +62,8 @@ describe('Awareness', () => {
 
     test('should clear participantIdToClientId', () => {
       const awareness = createAwareness();
-      const { room } = createRoom('awareness-test');
 
-      awareness.connect(room);
+      connectAwareness(awareness);
       awareness.destroy();
 
       expect(awareness['participantIdToClientId'].size).toBe(0);
@@ -71,10 +71,9 @@ describe('Awareness', () => {
 
     test('should call onLeave', () => {
       const awareness = createAwareness();
-      const { room } = createRoom('awareness-test');
       const onLeaveSpy = jest.spyOn(awareness as any, 'onLeave');
 
-      awareness.connect(room);
+      connectAwareness(awareness);
       awareness.destroy();
 
       expect(onLeaveSpy).toHaveBeenCalledTimes(1);
@@ -280,6 +279,8 @@ describe('Awareness', () => {
 
     test('should not set state if it comes from local participant', () => {
       const awareness = createAwareness();
+      connectAwareness(awareness);
+
       awareness['states'].set = jest.fn();
 
       awareness['onUpdate']({
@@ -393,8 +394,8 @@ describe('Awareness', () => {
     test('should update own presence in the room with the client id', () => {
       const awareness = createAwareness();
 
-      const { room } = createRoom('awareness-test');
-      awareness.connect(room);
+      const room = new MOCK_IO.Realtime('api-key', 'dev', {}, 'secret', 'clientId').connect();
+      awareness.connect(participantId, room);
 
       mockPresenceListOnce([{ id: 'local-participant-id', data: { clientId: 1 } }]);
 
@@ -410,8 +411,8 @@ describe('Awareness', () => {
     test('should set the state and map the id of participants', () => {
       const awareness = createAwareness();
 
-      const { room } = createRoom('awareness-test');
-      awareness.connect(room);
+      const room = new MOCK_IO.Realtime('api-key', 'dev', {}, 'secret', 'clientId').connect();
+      awareness.connect(participantId, room);
 
       awareness['states'].set = jest.fn();
 
@@ -439,8 +440,8 @@ describe('Awareness', () => {
     test('should not set state and map if the presence has no clientId', () => {
       const awareness = createAwareness();
 
-      const { room } = createRoom('awareness-test');
-      awareness.connect(room);
+      const room = new MOCK_IO.Realtime('api-key', 'dev', {}, 'secret', 'clientId').connect();
+      awareness.connect(participantId, room);
 
       awareness['states'].set = jest.fn();
 

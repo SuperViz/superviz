@@ -11,7 +11,7 @@ import {
 import { ObservableV2 } from 'lib0/observable';
 import * as Y from 'yjs';
 
-import { Awareness, HostService, Logger, config } from '../services';
+import { Awareness, HostService, Logger } from '../services';
 
 import {
   DocUpdate,
@@ -28,7 +28,7 @@ import {
 } from './types';
 
 export class SuperVizYjsProvider extends ObservableV2<Events> {
-  public readonly name = 'yjsProvider';
+  public readonly name = 'presence';
 
   public awareness: Awareness;
   public document: Y.Doc;
