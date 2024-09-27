@@ -3,6 +3,6 @@
   "compilerOptions": {
     "outDir": "dist"
   },
-  "include": ["src", "turbo", "__mocks__"],
+  "include": ["src", "turbo", "__mocks__", "./jest*"],
   "exclude": ["node_modules", "dist"]
 }

@@ -30,6 +30,7 @@
     "@superviz/eslint-config": "workspace:*",
     "@superviz/socket-client": "workspace:*",
     "@superviz/typescript-config": "workspace:*",
+    "@superviz/sdk": "workspace:*",
     "debug": "^4.3.7",
     "esbuild": "^0.23.1",
     "lib0": "^0.2.97",

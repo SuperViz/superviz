@@ -1,3 +1,4 @@
+import type { StoreType } from '@superviz/sdk';
 import type { Room } from '@superviz/socket-client';
 
 export enum EnvironmentTypes {
@@ -11,12 +12,6 @@ export interface Participant {
 }
 
 export type Params = {
-  apiKey: string;
-  environment: EnvironmentTypes | `${EnvironmentTypes}`;
-  participant: Participant;
-  room?: string;
-  connect?: boolean;
-  debug?: boolean;
   // awareness?: boolean = true;
 };
 
@@ -62,6 +57,17 @@ export type Events = {
   message: MessageCallback;
   outgoingMessage: MessageCallback;
   state: (state: ProviderState | `${ProviderState}`) => void;
+  mount: () => void;
+  unmount: () => void;
 };
 
 export type RealtimeRoom = Omit<Room, 'emit'> & { emit: Emitter };
+
+export const storeType = {
+  GLOBAL: 'global-store' as StoreType.GLOBAL,
+};
+
+export enum ComponentLifeCycleEvent {
+  MOUNT = 'mount',
+  UNMOUNT = 'unmount',
+}

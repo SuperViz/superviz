@@ -1,16 +1,16 @@
+import { Participant } from '@superviz/sdk';
+import type { DefaultAttachComponentOptions } from '@superviz/sdk/dist/components/base/types';
+import type { IOC } from '@superviz/sdk/dist/services/io';
 import {
   ClientState,
   ConnectionState,
   PresenceEvent,
   PresenceEvents,
-  Realtime,
   type SocketEvent,
 } from '@superviz/socket-client';
-import debug from 'debug';
 import { ObservableV2 } from 'lib0/observable';
 import * as Y from 'yjs';
 
-import { createRoom } from '../common/utils/createRoom';
 import { Awareness, HostService, Logger, config } from '../services';
 
 import {
@@ -23,18 +23,24 @@ import {
   ProviderEvents,
   ProviderState,
   RealtimeRoom,
+  storeType,
+  ComponentLifeCycleEvent,
 } from './types';
 
 export class SuperVizYjsProvider extends ObservableV2<Events> {
+  public readonly name = 'yjsProvider';
+
   public awareness: Awareness;
   public document: Y.Doc;
 
   private _synced: boolean = false;
   private state: ProviderState | `${ProviderState}` = ProviderState.DISCONNECTED;
+  private isAttached: boolean = false;
+  private localParticipant: Participant | null = null;
 
-  private realtime: Realtime | null = null;
   private room: RealtimeRoom | null = null;
   private logger: Logger;
+  private ioc: IOC | null = null;
 
   private hostService: HostService | null = null;
 
@@ -43,20 +49,60 @@ export class SuperVizYjsProvider extends ObservableV2<Events> {
     private opts: Params,
   ) {
     super();
-    this.setConfig();
     this.document = doc;
 
-    this.logger = new Logger('SuperVizYjsProvider');
-    this.awareness = new Awareness(this.doc, this.opts.participant.id, this.logger);
-
-    if (!this.opts.debug) debug.disable();
-
-    if (!this.opts.connect) return;
-
-    this.connect();
+    this.logger = new Logger('SuperVizYjsProvider', '[SuperViz | YjsProvider] - ');
+    this.awareness = new Awareness(this.doc, this.logger);
   }
 
   // #region Public methods
+  /**
+   * @function attach
+   */
+  public attach(params: DefaultAttachComponentOptions): void {
+    if (Object.values(params).includes(null) || Object.values(params).includes(undefined)) {
+      const message = `${this.name} @ attach - params are required`;
+
+      this.logger.log(message);
+      throw new Error(message);
+    }
+
+    const { useStore, ioc } = params;
+    const { isDomainWhitelisted, hasJoinedRoom, localParticipant } = useStore(storeType.GLOBAL);
+
+    if (!isDomainWhitelisted.value) {
+      const message = `Component ${this.name} can't be used because this website's domain is not whitelisted. Please add your domain in https://dashboard.superviz.com/developer`;
+      this.logger.log(message);
+      return;
+    }
+
+    if (!hasJoinedRoom.value) {
+      this.logger.log(`${this.name} @ attach - not joined yet`);
+      setTimeout(() => {
+        this.logger.log(`${this.name} @ attach - retrying`);
+        this.attach(params);
+      }, 1000);
+      return;
+    }
+
+    this.ioc = ioc;
+    this.localParticipant = localParticipant.value;
+    this.isAttached = true;
+    this.connect();
+  }
+
+  public detach() {
+    if (!this.isAttached) {
+      this.logger.log(`${this.name} @ detach - component is not attached`);
+      return;
+    }
+
+    this.emit(ComponentLifeCycleEvent.UNMOUNT, []);
+    this.logger.log('detached');
+    this.destroyProvider();
+    super.destroy();
+  }
+
   /**
    * @function connect
    * @description Connect to the room. With this, start to send and
@@ -68,10 +114,10 @@ export class SuperVizYjsProvider extends ObservableV2<Events> {
    * @emits state
    * @returns {void}
    */
-  public connect(): void {
+  private connect(): void {
     if (this.state !== ProviderState.DISCONNECTED) return;
 
-    this.logger.log('[SuperViz | YjsProvider] - Connecting to the room');
+    this.logger.log('Connecting to the room');
 
     this.changeState(ProviderState.CONNECTING);
 
@@ -84,23 +130,25 @@ export class SuperVizYjsProvider extends ObservableV2<Events> {
    * @description Disconnect from the room and reset the instance state.
    * @emits state @returns {void}
    */
-  public destroy(): void {
-    if (this.state === ProviderState.DISCONNECTED) return;
-    this.logger.log('[SuperViz | YjsProvider] - Destroying the provider');
+  private destroyProvider(): void {
+    if (this.state === ProviderState.DISCONNECTED) {
+      this.logger.log("Can't destroy. Provider disconnected");
+      return;
+    }
+
+    this.logger.log('Destroying the provider');
 
     this.emit('destroy', []);
 
     this._synced = false;
 
     this.awareness?.destroy();
-    this.realtime?.destroy();
     this.hostService?.destroy();
 
     // we do not set awareness to null because in
     // case of a reconnect, it is only ever instantiated
     // in the constructor
     this.hostService = null;
-    this.realtime = null;
 
     this.doc.off('updateV2', this.onDocUpdate);
 
@@ -129,11 +177,9 @@ export class SuperVizYjsProvider extends ObservableV2<Events> {
    * @returns {void}
    */
   private createRoom(): void {
-    this.logger.log('[SuperViz | YjsProvider] - Creating room');
+    this.logger.log('Creating room');
 
-    const { realtime, room } = createRoom(`yjs:${config.get('roomName')}`);
-    this.realtime = realtime;
-    this.room = room;
+    this.room = this.ioc.createRoom('yjs-provider');
   }
 
   /**
@@ -142,11 +188,11 @@ export class SuperVizYjsProvider extends ObservableV2<Events> {
    * @returns {void}
    */
   private addRoomListeners(): void {
-    this.logger.log('[SuperViz | YjsProvider] - Adding room listeners');
+    this.logger.log('Adding room listeners');
 
     this.room.on(ProviderEvents.UPDATE, this.onRemoteDocUpdate);
     this.room.presence.on(PresenceEvents.JOINED_ROOM, this.onLocalJoinRoom);
-    this.realtime.connection.on(this.onConnectionChange);
+    this.ioc.client.connection.on(this.onConnectionChange);
   }
 
   /**
@@ -155,7 +201,7 @@ export class SuperVizYjsProvider extends ObservableV2<Events> {
    * @returns {void}
    */
   private removeRoomListeners(): void {
-    this.logger.log('[SuperViz | YjsProvider] - Removing room listeners');
+    this.logger.log('Removing room listeners');
 
     if (this.room) {
       this.room.off(ProviderEvents.UPDATE, this.onRemoteDocUpdate);
@@ -164,7 +210,7 @@ export class SuperVizYjsProvider extends ObservableV2<Events> {
       this.room.presence.off(PresenceEvents.JOINED_ROOM);
     }
 
-    this.realtime?.connection.off();
+    this.ioc?.client.connection.off();
   }
 
   /**
@@ -174,7 +220,7 @@ export class SuperVizYjsProvider extends ObservableV2<Events> {
    */
   private startRealtime(): void {
     this.createRoom();
-    this.hostService = new HostService(this.opts.participant.id, this.onHostChange);
+    this.hostService = new HostService(this.ioc, this.localParticipant.id, this.onHostChange);
     this.addRoomListeners();
   }
 
@@ -184,7 +230,7 @@ export class SuperVizYjsProvider extends ObservableV2<Events> {
    * @returns {void}
    */
   private fetch = (): void => {
-    this.logger.log('[SuperViz | YjsProvider] - Fetching the document');
+    this.logger.log('Fetching the document');
 
     this._synced = false;
 
@@ -205,22 +251,10 @@ export class SuperVizYjsProvider extends ObservableV2<Events> {
    * @returns {void}
    */
   private updateDocument = (update: Uint8Array): void => {
-    this.logger.log('[SuperViz | YjsProvider] - Applying remote update', update);
+    this.logger.log('Applying remote update', update);
 
     Y.applyUpdateV2(this.doc, update, this);
   };
-
-  /**
-   * @function setConfig
-   * @description Set the configuration for the provider
-   * @returns {void}
-   */
-  private setConfig(): void {
-    config.set('apiKey', this.opts.apiKey);
-    config.set('environment', this.opts.environment);
-    config.set('participant', this.opts.participant);
-    config.set('roomName', this.opts.room || 'sv-provider');
-  }
 
   /**
    * @function changeState
@@ -229,7 +263,7 @@ export class SuperVizYjsProvider extends ObservableV2<Events> {
    * @returns {void}
    */
   private changeState(state: ProviderState | `${ProviderState}`): void {
-    this.logger.log('[SuperViz | YjsProvider] - Changing state', state);
+    this.logger.log('Changing state', state);
 
     this.emit('state', [state]);
     this.state = state;
@@ -248,7 +282,7 @@ export class SuperVizYjsProvider extends ObservableV2<Events> {
   private onMessageToHost = (event: SocketEvent<MessageToHost>): void => {
     if (!this.hostService.isHost) return;
 
-    this.logger.log('[SuperViz | YjsProvider] - Received message to host', event);
+    this.logger.log('Received message to host', event);
 
     this._synced = false;
 
@@ -272,7 +306,7 @@ export class SuperVizYjsProvider extends ObservableV2<Events> {
    * @returns {void}
    */
   private onDocUpdate = (update: Uint8Array): void => {
-    this.logger.log('[SuperViz | YjsProvider] - Local document update', update);
+    this.logger.log('Local document update', update);
 
     this.beforeSendRealtimeMessage(ProviderEvents.UPDATE, { update });
     this.room!.emit(ProviderEvents.UPDATE, { update });
@@ -285,11 +319,11 @@ export class SuperVizYjsProvider extends ObservableV2<Events> {
    * @returns {void}
    */
   private onLocalJoinRoom = (event: PresenceEvent): void => {
-    if (this.state === ProviderState.CONNECTED || event.id !== this.opts.participant.id) return;
+    if (this.state === ProviderState.CONNECTED || event.id !== this.localParticipant.id) return;
 
-    this.logger.log('[SuperViz | YjsProvider] - Joined the room', event);
+    this.logger.log('Joined the room', event);
 
-    this.awareness.connect(this.room!);
+    this.awareness.connect(this.localParticipant.id, this.room!);
     this.changeState(ProviderState.CONNECTED);
     this.emit('connect', []);
 
@@ -307,7 +341,7 @@ export class SuperVizYjsProvider extends ObservableV2<Events> {
    */
   private onConnectionChange = (msg: ConnectionState): void => {
     if (msg.state === ClientState.DISCONNECTED) {
-      this.logger.log('[SuperViz | YjsProvider] - Disconnected from the room');
+      this.logger.log('Disconnected from the room');
       this.emit('disconnect', []);
     }
   };
@@ -319,8 +353,8 @@ export class SuperVizYjsProvider extends ObservableV2<Events> {
    * @returns {void}
    */
   private onRemoteDocUpdate = (event: SocketEvent<DocUpdate>): void => {
-    if (event.presence?.id === this.opts.participant.id) return;
-    this.logger.log('[SuperViz | YjsProvider] - Received remote document update', event);
+    if (event.presence?.id === this.localParticipant.id) return;
+    this.logger.log('Received remote document update', event);
 
     const update = new Uint8Array(event.data.update);
     this.onReceiveRealtimeMessage(ProviderEvents.UPDATE, { update });
@@ -337,7 +371,7 @@ export class SuperVizYjsProvider extends ObservableV2<Events> {
    */
   private onBroadcast = (event: SocketEvent<DocUpdate>): void => {
     if (this.hostService?.isHost) return;
-    this.logger.log('[SuperViz | YjsProvider] - Received broadcast', event);
+    this.logger.log('Received broadcast', event);
 
     const update = new Uint8Array(event.data.update);
     this.onReceiveRealtimeMessage(ProviderEvents.BROADCAST, { update });
@@ -357,9 +391,9 @@ export class SuperVizYjsProvider extends ObservableV2<Events> {
    * @returns {void}
    */
   private onHostChange = (hostId: string): void => {
-    this.logger.log('[SuperViz | YjsProvider] - Host changed', hostId);
+    this.logger.log('Host changed', hostId);
 
-    if (hostId === this.opts.participant.id) {
+    if (hostId === this.localParticipant.id) {
       this._synced = true;
       return;
     }
@@ -376,7 +410,7 @@ export class SuperVizYjsProvider extends ObservableV2<Events> {
    * @returns {void}
    */
   private onReceiveRealtimeMessage: Emitter = (name, data): void => {
-    this.logger.log('[SuperViz | YjsProvider] - Received message from room', { name, data });
+    this.logger.log('Received message from room', { name, data });
     this.emit('message', [{ name, data } as Message]);
   };
 
@@ -388,7 +422,7 @@ export class SuperVizYjsProvider extends ObservableV2<Events> {
    * @returns {void}
    */
   private beforeSendRealtimeMessage: Emitter = (name, data): void => {
-    this.logger.log('[SuperViz | YjsProvider] - Sending message to room', { name, data });
+    this.logger.log('Sending message to room', { name, data });
     this.emit('outgoingMessage', [{ name, data } as Message]);
   };
 }

@@ -13,7 +13,7 @@ import { Awareness } from '.';
 function createAwareness(): Awareness {
   const doc = new Y.Doc();
   const participantId = 'local-participant-id';
-  const logger = new Logger('awareness test');
+  const logger = new Logger('awareness test', '[SuperVizYjsProvider | Tests] -');
   return new Awareness(doc, participantId, logger);
 }
 

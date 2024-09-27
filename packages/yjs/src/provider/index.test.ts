@@ -11,7 +11,7 @@ import { SuperVizYjsProvider } from '.';
 
 function createProvider(connect: boolean = true, debug: boolean = false, room: string = '') {
   const doc = new Y.Doc();
-  return new SuperVizYjsProvider(doc, {
+  const provider = new SuperVizYjsProvider(doc, {
     apiKey: '123',
     environment: 'dev',
     participant: {
@@ -22,6 +22,10 @@ function createProvider(connect: boolean = true, debug: boolean = false, room: s
     debug,
     room,
   });
+
+  provider['connect']();
+
+  return provider;
 }
 
 describe('provider', () => {
@@ -32,13 +36,6 @@ describe('provider', () => {
   });
 
   describe('start', () => {
-    test('should connect the provider', () => {
-      const spy = jest.spyOn(SuperVizYjsProvider.prototype, 'connect');
-      createProvider();
-
-      expect(spy).toHaveBeenCalled();
-    });
-
     test('should set config', () => {
       createProvider();
 
@@ -57,18 +54,93 @@ describe('provider', () => {
       expect(config.get('roomName')).toEqual('room-name');
     });
 
-    test('should not connect if connect is false', () => {
-      const spy = jest.spyOn(SuperVizYjsProvider.prototype, 'connect');
-      createProvider(false);
-
-      expect(spy).not.toHaveBeenCalled();
-    });
-
     test('should disable debug if debug is false', () => {
       const spy = jest.spyOn(debug, 'disable');
       createProvider(false, false);
 
       expect(spy).toHaveBeenCalled();
+    });
+  });
+
+  describe('attach', () => {
+    afterAll(() => {
+      jest.useRealTimers();
+    });
+
+    test('should connect the provider', () => {
+      const provider = createProvider();
+      provider['connect'] = jest.fn();
+
+      provider.attach({
+        useStore: () => ({
+          isDomainWhitelisted: { value: true },
+          hasJoinedRoom: { value: true },
+        }),
+      } as any);
+
+      expect(provider['connect']).toHaveBeenCalled();
+    });
+
+    test('should not connect if domain is not whitelisted', () => {
+      const provider = createProvider();
+      provider['connect'] = jest.fn();
+
+      provider.attach({
+        useStore: () => ({
+          isDomainWhitelisted: { value: false },
+          hasJoinedRoom: { value: true },
+        }),
+      } as any);
+
+      expect(provider['connect']).not.toHaveBeenCalled();
+    });
+
+    test('should not connect if user has not joined room', () => {
+      const provider = createProvider();
+      provider['connect'] = jest.fn();
+
+      provider.attach({
+        useStore: () => ({
+          isDomainWhitelisted: { value: true },
+          hasJoinedRoom: { value: false },
+        }),
+      } as any);
+
+      expect(provider['connect']).not.toHaveBeenCalled();
+    });
+
+    test('should try to rettach if user has not joined room', () => {
+      jest.useFakeTimers();
+      const provider = createProvider();
+      provider['connect'] = jest.fn();
+
+      const value = {
+        value: false,
+      };
+      provider.attach({
+        useStore: () => ({
+          isDomainWhitelisted: { value: true },
+          hasJoinedRoom: value,
+        }),
+      } as any);
+
+      expect(provider['connect']).not.toHaveBeenCalled();
+      value.value = true;
+      jest.advanceTimersByTime(2000);
+
+      expect(provider['connect']).toHaveBeenCalled();
+    });
+
+    test('should throw error if param has undefined', () => {
+      const provider = createProvider();
+
+      expect(() => provider.attach({ store: undefined } as any)).toThrow();
+    });
+
+    test('should throw error if param has null', () => {
+      const provider = createProvider();
+
+      expect(() => provider.attach({ store: null } as any)).toThrow();
     });
   });
 
@@ -83,7 +155,7 @@ describe('provider', () => {
       const realtimeSpy = jest.spyOn(provider['realtime']!, 'destroy');
       const hostServiceSpy = jest.spyOn(provider['hostService']!, 'destroy');
 
-      provider.destroy();
+      provider['destroyProvider']();
 
       expect(awarenessSpy).toHaveBeenCalled();
       expect(realtimeSpy).toHaveBeenCalled();
@@ -101,7 +173,7 @@ describe('provider', () => {
 
       const disconnectSpy = jest.spyOn(provider['room']!, 'disconnect');
 
-      provider.destroy();
+      provider['destroyProvider']();
 
       expect(disconnectSpy).toHaveBeenCalled();
       expect(provider['room']).toBeNull();
@@ -114,7 +186,7 @@ describe('provider', () => {
       });
 
       const offSpy = jest.spyOn(provider['doc'], 'off');
-      provider.destroy();
+      provider['destroyProvider']();
 
       expect(offSpy).toHaveBeenCalled();
       expect(MOCK_ROOM.off).toHaveBeenCalledTimes(4);
@@ -135,8 +207,8 @@ describe('provider', () => {
 
       jest.clearAllMocks();
 
-      provider.destroy();
-      provider.destroy();
+      provider['destroyProvider']();
+      provider['destroyProvider']();
 
       expect(awarenessSpy).toHaveBeenCalledTimes(1);
       expect(realtimeSpy).toHaveBeenCalledTimes(1);
@@ -154,7 +226,7 @@ describe('provider', () => {
       const onSpy = jest.spyOn(provider['doc'], 'on');
       const startSpy = jest.spyOn(provider as any, 'startRealtime');
 
-      provider.connect();
+      provider['connect']();
 
       expect(onSpy).toHaveBeenCalled();
       expect(startSpy).toHaveBeenCalled();
@@ -167,7 +239,7 @@ describe('provider', () => {
       const onSpy = jest.spyOn(provider['doc'], 'on');
       const startSpy = jest.spyOn(provider as any, 'startRealtime');
 
-      provider.connect();
+      provider['connect']();
 
       expect(onSpy).not.toHaveBeenCalled();
       expect(startSpy).not.toHaveBeenCalled();
@@ -494,6 +566,26 @@ describe('provider', () => {
       expect(provider['emit']).toHaveBeenCalledWith('outgoingMessage', [
         { data: { update: new Uint8Array() }, name: 'update' },
       ]);
+    });
+  });
+
+  describe('detach', () => {
+    test('should destroy provider', () => {
+      const provider = createProvider();
+      provider['destroyProvider'] = jest.fn();
+      provider['isAttached'] = true;
+      provider.detach();
+
+      expect(provider['destroyProvider']).toHaveBeenCalled();
+    });
+
+    test('should do nothing if provider is not attached', () => {
+      const provider = createProvider();
+      provider['destroyProvider'] = jest.fn();
+      provider['isAttached'] = false;
+      provider.detach();
+
+      expect(provider['destroyProvider']).not.toHaveBeenCalled();
     });
   });
 });

@@ -11,7 +11,7 @@ describe('Logger', () => {
   beforeEach(() => {
     mockDebug = jest.fn() as unknown as jest.MockedFunction<debug.Debugger>;
     (debug as jest.MockedFunction<typeof debug>).mockReturnValue(mockDebug);
-    debugInstance = new Logger('@superviz/sdk');
+    debugInstance = new Logger('[SuperVizYjsProvider]', 'tests');
   });
 
   afterEach(() => {
@@ -23,11 +23,11 @@ describe('Logger', () => {
   });
 
   test('should call debug with the correct scope on initialization', () => {
-    expect(debug).toHaveBeenCalledWith('@superviz/sdk');
+    expect(debug).toHaveBeenCalledWith('[SuperVizYjsProvider]');
   });
 
   test('should call debug with the correct arguments on log', () => {
     debugInstance.log('test-message', 123, { foo: 'bar' });
-    expect(mockDebug).toHaveBeenCalledWith('test-message', 123, { foo: 'bar' });
+    expect(mockDebug).toHaveBeenCalledWith('tests -', 'test-message', 123, { foo: 'bar' });
   });
 });

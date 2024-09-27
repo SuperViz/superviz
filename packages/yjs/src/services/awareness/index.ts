@@ -21,10 +21,10 @@ export class Awareness extends ObservableV2<Events> {
   private readonly YJS_STATE = '__yjs';
 
   private previousState: any | null = null;
+  private participantId: string = '';
 
   constructor(
     public doc: Y.Doc,
-    private participantId: string,
     private logger: Logger,
   ) {
     super();
@@ -37,8 +37,9 @@ export class Awareness extends ObservableV2<Events> {
    * @param {RealtimeRoom} room Main room in which it will propagete presence
    * @returns {void}
    */
-  public connect(room: RealtimeRoom): void {
+  public connect(participantId: string, room: RealtimeRoom): void {
     this.logger.log('[SuperViz | Awareness] - Connect awareness to room');
+    this.participantId = participantId;
 
     this.room = room;
     this.addRoomListeners();
@@ -54,6 +55,9 @@ export class Awareness extends ObservableV2<Events> {
    */
   public destroy(): void {
     this.logger.log('[SuperViz | Awareness] - Destroy awareness');
+
+    this.setLocalState(null);
+    this.removeAwarenessStates(Array.from(this.states.keys()), UpdateOrigin.LOCAL);
 
     clearTimeout(this.visibilityTimeout);
     this.visibilityTimeout = undefined;
@@ -175,7 +179,7 @@ export class Awareness extends ObservableV2<Events> {
     this.states.delete(clientId);
 
     this.emit('update', [update, UpdateOrigin.PRESENCE]);
-    this.emit('update', [update, UpdateOrigin.PRESENCE]);
+    this.emit('change', [update, UpdateOrigin.PRESENCE]);
   };
 
   private onUpdate = (event: PresenceEvent<UpdatePresence>): void => {

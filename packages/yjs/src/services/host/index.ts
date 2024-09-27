@@ -1,24 +1,20 @@
-import { PresenceEvent, Realtime, Room, SocketEvent } from '@superviz/socket-client';
-
-import { createRoom } from '../../common/utils/createRoom';
-import { config } from '../config';
+import type { IOC } from '@superviz/sdk/dist/services/io';
+import { PresenceEvent, Room, SocketEvent } from '@superviz/socket-client';
 
 import { RoomEvent } from './types';
 
 export class HostService {
   private _hostId: string = '';
   private room: Room;
-  private realtime: Realtime;
   private callback: (hostId: string) => void;
 
   constructor(
+    ioc: IOC,
     private participantId: string,
     callback: (hostId: string) => void,
   ) {
-    const roomName = `host-service:${config.get('roomName')}`;
-    const { realtime, room } = createRoom(roomName);
+    const room = ioc.createRoom('yjs-host-service');
 
-    this.realtime = realtime;
     this.room = room;
     this.callback = callback;
 
@@ -43,7 +39,6 @@ export class HostService {
     this.room.off('state', this.onStateChange);
 
     this.room.disconnect();
-    this.realtime.destroy();
   }
 
   // #region getters
