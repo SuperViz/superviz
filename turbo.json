@@ -7,7 +7,7 @@
     },
     "test:unit": {},
     "test:unit:watch": {
-      "cache": false, 
+      "cache": false,
       "persistent": true
     },
     "test:unit:coverage": {
@@ -15,7 +15,7 @@
       "persistent": true
     },
     "test:unit:ci": {
-      "cache": false, 
+      "cache": false,
       "persistent": true
     },
     "test:unit:web-components": {
@@ -26,7 +26,7 @@
       "persistent": true
     },
     "test:unit:web-components:coverage": {
-      "cache": false, 
+      "cache": false,
       "persistent": false
     },
     "watch": {
@@ -75,6 +75,18 @@
       "dependsOn": ["@superviz/socket-client#build"]
     },
     "@superviz/sdk#test:unit:ci": {
+      "dependsOn": ["@superviz/socket-client#build"]
+    },
+    "@superviz/yjs#build": {
+      "dependsOn": ["@superviz/socket-client#build"]
+    },
+    "@superviz/yjs#test:unit": {
+      "dependsOn": ["@superviz/socket-client#build"]
+    },
+    "@superviz/yjs#test:unit:watch": {
+      "dependsOn": ["@superviz/socket-client#build"]
+    },
+    "@superviz/yjs#test:unit:coverage": {
       "dependsOn": ["@superviz/socket-client#build"]
     }
   }

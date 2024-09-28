@@ -20,6 +20,9 @@ importers:
 
   apps/playground:
     dependencies:
+      '@monaco-editor/react':
+        specifier: ^4.6.0
+        version: 4.6.0(monaco-editor@0.51.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@superviz/autodesk-viewer-plugin':
         specifier: workspace:*
         version: link:../../packages/autodesk
@@ -35,12 +38,21 @@ importers:
       '@superviz/threejs-plugin':
         specifier: workspace:*
         version: link:../../packages/three
+      '@superviz/yjs':
+        specifier: workspace:*
+        version: link:../../packages/yjs
       '@types/three':
         specifier: ^0.167.1
         version: 0.167.2
+      lib0:
+        specifier: ^0.2.97
+        version: 0.2.97
       lodash:
         specifier: ^4.17.21
         version: 4.17.21
+      monaco-editor:
+        specifier: ^0.51.0
+        version: 0.51.0
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -62,6 +74,15 @@ importers:
       uuid:
         specifier: ^10.0.0
         version: 10.0.0
+      y-monaco:
+        specifier: ^0.1.6
+        version: 0.1.6(monaco-editor@0.51.0)(yjs@13.6.19)
+      y-protocols:
+        specifier: ^1.0.6
+        version: 1.0.6(yjs@13.6.19)
+      yjs:
+        specifier: ^13.3.1
+        version: 13.6.19
       zod:
         specifier: ^3.23.8
         version: 3.23.8
@@ -581,15 +602,18 @@ importers:
       '@superviz/eslint-config':
         specifier: workspace:*
         version: link:../eslint-config
+      '@superviz/sdk':
+        specifier: workspace:*
+        version: link:../sdk
       '@superviz/socket-client':
         specifier: workspace:*
         version: link:../socket-client
       '@superviz/typescript-config':
         specifier: workspace:*
         version: link:../typescript-config
-      '@types/jest':
-        specifier: ^29.5.13
-        version: 29.5.13
+      debug:
+        specifier: ^4.3.7
+        version: 4.3.7
       esbuild:
         specifier: ^0.23.1
         version: 0.23.1
@@ -602,6 +626,9 @@ importers:
       typescript:
         specifier: ^5.6.2
         version: 5.6.2
+      y-protocols:
+        specifier: ^1.0.6
+        version: 1.0.6(yjs@13.6.19)
       yjs:
         specifier: ^13.3.1
         version: 13.6.19
@@ -609,6 +636,9 @@ importers:
       '@jest/globals':
         specifier: ^29.7.0
         version: 29.7.0
+      '@types/jest':
+        specifier: ^29.5.13
+        version: 29.5.13
       concurrently:
         specifier: ^9.0.1
         version: 9.0.1
@@ -616,6 +646,9 @@ importers:
         specifier: ^29.7.0
         version: 29.7.0(@types/node@20.16.5)
       jest-environment-jsdom:
+        specifier: ^29.7.0
+        version: 29.7.0
+      jest-mock:
         specifier: ^29.7.0
         version: 29.7.0
       ts-jest:
@@ -2008,6 +2041,18 @@ packages:
 
   '@mdn/browser-compat-data@4.2.1':
     resolution: {integrity: sha512-EWUguj2kd7ldmrF9F+vI5hUOralPd+sdsUnYbRy33vZTuZkduC1shE9TtEMEjAQwyfyMb4ole5KtjF8MsnQOlA==}
+
+  '@monaco-editor/loader@1.4.0':
+    resolution: {integrity: sha512-00ioBig0x642hytVspPl7DbQyaSWRaolYie/UFNjoTdvoKPzo6xrXLhTk9ixgIKcLH5b5vDOjVNiGyY+uDCUlg==}
+    peerDependencies:
+      monaco-editor: '>= 0.21.0 < 1'
+
+  '@monaco-editor/react@4.6.0':
+    resolution: {integrity: sha512-RFkU9/i7cN2bsq/iTkurMWOEErmYcY6JiQI3Jn+WeR/FGISH8JbHERjpS9oRuSOPvDMJI0Z8nJeKkbOs9sBYQw==}
+    peerDependencies:
+      monaco-editor: '>= 0.25.0 < 1'
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0
+      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
 
   '@nodelib/fs.scandir@2.1.5':
     resolution: {integrity: sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g==}
@@ -5081,6 +5126,9 @@ packages:
     engines: {node: '>=10'}
     hasBin: true
 
+  monaco-editor@0.51.0:
+    resolution: {integrity: sha512-xaGwVV1fq343cM7aOYB6lVE4Ugf0UyimdD/x5PWcWBMKENwectaEu77FAN7c5sFiyumqeJdX1RPTh1ocioyDjw==}
+
   moo-color@1.0.3:
     resolution: {integrity: sha512-i/+ZKXMDf6aqYtBhuOcej71YSlbjT3wCO/4H1j8rPvxDJEifdwgg5MaFyu6iYAT8GBZJg2z0dkgK4YMzvURALQ==}
 
@@ -6013,6 +6061,9 @@ packages:
     resolution: {integrity: sha512-XlkWvfIm6RmsWtNJx+uqtKLS8eqFbxUg0ZzLXqY0caEy9l7hruX8IpiDnjsLavoBgqCCR71TqWO8MaXYheJ3RQ==}
     engines: {node: '>=10'}
 
+  state-local@1.0.7:
+    resolution: {integrity: sha512-HTEHMNieakEnoe33shBYcZ7NX83ACUjCu8c40iOGEZsngj9zRnkqS9j1pqQPXwobB0ZcVTk27REb7COQ0UR59w==}
+
   statuses@1.5.0:
     resolution: {integrity: sha512-OpZ3zP+jT1PI7I8nemJX4AKmAX070ZkYPVWV/AaKTJl+tXCTGyVdC1a4SL8RUQYEwk/f34ZX8UTykN68FwrqAA==}
     engines: {node: '>= 0.6'}
@@ -6699,6 +6750,19 @@ packages:
   xtend@4.0.2:
     resolution: {integrity: sha512-LKYU1iAXJXUgAXn9URjiu+MWhyUXHsvfp7mcuYm9dSUKK0/CjtrUwFAxD82/mCWbtLsGjFIad0wIsod4zrTAEQ==}
     engines: {node: '>=0.4'}
+
+  y-monaco@0.1.6:
+    resolution: {integrity: sha512-sYRywMmcylt+Nupl+11AvizD2am06ST8lkVbUXuaEmrtV6Tf+TD4rsEm6u9YGGowYue+Vfg1IJ97SUP2J+PVXg==}
+    engines: {node: '>=12.0.0', npm: '>=6.0.0'}
+    peerDependencies:
+      monaco-editor: '>=0.20.0'
+      yjs: ^13.3.1
+
+  y-protocols@1.0.6:
+    resolution: {integrity: sha512-vHRF2L6iT3rwj1jub/K5tYcTT/mEYDUppgNPXwp8fmLpui9f7Yeq3OEtTLVF012j39QnV+KEQpNqoN7CWU7Y9Q==}
+    engines: {node: '>=16.0.0', npm: '>=8.0.0'}
+    peerDependencies:
+      yjs: ^13.0.0
 
   y18n@5.0.8:
     resolution: {integrity: sha512-0pfFzegeDWJHJIAmTLRP2DwHjdF5s7jo9tuztdQxAhINCdvS+3nGINqPd00AphqJR/0LhANUS6/+7SCb98YOfA==}
@@ -8186,6 +8250,18 @@ snapshots:
 
   '@mdn/browser-compat-data@4.2.1': {}
 
+  '@monaco-editor/loader@1.4.0(monaco-editor@0.51.0)':
+    dependencies:
+      monaco-editor: 0.51.0
+      state-local: 1.0.7
+
+  '@monaco-editor/react@4.6.0(monaco-editor@0.51.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@monaco-editor/loader': 1.4.0(monaco-editor@0.51.0)
+      monaco-editor: 0.51.0
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+
   '@nodelib/fs.scandir@2.1.5':
     dependencies:
       '@nodelib/fs.stat': 2.0.5
@@ -8465,7 +8541,7 @@ snapshots:
       read-pkg: 9.0.1
       registry-auth-token: 5.0.2
       semantic-release: 24.0.0(typescript@5.6.2)
-      semver: 7.5.4
+      semver: 7.6.3
       tempy: 3.1.0
 
   '@semantic-release/npm@12.0.1(semantic-release@24.1.1(typescript@5.6.2))':
@@ -8482,7 +8558,7 @@ snapshots:
       read-pkg: 9.0.1
       registry-auth-token: 5.0.2
       semantic-release: 24.1.1(typescript@5.6.2)
-      semver: 7.5.4
+      semver: 7.6.3
       tempy: 3.1.0
 
   '@semantic-release/release-notes-generator@14.0.1(semantic-release@24.0.0(typescript@5.6.2))':
@@ -9869,7 +9945,7 @@ snapshots:
       conventional-commits-filter: 5.0.0
       handlebars: 4.7.8
       meow: 13.2.0
-      semver: 7.5.4
+      semver: 7.6.3
 
   conventional-commit-types@3.0.0: {}
 
@@ -12274,6 +12350,8 @@ snapshots:
 
   mkdirp@1.0.4: {}
 
+  monaco-editor@0.51.0: {}
+
   moo-color@1.0.3:
     dependencies:
       color-name: 1.1.4
@@ -12324,7 +12402,7 @@ snapshots:
   normalize-package-data@6.0.2:
     dependencies:
       hosted-git-info: 7.0.2
-      semver: 7.5.4
+      semver: 7.6.3
       validate-npm-package-license: 3.0.4
 
   normalize-path@3.0.0: {}
@@ -13051,7 +13129,7 @@ snapshots:
 
   semver-diff@4.0.0:
     dependencies:
-      semver: 7.5.4
+      semver: 7.6.3
 
   semver-regex@4.0.5: {}
 
@@ -13218,6 +13296,8 @@ snapshots:
   stack-utils@2.0.6:
     dependencies:
       escape-string-regexp: 2.0.0
+
+  state-local@1.0.7: {}
 
   statuses@1.5.0: {}
 
@@ -13886,6 +13966,17 @@ snapshots:
   xmlhttprequest-ssl@2.0.0: {}
 
   xtend@4.0.2: {}
+
+  y-monaco@0.1.6(monaco-editor@0.51.0)(yjs@13.6.19):
+    dependencies:
+      lib0: 0.2.97
+      monaco-editor: 0.51.0
+      yjs: 13.6.19
+
+  y-protocols@1.0.6(yjs@13.6.19):
+    dependencies:
+      lib0: 0.2.97
+      yjs: 13.6.19
 
   y18n@5.0.8: {}
 
