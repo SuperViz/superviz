@@ -12,7 +12,7 @@ export interface Participant {
 }
 
 export type Params = {
-  // awareness?: boolean = true;
+  awareness?: boolean;
 };
 
 export enum ProviderState {
