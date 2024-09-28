@@ -8,9 +8,12 @@ import { Logger } from '../logger';
 import { Events, UpdateOrigin, UpdatePresence } from './types';
 
 export class Awareness extends ObservableV2<Events> {
-  public clientId: number = 0;
-  public meta: Map<number, { clock: number; lastUpdated: number }> = new Map();
+  public clientID: number = 0;
   public states: Map<number, any> = new Map();
+
+  // Not used, but added because some bindings expect these fields
+  public _checkInterval: ReturnType<typeof setInterval> | null = null;
+  public meta: Map<number, { clock: number; lastUpdated: number }> = new Map();
 
   private participantIdToClientId: Map<string, number> = new Map();
   private room: RealtimeRoom | null = null;
@@ -28,7 +31,7 @@ export class Awareness extends ObservableV2<Events> {
     private logger: Logger,
   ) {
     super();
-    this.clientId = this.doc.clientID;
+    this.clientID = this.doc.clientID;
   }
 
   /**
@@ -80,10 +83,10 @@ export class Awareness extends ObservableV2<Events> {
   public getLocalState(): Record<string, any> | null {
     this.logger.log(
       '[SuperViz | Awareness] - Get local state',
-      this.states.get(this.clientId)?.[this.YJS_STATE],
+      this.states.get(this.clientID)?.[this.YJS_STATE],
     );
 
-    const state = this.states.get(this.clientId);
+    const state = this.states.get(this.clientID);
     if (!state || !state[this.YJS_STATE]) return null;
 
     return state[this.YJS_STATE];
@@ -91,8 +94,8 @@ export class Awareness extends ObservableV2<Events> {
 
   public getStates(): Map<number, Record<string, any>> {
     const states = new Map<number, Record<string, any>>();
-    this.states.forEach((state, clientId) => {
-      states.set(clientId, state[this.YJS_STATE]);
+    this.states.forEach((state, clientID) => {
+      states.set(clientID, state[this.YJS_STATE]);
     });
 
     this.logger.log('[SuperViz | Awareness] - Get states', states);
@@ -103,30 +106,30 @@ export class Awareness extends ObservableV2<Events> {
     this.logger.log('[SuperViz | Awareness] - Set local state', state);
 
     if (state === null) {
-      if (!this.states.has(this.clientId)) return;
-      this.states.delete(this.clientId);
+      if (!this.states.has(this.clientID)) return;
+      this.states.delete(this.clientID);
       this.room?.presence.update<UpdatePresence>({
-        ...this.states.get(this.clientId),
+        ...this.states.get(this.clientID),
         [this.YJS_STATE]: null,
         origin: 'set local state null',
       });
 
-      const update = { added: [], updated: [], removed: [this.clientId] };
+      const update = { added: [], updated: [], removed: [this.clientID] };
       this.emit('change', [update, UpdateOrigin.LOCAL]);
       return;
     }
 
     const update = { added: [], updated: [], removed: [] };
-    let oldState = this.states.get(this.clientId);
+    let oldState = this.states.get(this.clientID);
     if (oldState) {
-      update.updated.push(this.clientId);
+      update.updated.push(this.clientID);
     } else {
-      oldState = { [this.YJS_STATE]: {}, clientId: this.clientId };
-      update.added.push(this.clientId);
+      oldState = { [this.YJS_STATE]: {}, clientID: this.clientID };
+      update.added.push(this.clientID);
     }
 
     const newState = { ...oldState, [this.YJS_STATE]: state, origin: 'set local state' };
-    this.states.set(this.clientId, newState);
+    this.states.set(this.clientID, newState);
     this.room?.presence.update<UpdatePresence>(newState);
 
     this.emit('change', [update, UpdateOrigin.LOCAL]);
@@ -163,20 +166,20 @@ export class Awareness extends ObservableV2<Events> {
 
   // #region events callbacks
   private onLeave = (event: PresenceEvent): void => {
-    const clientId = this.participantIdToClientId.get(event.id);
-    this.logger.log('[SuperViz | Awareness] - Participant left', { participant: event, clientId });
+    const clientID = this.participantIdToClientId.get(event.id);
+    this.logger.log('[SuperViz | Awareness] - Participant left', { participant: event, clientID });
 
-    if (!clientId) return;
+    if (!clientID) return;
 
-    if (clientId === this.clientId) {
+    if (clientID === this.clientID) {
       const ids = Array.from(this.states.keys());
       this.removeAwarenessStates(ids, UpdateOrigin.PRESENCE);
       return;
     }
 
-    const update = { added: [], updated: [], removed: [clientId] };
+    const update = { added: [], updated: [], removed: [clientID] };
     this.participantIdToClientId.delete(event.id);
-    this.states.delete(clientId);
+    this.states.delete(clientID);
 
     this.emit('update', [update, UpdateOrigin.PRESENCE]);
     this.emit('change', [update, UpdateOrigin.PRESENCE]);
@@ -188,24 +191,24 @@ export class Awareness extends ObservableV2<Events> {
     this.logger.log('[SuperViz | Awareness] - Participant updated', event);
 
     if (event.data[this.YJS_STATE] === null) {
-      this.removeAwarenessStates([event.data.clientId], UpdateOrigin.PRESENCE);
+      this.removeAwarenessStates([event.data.clientID], UpdateOrigin.PRESENCE);
       return;
     }
 
     const added: number[] = [];
     const updated: number[] = [];
-    let clientId = this.participantIdToClientId.get(event.id);
+    let clientID = this.participantIdToClientId.get(event.id);
 
-    if (clientId) {
-      updated.push(event.data.clientId);
+    if (clientID) {
+      updated.push(event.data.clientID);
     } else {
-      this.participantIdToClientId.set(event.id, event.data.clientId);
-      clientId = event.data.clientId;
-      added.push(event.data.clientId);
+      this.participantIdToClientId.set(event.id, event.data.clientID);
+      clientID = event.data.clientID;
+      added.push(event.data.clientID);
     }
 
-    this.states.set(clientId, {
-      ...(this.states.get(clientId) || {}),
+    this.states.set(clientID, {
+      ...(this.states.get(clientID) || {}),
       ...event.data,
     });
 
@@ -237,20 +240,20 @@ export class Awareness extends ObservableV2<Events> {
       const added: number[] = [];
 
       presences.forEach((presence) => {
-        const { clientId } = presence.data;
-        if (!clientId) return;
-        added.push(clientId);
-        this.participantIdToClientId.set(presence.id, clientId);
-        this.states.set(clientId, {
+        const { clientID } = presence.data;
+        if (!clientID) return;
+        added.push(clientID);
+        this.participantIdToClientId.set(presence.id, clientID);
+        this.states.set(clientID, {
           ...presence.data,
         });
       });
 
-      const clientId = this.doc.clientID;
+      const { clientID } = this.doc;
       this.room.presence.update<UpdatePresence>({
-        clientId,
+        clientID,
         [this.YJS_STATE]: {},
-        ...(this.states.get(clientId) || {}),
+        ...(this.states.get(clientID) || {}),
         origin: 'on connect',
       });
 
@@ -264,11 +267,11 @@ export class Awareness extends ObservableV2<Events> {
     this.logger.log('[SuperViz | Awareness] - Remove awareness states', { removed, origin });
 
     const update = { added: [], updated: [], removed: [] };
-    removed.forEach((clientId) => {
-      if (!this.states.get(clientId)) return;
+    removed.forEach((clientID) => {
+      if (!this.states.get(clientID)) return;
 
-      this.states.delete(clientId);
-      update.removed.push(clientId);
+      this.states.delete(clientID);
+      update.removed.push(clientID);
     });
 
     this.emit('change', [update, origin]);

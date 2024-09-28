@@ -4,7 +4,7 @@ export enum UpdateOrigin {
 }
 
 export interface UpdatePresence {
-  clientId: number;
+  clientID: number;
   yjs_state: any;
 }
 
