@@ -45,7 +45,7 @@ export class SuperVizYjsProvider extends ObservableV2<Events> {
   private hostService: HostService | null = null;
 
   constructor(
-    private doc: Y.Doc,
+    public doc: Y.Doc,
     opts: Params = {},
   ) {
     super();
