@@ -30,10 +30,11 @@ function setStyles(
       .yRemoteSelection-${id},
       .yRemoteSelectionHead-${id}  {
         --presence-color: ${state.participant.slot.color};
-      }
-
-      .yRemoteSelectionHead-${id}::after {
-        content: "${state.participant.name}";
+        }
+        
+        .yRemoteSelectionHead-${id}:after {
+          content: "${state.participant.name}";
+          --sv-text-color: ${state.participant.slot.textColor};
       }
     `;
   }
@@ -51,7 +52,7 @@ export function YjsWithMonaco() {
     useState<Partial<Participant>>();
 
   const provider = useRef<SuperVizYjsProvider>(new SuperVizYjsProvider(ydoc));
-  const wio = useRef<WhoIsOnline>(new WhoIsOnline());
+  const wio = useRef<WhoIsOnline>();
 
   const [ids, setIds] = useState(new Set<number>());
 
@@ -63,6 +64,8 @@ export function YjsWithMonaco() {
   useEffect(() => {
     if (loaded.current) return;
     loaded.current = true;
+
+    wio.current = new WhoIsOnline();
 
     (async () => {
       if (room) return;
@@ -84,7 +87,7 @@ export function YjsWithMonaco() {
       newRoom.subscribe("participant.updated", (data) => {
         if (!data.slot?.index) return;
 
-        provider.current.awareness.setLocalStateField("participant", {
+        provider.current.awareness?.setLocalStateField("participant", {
           id: data.id,
           slot: data.slot,
           name: data.name,
@@ -95,8 +98,6 @@ export function YjsWithMonaco() {
           slot: data.slot,
           name: data.name,
         });
-
-        newRoom.unsubscribe("participant.updated");
       });
 
       const style = document.createElement("style");
@@ -116,21 +117,21 @@ export function YjsWithMonaco() {
     setJoinedRoom(true);
 
     if (localParticipant) {
-      provider.current.awareness.setLocalStateField(
+      provider.current.awareness?.setLocalStateField(
         "participant",
         localParticipant
       );
     }
 
     const updateStyles = () => {
-      const states = provider.current.awareness.getStates();
+      const states = provider.current.awareness?.getStates();
       const idsList = setStyles(states, ids);
 
       setIds(new Set(idsList));
     };
 
     provider.current.on("connect", updateStyles);
-    provider.current.awareness.on("update", updateStyles);
+    provider.current.awareness?.on("update", updateStyles);
 
     room.addComponent(provider.current);
     room.addComponent(wio.current);

@@ -18,7 +18,7 @@
   box-sizing: border-box;
 }
 
-.yRemoteSelectionHead::after {
+.yRemoteSelectionHead:after {
   position: absolute;
   content: " ";
   font-size: 10px;
@@ -26,6 +26,7 @@
   font-family: sans-serif;
   font-weight: bold;
   background-color: var(--presence-color);
+  color: var(--sv-text-color);
   border-radius: 4px;
   left: 0px;
   bottom: 60%;
