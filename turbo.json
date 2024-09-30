@@ -78,16 +78,13 @@
       "dependsOn": ["@superviz/socket-client#build"]
     },
     "@superviz/yjs#build": {
-      "dependsOn": ["@superviz/socket-client#build"]
+      "dependsOn": ["@superviz/yjs-client#build"]
     },
     "@superviz/yjs#test:unit": {
-      "dependsOn": ["@superviz/socket-client#build"]
-    },
-    "@superviz/yjs#test:unit:watch": {
-      "dependsOn": ["@superviz/socket-client#build"]
+      "dependsOn": ["@superviz/yjs-client#build"]
     },
     "@superviz/yjs#test:unit:coverage": {
-      "dependsOn": ["@superviz/socket-client#build"]
+      "dependsOn": ["@superviz/yjs#build"]
     }
   }
 }
