@@ -115,9 +115,6 @@ describe('Awareness', () => {
 
       const states = awareness.getStates();
       expect(states.size).toBe(1);
-      const localState = states.get(awareness['clientID']);
-
-      console.log('hm', states.get(awareness['clientID']), localState);
 
       expect(states.get(awareness['clientID'])).toEqual({ visibility: 'visible' });
     });
