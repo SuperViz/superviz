@@ -78,7 +78,7 @@
       "dependsOn": ["@superviz/socket-client#build"]
     },
     "@superviz/yjs#build": {
-      "dependsOn": ["@superviz/yjs#build"]
+      "dependsOn": ["@superviz/socket-client#build", "@superviz/sdk#build"]
     },
     "@superviz/yjs#test:unit": {
       "dependsOn": ["@superviz/yjs#build"]
