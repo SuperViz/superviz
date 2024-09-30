@@ -325,7 +325,7 @@ export class SuperVizYjsProvider extends ObservableV2<Events> {
 
     this.logger.log('Joined the room', event);
 
-    this.awareness.connect(this.localParticipant.id, this.room!);
+    this.awareness?.connect(this.localParticipant.id, this.room!);
     this.changeState(ProviderState.CONNECTED);
     this.emit('connect', []);
 
