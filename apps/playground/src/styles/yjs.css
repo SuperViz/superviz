@@ -32,3 +32,16 @@
   bottom: 60%;
   opacity: 1;
 }
+
+.ql-cursor-selections .ql-cursor-selection-block {
+  background-color: var(--presence-color) !important;
+}
+
+.ql-cursor-caret-container .ql-cursor-caret {
+  background-color: var(--presence-color) !important;
+}
+
+.ql-cursor-flag {
+  background-color: var(--presence-color) !important;
+  color: var(--sv-text-color) !important;
+}

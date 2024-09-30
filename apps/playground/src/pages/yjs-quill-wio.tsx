@@ -2,7 +2,6 @@
 import * as Y from "yjs";
 import { SuperVizYjsProvider } from "@superviz/yjs";
 
-import { MonacoBinding } from "y-monaco";
 import "../styles/yjs.css";
 import Room, {
   type LauncherFacade,
@@ -10,7 +9,13 @@ import Room, {
   WhoIsOnline,
 } from "@superviz/sdk";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import Editor from "@monaco-editor/react";
+
+import ReactQuill, { Quill } from "react-quill-new";
+import { QuillBinding } from "y-quill";
+import "react-quill-new/dist/quill.snow.css";
+import QuillCursors from "quill-cursors";
+
+Quill.register("modules/cursors", QuillCursors);
 
 const id = Math.floor(Math.random() * 1000000);
 
@@ -18,7 +23,7 @@ function setStyles(
   states: Map<number, Record<string, any>>,
   ids: Set<number>
 ): number[] {
-  const stylesheet = document.getElementById("sv-yjs-monaco");
+  const stylesheet = document.getElementById("sv-yjs-quill");
   let styles = "";
 
   const idsList = [];
@@ -27,13 +32,8 @@ function setStyles(
     idsList.push(id);
 
     styles += `
-      .yRemoteSelection-${id},
-      .yRemoteSelectionHead-${id}  {
-        --presence-color: ${state.participant.slot.color};
-        }
-        
-        .yRemoteSelectionHead-${id}:after {
-          content: "${state.participant.name}";
+        #ql-cursor-${id} {
+          --presence-color: ${state.participant.slot.color};
           --sv-text-color: ${state.participant.slot.textColor};
       }
     `;
@@ -44,9 +44,10 @@ function setStyles(
   return idsList;
 }
 
-export function YjsWithMonaco() {
+export function YjsWithQuill() {
   const ydoc = useMemo(() => new Y.Doc(), []);
-  const [editor, setEditor] = useState<any>(null);
+
+  const quillRef = useRef<ReactQuill>(null);
 
   const [localParticipant, setLocalParticipant] =
     useState<Partial<Participant>>();
@@ -72,14 +73,14 @@ export function YjsWithMonaco() {
 
       const newRoom = await Room("90xbxrp4tra3hrkbw5y1sq7sw5cj9v", {
         group: {
-          id: "yjs-monaco",
-          name: "Yjs Monaco",
+          id: "yjs-quill",
+          name: "Yjs Quill",
         },
         participant: {
           id: `ian-yjs-${id}`,
           name: `Ian Yjs ${id}`,
         },
-        roomId: "yjs-monaco",
+        roomId: "yjs-quill",
         environment: "dev",
         debug: true,
       });
@@ -101,7 +102,7 @@ export function YjsWithMonaco() {
       });
 
       const style = document.createElement("style");
-      style.id = "sv-yjs-monaco";
+      style.id = "sv-yjs-quill";
       document.head.appendChild(style);
 
       setRoom(newRoom);
@@ -147,18 +148,18 @@ export function YjsWithMonaco() {
 
   // this effect manages the lifetime of the editor binding
   useEffect(() => {
-    if (!provider || editor == null) return;
+    if (!provider || !quillRef.current) return;
 
-    const binding = new MonacoBinding(
-      ydoc.getText("monaco"),
-      editor.getModel()!,
-      new Set([editor]),
+    const binding = new QuillBinding(
+      ydoc.getText("quill"),
+      quillRef.current.getEditor(),
       provider.current.awareness
     );
+
     return () => {
       binding.destroy();
     };
-  }, [ydoc, provider, editor]);
+  }, [ydoc, provider]);
 
   return (
     <div className="p-5 h-full bg-gray-200 flex flex-col gap-5">
@@ -178,21 +179,24 @@ export function YjsWithMonaco() {
           Leave room
         </button>
       </div>
-      <div className="bg-[#1e1e1e] shadow-none h-[90%] overflow-auto rounded-sm">
+      <div className="shadow-none h-[90%] overflow-auto rounded-sm">
         <div className="yRemoteSelectionHead"></div>
-        <Editor
-          defaultValue="// Connect to the room to start collaborating"
-          defaultLanguage="typescript"
-          onMount={(editor) => {
-            setEditor(editor);
-          }}
-          options={{
-            padding: {
-              top: 32,
+        <ReactQuill
+          placeholder="// Connect to the room to start collaborating"
+          ref={quillRef}
+          theme="snow"
+          modules={{
+            cursors: true,
+            toolbar: [
+              [{ header: [1, 2, false] }],
+              ["bold", "italic", "underline"],
+              ["image", "code-block"],
+            ],
+            history: {
+              userOnly: true,
             },
           }}
-          theme="vs-dark"
-        />
+        />{" "}
       </div>
     </div>
   );
