@@ -46,7 +46,7 @@ export class SuperVizYjsProvider extends ObservableV2<Events> {
 
   constructor(
     public doc: Y.Doc,
-    opts: Params,
+    opts?: Params,
   ) {
     super();
     this.document = doc;
@@ -91,6 +91,7 @@ export class SuperVizYjsProvider extends ObservableV2<Events> {
     this.localParticipant = localParticipant.value;
     this.isAttached = true;
     this.connect();
+    this.emit('mount', []);
   }
 
   public detach() {
@@ -99,10 +100,10 @@ export class SuperVizYjsProvider extends ObservableV2<Events> {
       return;
     }
 
-    this.emit(ComponentLifeCycleEvent.UNMOUNT, []);
     this.logger.log('detached');
     this.destroyProvider();
     super.destroy();
+    this.emit(ComponentLifeCycleEvent.UNMOUNT, []);
   }
 
   /**
@@ -112,7 +113,6 @@ export class SuperVizYjsProvider extends ObservableV2<Events> {
    * automatically when a SuperVizYjsProvider instance is created,
    * unless opted-out by passing "connect: false" in the constructor
    * options. Can't connect if it is already connected
-   * @public
    * @emits state
    * @returns {void}
    */
@@ -128,7 +128,7 @@ export class SuperVizYjsProvider extends ObservableV2<Events> {
   }
 
   /**
-   * @public @function destroy
+   * @function destroy
    * @description Disconnect from the room and reset the instance state.
    * @emits state @returns {void}
    */
