@@ -83,6 +83,9 @@
     "@superviz/yjs#test:unit": {
       "dependsOn": ["@superviz/sdk#build", "@superviz/socket-client#build"]
     },
+    "@superviz/yjs#test:unit:ci": {
+      "dependsOn": ["@superviz/sdk#build", "@superviz/socket-client#build"]
+    },
     "@superviz/yjs#test:unit:coverage": {
       "dependsOn": ["@superviz/yjs#build"]
     },
