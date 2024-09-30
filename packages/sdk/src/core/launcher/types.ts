@@ -17,6 +17,7 @@ type LauncherSubscribe = {
   (event: `${ParticipantEvent.LEFT}`, callback: (participant: Participant) => void);
   (event: `${ParticipantEvent.LIST_UPDATED}`, callback: (participant: Participant[]) => void);
   (event: `${ParticipantEvent.LOCAL_UPDATED}`, callback: (participant: Participant) => void);
+  (event: string, callback: (data: any) => void);
 };
 
 export type LauncherUnsubscribe = {
@@ -27,6 +28,7 @@ export type LauncherUnsubscribe = {
   (event: `${ParticipantEvent.LEFT}`, callback?: (participant: Participant) => void);
   (event: `${ParticipantEvent.LIST_UPDATED}`, callback?: (participant: Participant[]) => void);
   (event: `${ParticipantEvent.LOCAL_UPDATED}`, callback?: (participant: Participant) => void);
+  (event: string, callback?: (data: any) => void);
 };
 
 export interface LauncherFacade {
