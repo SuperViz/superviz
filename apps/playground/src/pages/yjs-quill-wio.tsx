@@ -144,6 +144,8 @@ export function YjsWithQuill() {
 
     room.removeComponent(wio.current);
     room.removeComponent(provider.current);
+
+    setIds(new Set());
   }, [room, joinedRoom]);
 
   // this effect manages the lifetime of the editor binding

@@ -35,6 +35,7 @@
 
 .ql-cursor-selections .ql-cursor-selection-block {
   background-color: var(--presence-color) !important;
+  opacity: 0.4;
 }
 
 .ql-cursor-caret-container .ql-cursor-caret {

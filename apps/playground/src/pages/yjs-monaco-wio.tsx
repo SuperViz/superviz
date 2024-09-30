@@ -141,6 +141,7 @@ export function YjsWithMonaco() {
     if (!joinedRoom || !room) return;
     setJoinedRoom(false);
 
+    setIds(new Set());
     room.removeComponent(wio.current);
     room.removeComponent(provider.current);
   }, [room, joinedRoom]);
