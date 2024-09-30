@@ -37,7 +37,7 @@ export class Awareness extends ObservableV2<Events> {
   /**
    * @function connect
    * @description Start the awareness service
-   * @param {RealtimeRoom} room Main room in which it will propagete presence
+   * @param {RealtimeRoom} room Main room in which it will propagate presence
    * @returns {void}
    */
   public connect(participantId: string, room: RealtimeRoom): void {

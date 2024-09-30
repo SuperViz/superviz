@@ -46,14 +46,14 @@ export class SuperVizYjsProvider extends ObservableV2<Events> {
 
   constructor(
     public doc: Y.Doc,
-    opts: Params = {},
+    opts: Params,
   ) {
     super();
     this.document = doc;
 
     this.logger = new Logger('SuperVizYjsProvider', '[SuperViz | YjsProvider] - ');
 
-    if (opts.awareness === false) return;
+    if (opts?.awareness === false) return;
     this.awareness = new Awareness(this.doc, this.logger);
   }
 

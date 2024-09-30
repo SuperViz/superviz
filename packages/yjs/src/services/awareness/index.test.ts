@@ -17,7 +17,7 @@ function createAwareness(): Awareness {
 const participantId = 'local-participant-id';
 
 function connectAwareness(awareness: Awareness) {
-  const room = new MOCK_IO.Realtime('api-key', 'dev', {}, 'secret', 'clientId').connect();
+  const room = new MOCK_IO.Realtime('api-key', 'dev', {}, 'secret', 'clientID').connect();
 
   awareness.connect(participantId, room);
 }
@@ -92,7 +92,7 @@ describe('Awareness', () => {
 
     test('should return null if state is not set', () => {
       const awareness = createAwareness();
-      awareness['states'].delete(awareness['clientId']);
+      awareness['states'].delete(awareness['clientID']);
 
       const state = awareness.getLocalState();
       expect(state).toBeNull();
@@ -100,7 +100,7 @@ describe('Awareness', () => {
 
     test('should return null if presence key is not set', () => {
       const awareness = createAwareness();
-      awareness['states'].set(awareness['clientId'], {});
+      awareness['states'].set(awareness['clientID'], {});
 
       const state = awareness.getLocalState();
       expect(state).toBeNull();
@@ -115,7 +115,11 @@ describe('Awareness', () => {
 
       const states = awareness.getStates();
       expect(states.size).toBe(1);
-      expect(states.get(awareness['clientId'])).toEqual({ visibility: 'visible' });
+      const localState = states.get(awareness['clientID']);
+
+      console.log('hm', states.get(awareness['clientID']), localState);
+
+      expect(states.get(awareness['clientID'])).toEqual({ visibility: 'visible' });
     });
   });
 
@@ -153,7 +157,7 @@ describe('Awareness', () => {
     test('should preserve info in the states map besides the yjs presence key', () => {
       const awareness = createAwareness();
 
-      awareness.states.set(awareness['clientId'], {
+      awareness.states.set(awareness['clientID'], {
         visibility: 'visible',
         [awareness['YJS_STATE']]: {
           audio: 'muted',
@@ -162,7 +166,7 @@ describe('Awareness', () => {
 
       awareness.setLocalState({ video: 'on' });
 
-      const state = awareness.states.get(awareness['clientId']);
+      const state = awareness.states.get(awareness['clientID']);
       expect(state).toEqual({
         visibility: 'visible',
         [awareness['YJS_STATE']]: {
@@ -175,14 +179,14 @@ describe('Awareness', () => {
     test('if state was not set, should set default old state', () => {
       const awareness = createAwareness();
 
-      awareness.states.set(awareness['clientId'], null);
+      awareness.states.set(awareness['clientID'], null);
       awareness.setLocalState({});
 
-      const state = awareness.states.get(awareness['clientId']);
+      const state = awareness.states.get(awareness['clientID']);
       expect(state).toEqual({
         [awareness['YJS_STATE']]: {},
         origin: 'set local state',
-        clientId: awareness['clientId'],
+        clientID: awareness['clientID'],
       });
     });
   });
@@ -191,7 +195,7 @@ describe('Awareness', () => {
     test('should set a single field in the local state, taking the previous state into account', () => {
       const awareness = createAwareness();
 
-      awareness.states.set(awareness['clientId'], {
+      awareness.states.set(awareness['clientID'], {
         [awareness['YJS_STATE']]: {
           audio: 'muted',
         },
@@ -199,7 +203,7 @@ describe('Awareness', () => {
 
       awareness.setLocalStateField('video', 'on');
 
-      const state = awareness.states.get(awareness['clientId']);
+      const state = awareness.states.get(awareness['clientID']);
       expect(state).toEqual({
         [awareness['YJS_STATE']]: {
           audio: 'muted',
@@ -212,16 +216,16 @@ describe('Awareness', () => {
     test('should set single field even if complete state did not exist', () => {
       const awareness = createAwareness();
 
-      awareness.states.set(awareness['clientId'], null);
+      awareness.states.set(awareness['clientID'], null);
       awareness.setLocalStateField('video', 'on');
 
-      const state = awareness.states.get(awareness['clientId']);
+      const state = awareness.states.get(awareness['clientID']);
       expect(state).toEqual({
         [awareness['YJS_STATE']]: {
           video: 'on',
         },
         origin: 'set local state',
-        clientId: awareness['clientId'],
+        clientID: awareness['clientID'],
       });
     });
   });
@@ -240,14 +244,14 @@ describe('Awareness', () => {
 
     test('should remove other awareness when local participant leaves', () => {
       const awareness = createAwareness();
-      awareness['participantIdToClientId'].set('local-participant-id', awareness['clientId']);
+      awareness['participantIdToClientId'].set('local-participant-id', awareness['clientID']);
 
       awareness['states'].set(1, {});
       awareness['states'].set(2, {});
       awareness['states'].set(3, {});
-      awareness['states'].set(awareness['clientId'], {});
+      awareness['states'].set(awareness['clientID'], {});
 
-      const awarenessToRemove = [1, 2, 3, awareness['clientId']];
+      const awarenessToRemove = [1, 2, 3, awareness['clientID']];
 
       awareness['removeAwarenessStates'] = jest.fn();
 
@@ -268,11 +272,11 @@ describe('Awareness', () => {
 
       awareness['onUpdate']({
         id: '1',
-        data: { clientId: 1, [awareness['YJS_STATE']]: {} },
+        data: { clientID: 1, [awareness['YJS_STATE']]: {} },
       } as unknown as PresenceEvent<UpdatePresence>);
 
       expect(awareness['states'].get(1)).toEqual({
-        clientId: 1,
+        clientID: 1,
         [awareness['YJS_STATE']]: {},
       });
     });
@@ -285,7 +289,7 @@ describe('Awareness', () => {
 
       awareness['onUpdate']({
         id: 'local-participant-id',
-        data: { clientId: 1, [awareness['YJS_STATE']]: {} },
+        data: { clientID: 1, [awareness['YJS_STATE']]: {} },
       } as unknown as PresenceEvent<UpdatePresence>);
 
       expect(awareness['states'].set).toHaveBeenCalledTimes(0);
@@ -297,7 +301,7 @@ describe('Awareness', () => {
 
       awareness['onUpdate']({
         id: '1',
-        data: { clientId: 1, [awareness['YJS_STATE']]: null },
+        data: { clientID: 1, [awareness['YJS_STATE']]: null },
       } as unknown as PresenceEvent<UpdatePresence>);
 
       expect(awareness['removeAwarenessStates']).toHaveBeenCalledWith([1], UpdateOrigin.PRESENCE);
@@ -311,7 +315,7 @@ describe('Awareness', () => {
 
       awareness['onUpdate']({
         id: '1',
-        data: { clientId: 1, [awareness['YJS_STATE']]: {} },
+        data: { clientID: 1, [awareness['YJS_STATE']]: {} },
       } as unknown as PresenceEvent<UpdatePresence>);
 
       expect(awareness['participantIdToClientId'].get('1')).toBe(1);
@@ -394,15 +398,15 @@ describe('Awareness', () => {
     test('should update own presence in the room with the client id', () => {
       const awareness = createAwareness();
 
-      const room = new MOCK_IO.Realtime('api-key', 'dev', {}, 'secret', 'clientId').connect();
+      const room = new MOCK_IO.Realtime('api-key', 'dev', {}, 'secret', 'clientID').connect();
       awareness.connect(participantId, room);
 
-      mockPresenceListOnce([{ id: 'local-participant-id', data: { clientId: 1 } }]);
+      mockPresenceListOnce([{ id: 'local-participant-id', data: { clientID: 1 } }]);
 
       awareness['initializePresences']();
 
       expect(MOCK_ROOM.presence.update).toHaveBeenCalledWith({
-        clientId: awareness['clientId'],
+        clientID: awareness['clientID'],
         [awareness['YJS_STATE']]: {},
         origin: 'on connect',
       });
@@ -411,14 +415,14 @@ describe('Awareness', () => {
     test('should set the state and map the id of participants', () => {
       const awareness = createAwareness();
 
-      const room = new MOCK_IO.Realtime('api-key', 'dev', {}, 'secret', 'clientId').connect();
+      const room = new MOCK_IO.Realtime('api-key', 'dev', {}, 'secret', 'clientID').connect();
       awareness.connect(participantId, room);
 
       awareness['states'].set = jest.fn();
 
       mockPresenceListOnce([
-        { id: '1', data: { clientId: 1, visibility: 'visible' } },
-        { id: '2', data: { clientId: 2, visibility: 'hidden' } },
+        { id: '1', data: { clientID: 1, visibility: 'visible' } },
+        { id: '2', data: { clientID: 2, visibility: 'hidden' } },
       ]);
 
       awareness['initializePresences']();
@@ -428,19 +432,19 @@ describe('Awareness', () => {
 
       expect(awareness['states'].set).toHaveBeenCalledTimes(2);
       expect(awareness['states'].set).toHaveBeenCalledWith(1, {
-        clientId: 1,
+        clientID: 1,
         visibility: 'visible',
       });
       expect(awareness['states'].set).toHaveBeenCalledWith(2, {
-        clientId: 2,
+        clientID: 2,
         visibility: 'hidden',
       });
     });
 
-    test('should not set state and map if the presence has no clientId', () => {
+    test('should not set state and map if the presence has no clientID', () => {
       const awareness = createAwareness();
 
-      const room = new MOCK_IO.Realtime('api-key', 'dev', {}, 'secret', 'clientId').connect();
+      const room = new MOCK_IO.Realtime('api-key', 'dev', {}, 'secret', 'clientID').connect();
       awareness.connect(participantId, room);
 
       awareness['states'].set = jest.fn();

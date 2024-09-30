@@ -8,22 +8,14 @@ import { DocUpdate, MessageToHost } from './types';
 
 import { SuperVizYjsProvider } from '.';
 
-function createProvider(connect: boolean = true, debug: boolean = false, room: string = '') {
+function createProvider(awareness: boolean = true) {
   const doc = new Y.Doc();
-  const provider = new SuperVizYjsProvider(doc, {
-    apiKey: '123',
-    environment: 'dev',
-    participant: {
-      id: 'local-participant-id',
-      name: 'Provider Test',
-    },
-    connect,
-    debug,
-    room,
-  });
+  const provider = new SuperVizYjsProvider(doc, { awareness });
+
   provider['localParticipant'] = {
     id: 'local-participant-id',
   } as Participant;
+
   provider['ioc'] = {
     client: new MOCK_IO.Realtime('123', 'dev', {}, 'secret', 'clientId'),
     createRoom() {
@@ -41,6 +33,20 @@ describe('provider', () => {
     jest.clearAllMocks();
     jest.restoreAllMocks();
     jest.restoreAllMocks();
+  });
+
+  describe('start', () => {
+    test('should not create awareness if option is false', () => {
+      const provider = createProvider(false);
+
+      expect(provider['awareness']).toBeUndefined();
+    });
+
+    test('should create awareness', () => {
+      const provider = createProvider();
+
+      expect(provider['awareness']).toBeDefined();
+    });
   });
 
   describe('attach', () => {
