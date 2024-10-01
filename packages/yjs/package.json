@@ -22,10 +22,22 @@
     "watch:code": "node ./.esbuild/watch.js",
     "watch:types": "./node_modules/typescript/bin/tsc --declaration --emitDeclarationOnly --declarationDir dist"
   },
+  "publishConfig": {
+    "access": "public",
+    "scope": "@superviz"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SuperViz/superviz.git"
+  },
   "type": "module",
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/SuperViz/superviz/issues"
+  },
+  "homepage": "https://github.com/SuperViz/superviz/tree/main/packages/yjs#readme",
   "dependencies": {
     "@superviz/eslint-config": "workspace:*",
     "@superviz/socket-client": "workspace:*",
