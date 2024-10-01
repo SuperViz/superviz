@@ -90,34 +90,11 @@ describe('provider', () => {
       provider.attach({
         useStore: () => ({
           isDomainWhitelisted: { value: true },
-          hasJoinedRoom: { value: false },
+          hasJoinedRoom: { value: false, subscribe: jest.fn() },
         }),
       } as any);
 
       expect(provider['connect']).not.toHaveBeenCalled();
-    });
-
-    test('should try to rettach if user has not joined room', () => {
-      jest.useFakeTimers();
-      const provider = createProvider();
-      provider['connect'] = jest.fn();
-
-      const value = {
-        value: false,
-      };
-      provider.attach({
-        useStore: () => ({
-          isDomainWhitelisted: { value: true },
-          hasJoinedRoom: value,
-          localParticipant: { value: { id: 'local-participant-id' } },
-        }),
-      } as any);
-
-      expect(provider['connect']).not.toHaveBeenCalled();
-      value.value = true;
-      jest.advanceTimersByTime(2000);
-
-      expect(provider['connect']).toHaveBeenCalled();
     });
 
     test('should throw error if param has undefined', () => {
@@ -285,7 +262,7 @@ describe('provider', () => {
 
       provider['fetch']();
 
-      expect(MOCK_ROOM.emit).toHaveBeenCalledWith('message-to-host', {
+      expect(MOCK_ROOM.emit).toHaveBeenCalledWith('provider.message-to-host', {
         update: state,
       });
     });
@@ -294,15 +271,15 @@ describe('provider', () => {
   describe('updateDocument', () => {
     test('should apply updates to document', () => {
       const provider = createProvider();
-      const update = Y.encodeStateAsUpdateV2(provider['doc']);
+      const doc = new Y.Doc();
+      doc.getArray('test').insert(0, ['test']);
+      const update = Y.encodeStateAsUpdateV2(doc);
 
+      const previousState = Y.encodeStateAsUpdateV2(provider['doc']);
       provider['updateDocument'](update);
+      const newState = Y.encodeStateAsUpdateV2(provider['doc']);
 
-      const diff = Y.diffUpdate(update, Y.encodeStateAsUpdate(provider['doc']));
-
-      diff.forEach((d) => {
-        expect(d).toEqual(0);
-      });
+      expect(newState).not.toEqual(previousState);
     });
   });
 
@@ -313,14 +290,14 @@ describe('provider', () => {
 
       provider['changeState']('provider.connected');
 
-      expect(provider['state']).toEqual('connected');
+      expect(provider['state']).toEqual('provider.connected');
     });
   });
 
   describe('onMessageToHost', () => {
     test('should apply and broadcast update', () => {
       const provider = createProvider();
-      provider['hostService']!['#hostId'] = 'local-participant-id';
+      provider['hostService']!['setHostId']('local-participant-id');
 
       const doc = new Y.Doc();
       doc.getArray('test').insert(0, ['test']);
@@ -336,7 +313,7 @@ describe('provider', () => {
       const update = Y.encodeStateAsUpdateV2(provider['doc'], new Uint8Array(comingUpdate));
 
       expect(provider['updateDocument']).toHaveBeenCalledWith(comingUpdate);
-      expect(MOCK_ROOM.emit).toHaveBeenCalledWith('broadcast', {
+      expect(MOCK_ROOM.emit).toHaveBeenCalledWith('provider.broadcast', {
         update,
       });
     });
@@ -369,7 +346,7 @@ describe('provider', () => {
 
       provider['onDocUpdate'](update);
 
-      expect(MOCK_ROOM.emit).toHaveBeenCalledWith('update', { update });
+      expect(MOCK_ROOM.emit).toHaveBeenCalledWith('provider.update', { update });
     });
   });
 
@@ -490,7 +467,7 @@ describe('provider', () => {
     test('should do nothing if user is host', () => {
       const provider = createProvider();
       provider['_synced'] = false;
-      provider['hostService']!['#hostId'] = 'local-participant-id';
+      provider['hostService']!['setHostId']('local-participant-id');
 
       const doc = new Y.Doc();
       doc.getArray('test').insert(0, ['test']);
@@ -502,7 +479,7 @@ describe('provider', () => {
       } as SocketEvent<DocUpdate>);
 
       expect(provider['updateDocument']).not.toHaveBeenCalled();
-      expect(provider.synced).toBe(false);
+      expect(provider.synced).toBe(true);
     });
   });
 
@@ -534,7 +511,7 @@ describe('provider', () => {
       provider['onReceiveRealtimeMessage']('provider.update', { update: new Uint8Array() });
 
       expect(provider['emit']).toHaveBeenCalledWith('message', [
-        { data: { update: new Uint8Array() }, name: 'update' },
+        { data: { update: new Uint8Array() }, name: 'provider.update' },
       ]);
     });
   });
@@ -547,7 +524,7 @@ describe('provider', () => {
       provider['beforeSendRealtimeMessage']('provider.update', { update: new Uint8Array() });
 
       expect(provider['emit']).toHaveBeenCalledWith('outgoingMessage', [
-        { data: { update: new Uint8Array() }, name: 'update' },
+        { data: { update: new Uint8Array() }, name: 'provider.update' },
       ]);
     });
   });

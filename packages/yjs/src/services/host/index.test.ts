@@ -77,7 +77,7 @@ describe('HostService', () => {
       const hostId = ids[Math.floor(Math.random() * 2)];
 
       const hostService = createHostService();
-      hostService['#hostId'] = hostId;
+      hostService['setHostId'](hostId);
 
       expect(hostService.isHost).toBe(hostId === participantId);
     });
@@ -85,8 +85,7 @@ describe('HostService', () => {
     test('should return hostId', () => {
       const hostService = createHostService();
       const hostId = Math.floor(Math.random() * 100000);
-      hostService['#hostId'] = String(hostId);
-
+      hostService['setHostId'](String(hostId));
       expect(hostService.hostId).toBe(String(hostId));
     });
   });
@@ -106,7 +105,7 @@ describe('HostService', () => {
     test('should early return if there is already a host', () => {
       const hostService = createHostService();
 
-      hostService['#hostId'] = 'hostId';
+      hostService['setHostId']('hostId');
       hostService['updateHost'] = jest.fn();
       mockRoomHistoryOnce([
         {
@@ -221,7 +220,7 @@ describe('HostService', () => {
 
       hostService['setHostId']('hostId');
 
-      expect(hostService['#hostId']).toBe('hostId');
+      expect(hostService.hostId).toBe('hostId');
       expect(callback).toHaveBeenCalledTimes(1);
     });
   });
@@ -332,27 +331,27 @@ describe('HostService', () => {
     describe('onPresenceLeave', () => {
       test('should update host if the host leaves the room', () => {
         const hostService = createHostService();
-        hostService['#hostId'] = 'hostId';
+        hostService['setHostId']('hostId');
         hostService['updateHost'] = jest.fn();
 
         hostService['onPresenceLeave']({
           id: 'hostId',
         } as PresenceEvent);
 
-        expect(hostService['#hostId']).toBe('');
+        expect(hostService.hostId).toBe('');
         expect(hostService['updateHost']).toHaveBeenCalledTimes(1);
       });
 
       test('should do nothing if the host does not leave the room', () => {
         const hostService = createHostService();
-        hostService['#hostId'] = 'hostId';
+        hostService['setHostId']('hostId');
         hostService['updateHost'] = jest.fn();
 
         hostService['onPresenceLeave']({
           id: 'anotherParticipant',
         } as PresenceEvent);
 
-        expect(hostService['#hostId']).toBe('hostId');
+        expect(hostService.hostId).toBe('hostId');
         expect(hostService['updateHost']).not.toHaveBeenCalled();
       });
     });
@@ -373,8 +372,8 @@ describe('HostService', () => {
 
       test('should do nothing if the hostId does not change', () => {
         const hostService = createHostService();
+        hostService['setHostId']('hostId');
         hostService['setHostId'] = jest.fn();
-        hostService['#hostId'] = 'hostId';
 
         hostService['onStateChange']({
           data: {
@@ -400,7 +399,7 @@ describe('HostService', () => {
 
       test('should do nothing when host is already set', () => {
         const hostService = createHostService();
-        hostService['#hostId'] = 'hostId';
+        hostService['setHostId']('hostId');
 
         hostService['searchHost'] = jest.fn();
         hostService['onPresenceEnter']({
