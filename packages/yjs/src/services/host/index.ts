@@ -4,7 +4,7 @@ import { PresenceEvent, Room, SocketEvent } from '@superviz/socket-client';
 import { RoomEvent } from './types';
 
 export class HostService {
-  private _hostId: string = '';
+  #hostId: string = '';
   private room: Room;
   private callback: (hostId: string) => void;
 
@@ -32,7 +32,7 @@ export class HostService {
    * @returns {void}
    */
   public destroy(): void {
-    this._hostId = '';
+    this.#hostId = '';
 
     this.room.presence.off('presence.leave');
     this.room.presence.off('presence.joined-room');
@@ -49,7 +49,7 @@ export class HostService {
    * @returns {boolean}
    */
   public get isHost(): boolean {
-    return this._hostId === this.participantId;
+    return this.#hostId === this.participantId;
   }
 
   /**
@@ -58,7 +58,7 @@ export class HostService {
    * @returns {boolean}
    */
   public get hostId(): string {
-    return this._hostId;
+    return this.#hostId;
   }
 
   /**
@@ -73,7 +73,7 @@ export class HostService {
         return;
       }
 
-      if (this._hostId) return;
+      if (this.#hostId) return;
 
       this.room.presence.get((participants): void => {
         if (participants.length === 1 && participants[0].id === this.participantId) {
@@ -105,7 +105,7 @@ export class HostService {
    * @returns {void}
    */
   private setHostId(hostId: string): void {
-    this._hostId = hostId;
+    this.#hostId = hostId;
 
     if (this.callback) {
       this.callback(hostId);
@@ -167,7 +167,7 @@ export class HostService {
   private onPresenceLeave = (presence: PresenceEvent): void => {
     if (presence.id !== this.hostId) return;
 
-    this._hostId = '';
+    this.#hostId = '';
 
     this.updateHost();
   };

@@ -320,7 +320,7 @@ describe('provider', () => {
   describe('onMessageToHost', () => {
     test('should apply and broadcast update', () => {
       const provider = createProvider();
-      provider['hostService']!['_hostId'] = 'local-participant-id';
+      provider['hostService']!['#hostId'] = 'local-participant-id';
 
       const doc = new Y.Doc();
       doc.getArray('test').insert(0, ['test']);
@@ -490,7 +490,7 @@ describe('provider', () => {
     test('should do nothing if user is host', () => {
       const provider = createProvider();
       provider['_synced'] = false;
-      provider['hostService']!['_hostId'] = 'local-participant-id';
+      provider['hostService']!['#hostId'] = 'local-participant-id';
 
       const doc = new Y.Doc();
       doc.getArray('test').insert(0, ['test']);
