@@ -16,15 +16,15 @@ export type Params = {
 };
 
 export enum ProviderState {
-  CONNECTED = 'connected',
-  CONNECTING = 'connecting',
-  DISCONNECTED = 'disconnected',
+  CONNECTED = 'provider.connected',
+  CONNECTING = 'provider.connecting',
+  DISCONNECTED = 'provider.disconnected',
 }
 
 export enum ProviderEvents {
-  MESSAGE_TO_HOST = 'message-to-host',
-  BROADCAST = 'broadcast',
-  UPDATE = 'update',
+  MESSAGE_TO_HOST = 'provider.message-to-host',
+  BROADCAST = 'provider.broadcast',
+  UPDATE = 'provider.update',
 }
 
 export type MessageToHost = {
