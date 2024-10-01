@@ -1,18 +1,26 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { v4 as generateId } from "uuid";
+
+import { getConfig } from "../config";
+
 import * as Y from "yjs";
 import { SuperVizYjsProvider } from "@superviz/yjs";
 
 import { MonacoBinding } from "y-monaco";
 import "../styles/yjs.css";
-import Room, {
+import {
+  Room,
   type LauncherFacade,
   type Participant,
   WhoIsOnline,
-} from "@superviz/sdk";
+} from "../lib/sdk";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Editor from "@monaco-editor/react";
 
-const id = Math.floor(Math.random() * 1000000);
+const SUPERVIZ_KEY = getConfig<string>("keys.superviz");
+const SUPERVIZ_ROOM_PREFIX = getConfig<string>("roomPrefix");
+
+const componentName = "yjs-monaco-wio";
 
 function setStyles(
   states: Map<number, Record<string, any>>,
@@ -44,109 +52,107 @@ function setStyles(
   return idsList;
 }
 
-export function YjsWithMonaco() {
+export function YjsMonacoWio() {
   const ydoc = useMemo(() => new Y.Doc(), []);
-  const [editor, setEditor] = useState<any>(null);
 
+  const [editor, setEditor] = useState<any>(null);
   const [localParticipant, setLocalParticipant] =
     useState<Partial<Participant>>();
-
-  const provider = useRef<SuperVizYjsProvider>(new SuperVizYjsProvider(ydoc));
-  const wio = useRef<WhoIsOnline>();
-
   const [ids, setIds] = useState(new Set<number>());
-
-  const loaded = useRef(false);
-  const [room, setRoom] = useState<LauncherFacade | null>(null);
-
   const [joinedRoom, setJoinedRoom] = useState(false);
 
-  useEffect(() => {
+  const room = useRef<LauncherFacade>();
+  const provider = useMemo<SuperVizYjsProvider>(
+    () => new SuperVizYjsProvider(ydoc),
+    [ydoc]
+  );
+  const wio = useRef<WhoIsOnline>();
+  const loaded = useRef(false);
+
+  const initializeSuperViz = useCallback(async () => {
     if (loaded.current) return;
     loaded.current = true;
 
+    const uuid = generateId();
+
+    room.current = await Room(SUPERVIZ_KEY, {
+      roomId: `${SUPERVIZ_ROOM_PREFIX}-${componentName}`,
+      participant: {
+        name: "Participant",
+        id: uuid,
+      },
+      group: {
+        name: SUPERVIZ_ROOM_PREFIX,
+        id: SUPERVIZ_ROOM_PREFIX,
+      },
+      environment: "dev",
+      debug: true,
+    });
+
     wio.current = new WhoIsOnline();
 
-    (async () => {
-      if (room) return;
+    room.current.subscribe("participant.updated", (data) => {
+      if (!data.slot?.index) return;
 
-      const newRoom = await Room("90xbxrp4tra3hrkbw5y1sq7sw5cj9v", {
-        group: {
-          id: "yjs-monaco",
-          name: "Yjs Monaco",
-        },
-        participant: {
-          id: `ian-yjs-${id}`,
-          name: `Ian Yjs ${id}`,
-        },
-        roomId: "yjs-monaco",
-        environment: "dev",
-        debug: true,
+      provider.awareness?.setLocalStateField("participant", {
+        id: data.id,
+        slot: data.slot,
+        name: data.name,
       });
 
-      newRoom.subscribe("participant.updated", (data) => {
-        if (!data.slot?.index) return;
-
-        provider.current.awareness?.setLocalStateField("participant", {
-          id: data.id,
-          slot: data.slot,
-          name: data.name,
-        });
-
-        setLocalParticipant({
-          id: data.id,
-          slot: data.slot,
-          name: data.name,
-        });
+      setLocalParticipant({
+        id: data.id,
+        slot: data.slot,
+        name: data.name,
       });
+    });
 
-      const style = document.createElement("style");
-      style.id = "sv-yjs-monaco";
-      document.head.appendChild(style);
+    const style = document.createElement("style");
+    style.id = "sv-yjs-monaco";
+    document.head.appendChild(style);
+  }, [provider.awareness]);
 
-      setRoom(newRoom);
-    })();
+  useEffect(() => {
+    initializeSuperViz();
 
     return () => {
-      room?.destroy();
+      room.current?.removeComponent(wio.current);
+      room.current?.removeComponent(provider);
+      room.current?.destroy();
     };
-  }, [room]);
+  }, [initializeSuperViz, provider]);
 
   const joinRoom = useCallback(() => {
-    if (joinedRoom || !room) return;
+    if (joinedRoom || !room.current) return;
     setJoinedRoom(true);
 
     if (localParticipant) {
-      provider.current.awareness?.setLocalStateField(
-        "participant",
-        localParticipant
-      );
+      provider.awareness?.setLocalStateField("participant", localParticipant);
     }
 
     const updateStyles = () => {
-      const states = provider.current.awareness?.getStates();
+      const states = provider.awareness?.getStates();
       const idsList = setStyles(states, ids);
 
       setIds(new Set(idsList));
     };
 
-    provider.current.on("connect", updateStyles);
-    provider.current.awareness?.on("update", updateStyles);
+    provider.on("connect", updateStyles);
+    provider.awareness?.on("update", updateStyles);
 
-    room.addComponent(provider.current);
-    room.addComponent(wio.current);
-  }, [room, joinedRoom, setIds, ids, localParticipant]);
+    room.current.addComponent(provider);
+    room.current.addComponent(wio.current);
+  }, [room, joinedRoom, setIds, ids, localParticipant, provider]);
 
   const leaveRoom = useCallback(() => {
-    if (!joinedRoom || !room) return;
+    if (!joinedRoom || !room.current) return;
     setJoinedRoom(false);
 
     setIds(new Set());
-    room.removeComponent(wio.current);
-    room.removeComponent(provider.current);
-  }, [room, joinedRoom]);
+    room.current.removeComponent(wio.current);
+    room.current.removeComponent(provider);
+  }, [room, joinedRoom, provider]);
 
-  // this effect manages the lifetime of the editor binding
   useEffect(() => {
     if (!provider || editor == null) return;
 
@@ -154,7 +160,7 @@ export function YjsWithMonaco() {
       ydoc.getText("monaco"),
       editor.getModel()!,
       new Set([editor]),
-      provider.current.awareness
+      provider.awareness
     );
     return () => {
       binding.destroy();

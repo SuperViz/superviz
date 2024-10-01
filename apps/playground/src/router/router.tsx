@@ -15,8 +15,8 @@ import { MatterportWithWioCommentsAndVideo } from "../pages/matterport-with-wio-
 import { Video } from "../pages/video.tsx";
 import { Three } from "../pages/three.tsx";
 import { PointersCanvas } from "../pages/pointers-canvas.tsx";
-import { YjsWithMonaco } from "../pages/yjs-monaco-wio.tsx";
-import { YjsWithQuill } from "../pages/yjs-quill-wio.tsx";
+import { YjsMonacoWio } from "../pages/yjs-monaco-wio.tsx";
+import { YjsQuillWio } from "../pages/yjs-quill-wio.tsx";
 
 export const routeList: RouteObject[] = [
   {
@@ -84,11 +84,11 @@ export const routeList: RouteObject[] = [
       },
       {
         path: "yjs-with-monaco",
-        element: <YjsWithMonaco />,
+        element: <YjsMonacoWio />,
       },
       {
         path: "yjs-with-quill",
-        element: <YjsWithQuill />,
+        element: <YjsQuillWio />,
       },
     ],
   },

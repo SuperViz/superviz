@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import * as Y from "yjs";
 import { SuperVizYjsProvider } from "@superviz/yjs";
+import { v4 as generateId } from "uuid";
 
 import "../styles/yjs.css";
 import Room, {
@@ -14,10 +15,14 @@ import ReactQuill, { Quill } from "react-quill-new";
 import { QuillBinding } from "y-quill";
 import "react-quill-new/dist/quill.snow.css";
 import QuillCursors from "quill-cursors";
+import { getConfig } from "../config";
 
 Quill.register("modules/cursors", QuillCursors);
 
-const id = Math.floor(Math.random() * 1000000);
+const SUPERVIZ_KEY = getConfig<string>("keys.superviz");
+const SUPERVIZ_ROOM_PREFIX = getConfig<string>("roomPrefix");
+
+const componentName = "yjs-quill-wio";
 
 function setStyles(
   states: Map<number, Record<string, any>>,
@@ -44,109 +49,106 @@ function setStyles(
   return idsList;
 }
 
-export function YjsWithQuill() {
+export function YjsQuillWio() {
   const ydoc = useMemo(() => new Y.Doc(), []);
-
-  const quillRef = useRef<ReactQuill>(null);
 
   const [localParticipant, setLocalParticipant] =
     useState<Partial<Participant>>();
-
-  const provider = useRef<SuperVizYjsProvider>(new SuperVizYjsProvider(ydoc));
-  const wio = useRef<WhoIsOnline>();
-
   const [ids, setIds] = useState(new Set<number>());
-
-  const loaded = useRef(false);
-  const [room, setRoom] = useState<LauncherFacade | null>(null);
-
   const [joinedRoom, setJoinedRoom] = useState(false);
 
-  useEffect(() => {
+  const room = useRef<LauncherFacade>();
+  const quillRef = useRef<ReactQuill | null>(null);
+  const provider = useMemo<SuperVizYjsProvider>(
+    () => new SuperVizYjsProvider(ydoc),
+    [ydoc]
+  );
+  const wio = useRef<WhoIsOnline>();
+  const loaded = useRef(false);
+
+  const initializeSuperViz = useCallback(async () => {
     if (loaded.current) return;
     loaded.current = true;
 
+    const uuid = generateId();
+
+    room.current = await Room(SUPERVIZ_KEY, {
+      roomId: `${SUPERVIZ_ROOM_PREFIX}-${componentName}`,
+      participant: {
+        name: "Participant",
+        id: uuid,
+      },
+      group: {
+        name: SUPERVIZ_ROOM_PREFIX,
+        id: SUPERVIZ_ROOM_PREFIX,
+      },
+      environment: "dev",
+      debug: true,
+    });
+
     wio.current = new WhoIsOnline();
 
-    (async () => {
-      if (room) return;
+    room.current.subscribe("participant.updated", (data) => {
+      if (!data.slot?.index) return;
 
-      const newRoom = await Room("90xbxrp4tra3hrkbw5y1sq7sw5cj9v", {
-        group: {
-          id: "yjs-quill",
-          name: "Yjs Quill",
-        },
-        participant: {
-          id: `ian-yjs-${id}`,
-          name: `Ian Yjs ${id}`,
-        },
-        roomId: "yjs-quill",
-        environment: "dev",
-        debug: true,
+      provider.awareness?.setLocalStateField("participant", {
+        id: data.id,
+        slot: data.slot,
+        name: data.name,
       });
 
-      newRoom.subscribe("participant.updated", (data) => {
-        if (!data.slot?.index) return;
-
-        provider.current.awareness?.setLocalStateField("participant", {
-          id: data.id,
-          slot: data.slot,
-          name: data.name,
-        });
-
-        setLocalParticipant({
-          id: data.id,
-          slot: data.slot,
-          name: data.name,
-        });
+      setLocalParticipant({
+        id: data.id,
+        slot: data.slot,
+        name: data.name,
       });
+    });
 
-      const style = document.createElement("style");
-      style.id = "sv-yjs-quill";
-      document.head.appendChild(style);
+    const style = document.createElement("style");
+    style.id = "sv-yjs-quill";
+    document.head.appendChild(style);
+  }, [provider.awareness]);
 
-      setRoom(newRoom);
-    })();
+  useEffect(() => {
+    initializeSuperViz();
 
     return () => {
-      room?.destroy();
+      room.current?.removeComponent(wio.current);
+      room.current?.removeComponent(provider);
+      room.current?.destroy();
     };
-  }, [room]);
+  }, [initializeSuperViz, provider]);
 
   const joinRoom = useCallback(() => {
-    if (joinedRoom || !room) return;
+    if (joinedRoom || !room.current) return;
     setJoinedRoom(true);
 
     if (localParticipant) {
-      provider.current.awareness?.setLocalStateField(
-        "participant",
-        localParticipant
-      );
+      provider.awareness?.setLocalStateField("participant", localParticipant);
     }
 
     const updateStyles = () => {
-      const states = provider.current.awareness?.getStates();
+      const states = provider.awareness?.getStates();
       const idsList = setStyles(states, ids);
 
       setIds(new Set(idsList));
     };
 
-    provider.current.on("connect", updateStyles);
-    provider.current.awareness?.on("update", updateStyles);
+    provider.on("connect", updateStyles);
+    provider.awareness?.on("update", updateStyles);
 
-    room.addComponent(provider.current);
-    room.addComponent(wio.current);
-  }, [room, joinedRoom, setIds, ids, localParticipant]);
+    room.current.addComponent(provider);
+    room.current.addComponent(wio.current);
+  }, [room, joinedRoom, setIds, ids, localParticipant, provider]);
 
   const leaveRoom = useCallback(() => {
-    if (!joinedRoom || !room) return;
+    if (!joinedRoom || !room.current) return;
     setJoinedRoom(false);
 
-    room.removeComponent(wio.current);
-    room.removeComponent(provider.current);
-
     setIds(new Set());
-  }, [room, joinedRoom]);
+    room.current.removeComponent(wio.current);
+    room.current.removeComponent(provider);
+  }, [room, joinedRoom, provider]);
 
   // this effect manages the lifetime of the editor binding
   useEffect(() => {
@@ -155,7 +157,7 @@ export function YjsWithQuill() {
     const binding = new QuillBinding(
       ydoc.getText("quill"),
       quillRef.current.getEditor(),
-      provider.current.awareness
+      provider.awareness
     );
 
     return () => {
