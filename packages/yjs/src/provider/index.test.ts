@@ -205,7 +205,7 @@ describe('provider', () => {
   describe('connect', () => {
     test('should listen to doc updates and start realtime', () => {
       const provider = createProvider();
-      provider['state'] = 'disconnected';
+      provider['state'] = 'provider.disconnected';
 
       const onSpy = jest.spyOn(provider['doc'], 'on');
       const startSpy = jest.spyOn(provider as any, 'startRealtime');
@@ -218,7 +218,7 @@ describe('provider', () => {
 
     test('should do nothing if already connected', () => {
       const provider = createProvider();
-      provider['state'] = 'connected';
+      provider['state'] = 'provider.connected';
 
       const onSpy = jest.spyOn(provider['doc'], 'on');
       const startSpy = jest.spyOn(provider as any, 'startRealtime');
@@ -309,9 +309,9 @@ describe('provider', () => {
   describe('changeState', () => {
     test('should change state', () => {
       const provider = createProvider();
-      provider['state'] = 'disconnected';
+      provider['state'] = 'provider.disconnected';
 
-      provider['changeState']('connected');
+      provider['changeState']('provider.connected');
 
       expect(provider['state']).toEqual('connected');
     });
@@ -404,7 +404,7 @@ describe('provider', () => {
 
     test('should do nothing if already connected', () => {
       const provider = createProvider();
-      provider['state'] = 'connected';
+      provider['state'] = 'provider.connected';
       jest.clearAllMocks();
       const connectSpy = jest.spyOn(provider['awareness'], 'connect');
 
@@ -531,7 +531,7 @@ describe('provider', () => {
       const provider = createProvider();
       provider['emit'] = jest.fn();
 
-      provider['onReceiveRealtimeMessage']('update', { update: new Uint8Array() });
+      provider['onReceiveRealtimeMessage']('provider.update', { update: new Uint8Array() });
 
       expect(provider['emit']).toHaveBeenCalledWith('message', [
         { data: { update: new Uint8Array() }, name: 'update' },
@@ -544,7 +544,7 @@ describe('provider', () => {
       const provider = createProvider();
       provider['emit'] = jest.fn();
 
-      provider['beforeSendRealtimeMessage']('update', { update: new Uint8Array() });
+      provider['beforeSendRealtimeMessage']('provider.update', { update: new Uint8Array() });
 
       expect(provider['emit']).toHaveBeenCalledWith('outgoingMessage', [
         { data: { update: new Uint8Array() }, name: 'update' },
