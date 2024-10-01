@@ -22,26 +22,42 @@
     "watch:code": "node ./.esbuild/watch.js",
     "watch:types": "./node_modules/typescript/bin/tsc --declaration --emitDeclarationOnly --declarationDir dist"
   },
+  "publishConfig": {
+    "access": "public",
+    "scope": "@superviz"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SuperViz/superviz.git"
+  },
   "type": "module",
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/SuperViz/superviz/issues"
+  },
+  "homepage": "https://github.com/SuperViz/superviz/tree/main/packages/yjs#readme",
   "dependencies": {
     "@superviz/eslint-config": "workspace:*",
-    "@superviz/typescript-config": "workspace:*",
     "@superviz/socket-client": "workspace:*",
-    "@types/jest": "^29.5.13",
+    "@superviz/typescript-config": "workspace:*",
+    "@superviz/sdk": "workspace:*",
+    "debug": "^4.3.7",
     "esbuild": "^0.23.1",
     "lib0": "^0.2.97",
     "rxjs": "^7.8.1",
     "typescript": "^5.6.2",
+    "y-protocols": "^1.0.6",
     "yjs": "^13.3.1"
   },
   "devDependencies": {
     "@jest/globals": "^29.7.0",
+    "@types/jest": "^29.5.13",
     "concurrently": "^9.0.1",
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
+    "jest-mock": "^29.7.0",
     "ts-jest": "^29.2.5"
   }
 }

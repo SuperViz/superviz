@@ -1,11 +1,15 @@
+import type { PresenceEvent } from '@superviz/socket-client';
+
 import { MOCK_CONFIG } from '../../../__mocks__/config.mock';
 import { EVENT_BUS_MOCK } from '../../../__mocks__/event-bus.mock';
+import { LIMITS_MOCK } from '../../../__mocks__/limits.mock';
 import {
   MOCK_ABLY_PARTICIPANT_DATA_2,
   MOCK_LOCAL_PARTICIPANT,
   MOCK_ABLY_PARTICIPANT_DATA_1,
 } from '../../../__mocks__/participants.mock';
 import { RealtimeEvent, WhoIsOnlineEvent } from '../../common/types/events.types';
+import { MEETING_COLORS } from '../../common/types/meeting-colors.types';
 import { StoreType } from '../../common/types/stores.types';
 import { useStore } from '../../common/utils/use-store';
 import { IOC } from '../../services/io';
@@ -16,8 +20,6 @@ import { ComponentNames } from '../types';
 import { Avatar, WhoIsOnlineParticipant, TooltipData } from './types';
 
 import { WhoIsOnline } from './index';
-import { MEETING_COLORS } from '../../common/types/meeting-colors.types';
-import { LIMITS_MOCK } from '../../../__mocks__/limits.mock';
 
 const generateMockParticipant = ({
   id,
@@ -454,7 +456,7 @@ describe('Who Is Online', () => {
         name: MOCK_ABLY_PARTICIPANT_DATA_2.name,
       });
 
-      whoIsOnlineComponent['stopFollowing'](MOCK_LOCAL_PARTICIPANT);
+      whoIsOnlineComponent['stopFollowing'](MOCK_LOCAL_PARTICIPANT as PresenceEvent);
 
       expect(following.value).toBeDefined();
       expect(following.value!.id).toBe(MOCK_ABLY_PARTICIPANT_DATA_2.id);
@@ -470,7 +472,7 @@ describe('Who Is Online', () => {
 
       whoIsOnlineComponent['stopFollowing']({
         id: MOCK_ABLY_PARTICIPANT_DATA_1.id,
-      });
+      } as PresenceEvent);
 
       expect(following.value).toBe(undefined);
       expect(whoIsOnlineComponent['following']).toBe(undefined);
@@ -565,7 +567,7 @@ describe('Who Is Online', () => {
 
       whoIsOnlineComponent['stopFollowing']({
         id: MOCK_ABLY_PARTICIPANT_DATA_2.id,
-      });
+      } as PresenceEvent);
 
       expect(whoIsOnlineComponent['publish']).toHaveBeenCalledWith(
         WhoIsOnlineEvent.STOP_FOLLOWING_PARTICIPANT,

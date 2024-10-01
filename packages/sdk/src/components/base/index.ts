@@ -68,6 +68,8 @@ export abstract class BaseComponent extends Observable {
 
     this.logger.log(`${this.name} @ attached`);
 
+    this.observers = {};
+
     this.start();
     this.publish(ComponentLifeCycleEvent.MOUNT);
   };

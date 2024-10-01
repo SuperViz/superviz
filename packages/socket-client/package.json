@@ -9,6 +9,7 @@
   ],
   "exports": {
     "node": "./dist/node/index.js",
+    "types": "./dist/index.d.ts",
     "default": "./dist/browser/index.js"
   },
   "scripts": {
