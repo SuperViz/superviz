@@ -1,4 +1,4 @@
-import { Participant } from '@superviz/sdk';
+import type { Participant } from '@superviz/sdk';
 import type { DefaultAttachComponentOptions } from '@superviz/sdk/dist/components/base/types';
 import type { IOC } from '@superviz/sdk/dist/services/io';
 import {
@@ -28,7 +28,7 @@ import {
 } from './types';
 
 export class SuperVizYjsProvider extends ObservableV2<Events> {
-  public readonly name = 'presence';
+  public readonly name = 'yjsProvider';
 
   public awareness: Awareness;
   public document: Y.Doc;
