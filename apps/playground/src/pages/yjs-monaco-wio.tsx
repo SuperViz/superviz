@@ -120,7 +120,7 @@ export function YjsMonacoWio() {
       room.current?.removeComponent(provider);
       room.current?.destroy();
     };
-  }, [initializeSuperViz, provider]);
+  }, []);
 
   const joinRoom = useCallback(() => {
     if (joinedRoom || !room.current) return;
