@@ -5,7 +5,7 @@ export enum UpdateOrigin {
 
 export interface UpdatePresence {
   clientID: number;
-  yjs_state: any;
+  __yjs: Record<string, any> | null;
 }
 
 type AwarenessUpdate = {
