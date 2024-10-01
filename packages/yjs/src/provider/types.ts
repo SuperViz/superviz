@@ -1,16 +1,6 @@
 import type { StoreType } from '@superviz/sdk';
 import type { Room } from '@superviz/socket-client';
 
-export enum EnvironmentTypes {
-  DEV = 'dev',
-  PROD = 'prod',
-}
-
-export interface Participant {
-  id: string;
-  name: string;
-}
-
 export type Params = {
   awareness?: boolean;
 };
