@@ -79,11 +79,7 @@ export class SuperVizYjsProvider extends ObservableV2<Events> {
     }
 
     if (!hasJoinedRoom.value) {
-      this.logger.log(`${this.name} @ attach - not joined yet`);
-      setTimeout(() => {
-        this.logger.log(`${this.name} @ attach - retrying`);
-        this.attach(params);
-      }, 1000);
+      hasJoinedRoom.subscribe(() => this.attach(params));
       return;
     }
 
