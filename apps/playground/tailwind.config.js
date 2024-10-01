@@ -5,11 +5,11 @@ export default {
     extend: {
       colors: {
         sv: {
-          primary: "#ffffff",
-          secondary: "#c1fbdf",
-          danger: "#e5411e",
           "primary-200": "#BAA9FF",
           "primary-900": "#380788",
+          white: "#ffffff",
+          secondary: "#c1fbdf",
+          danger: "#e5411e",
           "gray-100": "#FAFAFC",
           "gray-200": "#E9E5EF",
           "gray-300": "#C9C4D1",
