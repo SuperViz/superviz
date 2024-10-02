@@ -30,8 +30,6 @@ jobs:
         env:
           NPM_CONFIG_USERCONFIG: .npmrc.ci
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-      - name: Build Package
-        run: pnpm run build
       - run: git config --global user.name SuperViz
       - run: git config --global user.email ci@superviz.com
       - name: Publish npm package
