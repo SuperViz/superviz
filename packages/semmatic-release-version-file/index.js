@@ -4,7 +4,18 @@ const createFile = (version) => {
   const filename = '.version.js';
   const content = `export const version = '${version}'`;
   fs.writeFileSync(filename, content);
+}
 
+const build = () => {
+  exec('pnpm run build', (err, stdout, stderr) => {
+    if (err) {
+        console.error('build package error: ', err);
+        return;
+    }
+
+    console.log(`stdout: ${stdout}`);
+    console.log(`stderr: ${stderr}`);
+  });
 }
 
 const handle = async (context) => {
@@ -14,6 +25,7 @@ const handle = async (context) => {
   }
 
   createFile(version);
+  build()
 };
 
 async function prepare(pluginConfig, context) {

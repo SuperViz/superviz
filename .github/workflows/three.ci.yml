@@ -32,8 +32,6 @@ jobs:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
       - run: git config --global user.name SuperViz
       - run: git config --global user.email ci@superviz.com
-      - name: Build package
-        run: pnpm run build
       - name: Publish npm package
         run: npm whoami && pnpm run semantic-release --filter=@superviz/threejs-plugin
         env:
