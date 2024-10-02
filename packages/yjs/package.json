@@ -40,7 +40,6 @@
   },
   "homepage": "https://github.com/SuperViz/superviz/tree/main/packages/yjs#readme",
   "dependencies": {
-    "@superviz/semantic-release-version-file": "workspace:*",
     "@superviz/eslint-config": "workspace:*",
     "@superviz/socket-client": "workspace:*",
     "@superviz/typescript-config": "workspace:*",
@@ -54,6 +53,8 @@
     "yjs": "^13.3.1"
   },
   "devDependencies": {
+    "semantic-release": "^24.0.0",
+    "@superviz/semantic-release-version-file": "workspace:*",
     "@jest/globals": "^29.7.0",
     "@types/jest": "^29.5.13",
     "concurrently": "^9.0.1",
