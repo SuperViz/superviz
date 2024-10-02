@@ -165,7 +165,7 @@ importers:
         version: link:../eslint-config
       '@superviz/semantic-release-version-file':
         specifier: workspace:*
-        version: link:../semmatic-release-version-file
+        version: link:../semantic-release-version-file
       '@superviz/typescript-config':
         specifier: workspace:*
         version: link:../typescript-config
@@ -250,7 +250,7 @@ importers:
         version: link:../eslint-config
       '@superviz/semantic-release-version-file':
         specifier: workspace:*
-        version: link:../semmatic-release-version-file
+        version: link:../semantic-release-version-file
       '@superviz/typescript-config':
         specifier: workspace:*
         version: link:../typescript-config
@@ -323,7 +323,7 @@ importers:
         version: 5.0.7(rollup@4.21.3)
       '@superviz/semantic-release-version-file':
         specifier: workspace:*
-        version: link:../semmatic-release-version-file
+        version: link:../semantic-release-version-file
       '@types/forge-viewer':
         specifier: ^7.89.1
         version: 7.89.1
@@ -438,7 +438,7 @@ importers:
         version: link:../eslint-config
       '@superviz/semantic-release-version-file':
         specifier: workspace:*
-        version: link:../semmatic-release-version-file
+        version: link:../semantic-release-version-file
       '@superviz/typescript-config':
         specifier: workspace:*
         version: link:../typescript-config
@@ -529,7 +529,7 @@ importers:
         version: link:../eslint-config
       '@superviz/semantic-release-version-file':
         specifier: workspace:*
-        version: link:../semmatic-release-version-file
+        version: link:../semantic-release-version-file
       '@superviz/typescript-config':
         specifier: workspace:*
         version: link:../typescript-config
@@ -615,7 +615,7 @@ importers:
         specifier: ^17.7.2
         version: 17.7.2
 
-  packages/semmatic-release-version-file: {}
+  packages/semantic-release-version-file: {}
 
   packages/socket-client:
     dependencies:
@@ -643,7 +643,7 @@ importers:
         version: link:../eslint-config
       '@superviz/semantic-release-version-file':
         specifier: workspace:*
-        version: link:../semmatic-release-version-file
+        version: link:../semantic-release-version-file
       '@superviz/typescript-config':
         specifier: workspace:*
         version: link:../typescript-config
@@ -698,7 +698,7 @@ importers:
         version: link:../eslint-config
       '@superviz/semantic-release-version-file':
         specifier: workspace:*
-        version: link:../semmatic-release-version-file
+        version: link:../semantic-release-version-file
       '@superviz/typescript-config':
         specifier: workspace:*
         version: link:../typescript-config
@@ -779,7 +779,7 @@ importers:
         version: 29.7.0
       '@superviz/semantic-release-version-file':
         specifier: workspace:*
-        version: link:../semmatic-release-version-file
+        version: link:../semantic-release-version-file
       '@types/jest':
         specifier: ^29.5.13
         version: 29.5.13
