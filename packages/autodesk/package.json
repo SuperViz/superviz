@@ -30,6 +30,7 @@
     "semantic-release": "semantic-release"
   },
   "devDependencies": {
+    "@superviz/semantic-release-version-file": "workspace:*",
     "@superviz/eslint-config": "workspace:*",
     "@superviz/typescript-config": "workspace:*",
     "@types/debug": "^4.1.12",
