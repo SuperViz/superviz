@@ -5,6 +5,8 @@ const createFile = (version) => {
   const filename = '.version.js';
   const content = `export const version = '${version}'`;
   fs.writeFileSync(filename, content);
+  
+  console.log('Current folder:', process.cwd());
 }
 
 const build = () => {
