@@ -139,6 +139,7 @@ export function YjsMonacoWio() {
 
     provider.on("connect", updateStyles);
     provider.awareness?.on("update", updateStyles);
+    provider.awareness?.once("change", updateStyles);
 
     room.current.addComponent(provider);
     room.current.addComponent(wio.current);
