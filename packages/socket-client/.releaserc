@@ -15,7 +15,7 @@
   "tagFormat": "@superviz/socket-client/${version}",
   "plugins": [
     "@semantic-release/commit-analyzer",
-    "semantic-release-version-file",
+    "@superviz/semantic-release-version-file",
     "@semantic-release/github",
     "@semantic-release/npm"
   ]

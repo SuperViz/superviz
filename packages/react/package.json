@@ -45,6 +45,7 @@
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
+    "@superviz/semantic-release-version-file": "workspace:*",
     "@rollup/plugin-replace": "^5.0.7",
     "@eslint/compat": "^1.1.1",
     "@types/forge-viewer": "^7.89.1",
@@ -70,7 +71,6 @@
     "prettier": "^3.3.2",
     "react-hooks": "^1.0.1",
     "semantic-release": "^24.0.0",
-    "semantic-release-version-file": "^1.0.2",
     "typescript": "^5.5.2",
     "vite": "^5.3.2",
     "vite-plugin-dts": "^3.9.1",

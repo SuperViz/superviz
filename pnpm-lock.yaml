@@ -163,6 +163,9 @@ importers:
       '@superviz/eslint-config':
         specifier: workspace:*
         version: link:../eslint-config
+      '@superviz/semantic-release-version-file':
+        specifier: workspace:*
+        version: link:../semmatic-release-version-file
       '@superviz/typescript-config':
         specifier: workspace:*
         version: link:../typescript-config
@@ -245,6 +248,9 @@ importers:
       '@superviz/eslint-config':
         specifier: workspace:*
         version: link:../eslint-config
+      '@superviz/semantic-release-version-file':
+        specifier: workspace:*
+        version: link:../semmatic-release-version-file
       '@superviz/typescript-config':
         specifier: workspace:*
         version: link:../typescript-config
@@ -315,6 +321,9 @@ importers:
       '@rollup/plugin-replace':
         specifier: ^5.0.7
         version: 5.0.7(rollup@4.21.3)
+      '@superviz/semantic-release-version-file':
+        specifier: workspace:*
+        version: link:../semmatic-release-version-file
       '@types/forge-viewer':
         specifier: ^7.89.1
         version: 7.89.1
@@ -384,9 +393,6 @@ importers:
       semantic-release:
         specifier: ^24.0.0
         version: 24.0.0(typescript@5.6.2)
-      semantic-release-version-file:
-        specifier: ^1.0.2
-        version: 1.0.2
       typescript:
         specifier: ^5.5.2
         version: 5.6.2
@@ -430,6 +436,9 @@ importers:
       '@superviz/eslint-config':
         specifier: workspace:*
         version: link:../eslint-config
+      '@superviz/semantic-release-version-file':
+        specifier: workspace:*
+        version: link:../semmatic-release-version-file
       '@superviz/typescript-config':
         specifier: workspace:*
         version: link:../typescript-config
@@ -463,9 +472,6 @@ importers:
       semantic-release:
         specifier: ^24.0.0
         version: 24.1.1(typescript@5.6.2)
-      semantic-release-version-file:
-        specifier: ^1.0.2
-        version: 1.0.2
       ts-jest:
         specifier: ^29.2.5
         version: 29.2.5(@babel/core@7.25.2)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.25.2))(esbuild@0.21.5)(jest@29.7.0(@types/node@20.16.5))(typescript@5.6.2)
@@ -505,9 +511,6 @@ importers:
       rxjs:
         specifier: ^7.8.1
         version: 7.8.1
-      semantic-release-version-file:
-        specifier: ^1.0.2
-        version: 1.0.2
       zod:
         specifier: ^3.23.8
         version: 3.23.8
@@ -524,6 +527,9 @@ importers:
       '@superviz/eslint-config':
         specifier: workspace:*
         version: link:../eslint-config
+      '@superviz/semantic-release-version-file':
+        specifier: workspace:*
+        version: link:../semmatic-release-version-file
       '@superviz/typescript-config':
         specifier: workspace:*
         version: link:../typescript-config
@@ -609,6 +615,8 @@ importers:
         specifier: ^17.7.2
         version: 17.7.2
 
+  packages/semmatic-release-version-file: {}
+
   packages/socket-client:
     dependencies:
       '@reactivex/rxjs':
@@ -623,9 +631,6 @@ importers:
       rxjs:
         specifier: ^7.8.1
         version: 7.8.1
-      semantic-release-version-file:
-        specifier: ^1.0.2
-        version: 1.0.2
       socket.io-client:
         specifier: ^4.7.5
         version: 4.7.5
@@ -636,6 +641,9 @@ importers:
       '@superviz/eslint-config':
         specifier: workspace:*
         version: link:../eslint-config
+      '@superviz/semantic-release-version-file':
+        specifier: workspace:*
+        version: link:../semmatic-release-version-file
       '@superviz/typescript-config':
         specifier: workspace:*
         version: link:../typescript-config
@@ -688,6 +696,9 @@ importers:
       '@superviz/eslint-config':
         specifier: workspace:*
         version: link:../eslint-config
+      '@superviz/semantic-release-version-file':
+        specifier: workspace:*
+        version: link:../semmatic-release-version-file
       '@superviz/typescript-config':
         specifier: workspace:*
         version: link:../typescript-config
@@ -735,6 +746,9 @@ importers:
       '@superviz/sdk':
         specifier: workspace:*
         version: link:../sdk
+      '@superviz/semantic-release-version-file':
+        specifier: workspace:*
+        version: link:../semmatic-release-version-file
       '@superviz/socket-client':
         specifier: workspace:*
         version: link:../socket-client
