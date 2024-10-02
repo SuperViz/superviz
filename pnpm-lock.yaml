@@ -746,9 +746,6 @@ importers:
       '@superviz/sdk':
         specifier: workspace:*
         version: link:../sdk
-      '@superviz/semantic-release-version-file':
-        specifier: workspace:*
-        version: link:../semmatic-release-version-file
       '@superviz/socket-client':
         specifier: workspace:*
         version: link:../socket-client
@@ -780,6 +777,9 @@ importers:
       '@jest/globals':
         specifier: ^29.7.0
         version: 29.7.0
+      '@superviz/semantic-release-version-file':
+        specifier: workspace:*
+        version: link:../semmatic-release-version-file
       '@types/jest':
         specifier: ^29.5.13
         version: 29.5.13
@@ -795,6 +795,9 @@ importers:
       jest-mock:
         specifier: ^29.7.0
         version: 29.7.0
+      semantic-release:
+        specifier: ^24.0.0
+        version: 24.0.0(typescript@5.6.2)
       ts-jest:
         specifier: ^29.2.5
         version: 29.2.5(@babel/core@7.25.2)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.25.2))(esbuild@0.23.1)(jest@29.7.0)(typescript@5.6.2)
