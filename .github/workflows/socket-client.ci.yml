@@ -6,8 +6,8 @@ on:
       - beta
       - main
     paths:
-      - 'packages/socket-client/**'
-      - '.github/workflows/socket-client.ci.yml'
+      - "packages/socket-client/**"
+      - ".github/workflows/socket-client.ci.yml"
 jobs:
   package:
     runs-on: ubuntu-latest
@@ -24,16 +24,18 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'pnpm'
+          cache: "pnpm"
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
         env:
           NPM_CONFIG_USERCONFIG: .npmrc.ci
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Build package
+        run: pnpm run build --filter=@superviz/socket-client
       - run: git config --global user.name SuperViz
       - run: git config --global user.email ci@superviz.com
       - name: Publish npm package
-        run: npm whoami && pnpm run semantic-release --filter=@superviz/socket-client
+        run: npm whoami && npm run semantic-release --filter=@superviz/socket-client
         env:
           NPM_CONFIG_USERCONFIG: .npmrc.ci
           GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}

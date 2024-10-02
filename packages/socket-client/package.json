@@ -18,7 +18,7 @@
     "watch": "concurrently -n code,types \"pnpm watch:code\" \"pnpm watch:types\"",
     "watch:code": "node ./.esbuild/watch.js",
     "watch:types": "./node_modules/typescript/bin/tsc --watch --outDir dist",
-    "semantic-release": "semantic-release --debug"
+    "semantic-release": "semantic-release"
   },
   "publishConfig": {
     "access": "public",
@@ -35,7 +35,6 @@
   },
   "homepage": "https://github.com/SuperViz/superviz/tree/main/packages/socket-client#readme",
   "devDependencies": {
-    "@anolilab/semantic-release-pnpm": "^1.1.3",
     "@superviz/eslint-config": "workspace:*",
     "@superviz/typescript-config": "workspace:*",
     "@types/debug": "^4.1.12",
