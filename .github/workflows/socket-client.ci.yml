@@ -33,7 +33,7 @@ jobs:
       - run: git config --global user.name SuperViz
       - run: git config --global user.email ci@superviz.com
       - name: Publish npm package
-        run: npm whoami && pnpm run semantic-release --filter=@superviz/socket-client
+        run: npm whoami && npm run semantic-release --filter=@superviz/socket-client
         env:
           NPM_CONFIG_USERCONFIG: .npmrc.ci
           GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}

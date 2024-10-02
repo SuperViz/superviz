@@ -17,7 +17,6 @@
     "@semantic-release/commit-analyzer",
     "semantic-release-version-file",
     "@semantic-release/github",
-    "@semantic-release/npm",
-    "@anolilab/semantic-release-pnpm"
+    "@semantic-release/npm"
   ]
 }
