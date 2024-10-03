@@ -26,32 +26,33 @@ export function YjsProvider({
 }: YjsProviderProps) {
   const { room, component, addComponent } = useInternalFeatures<SuperVizYjsProvider>('yjsProvider');
   const [initializedTimestamp, setInitializedTimestamp] = useState<number | null>(null);
-  const [previousCallbacks, setPreviousCallbacks] = useState<typeof callbacks>(
-    {} as typeof callbacks,
-  );
+  const [previousCallbacks, setPreviousCallbacks] = useState<typeof callbacks>({} as any);
 
   useEffect(() => {
     if (!component) return;
-    const cbs = Object.entries(callbacks);
-    const previousCbs = Object.values(previousCallbacks);
-    const list: typeof callbacks = { ...callbacks };
 
-    for (let i = 0; i < cbs.length; i++) {
-      if (cbs[i][1] === previousCbs[i]) return;
+    const callbacksArray = Object.entries(callbacks);
+    const previousCallbacksArray = Object.entries(previousCallbacks);
 
-      const eventName = callbacksToEvents.get(cbs[i][0] as keyof YjsProviderCallbacks);
-      component.off(eventName!, previousCbs[i]);
-
-      if (!cbs[i][1]) return;
-
-      component.on(eventName!, cbs[i][1]);
-
-      // @ts-expect-error The types are potentially the same, but since
-      // both can have multiple types, ts can't infer that they are the same
-      list[cbs[i][0]] = cbs[i][1];
+    let hasChanged = false;
+    for (let i = 0; i < callbacksArray.length; i++) {
+      if (callbacksArray[i][1] !== previousCallbacksArray[i]?.[1]) {
+        hasChanged = true;
+        break;
+      }
     }
 
-    setPreviousCallbacks(list);
+    if (!hasChanged) return;
+
+    // Proceed with event binding/unbinding only if callbacks changed
+    callbacksArray.forEach(([key, value]) => {
+      const eventName = callbacksToEvents.get(key as keyof YjsProviderCallbacks);
+      // @ts-ignore
+      if (previousCallbacks[key]) component.off(eventName!, previousCallbacks[key]);
+      if (value) component.on(eventName!, value);
+    });
+
+    setPreviousCallbacks(callbacks);
   }, [callbacks]);
 
   useEffect(() => {

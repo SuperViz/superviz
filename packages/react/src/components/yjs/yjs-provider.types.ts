@@ -21,5 +21,3 @@ export type YjsProviderProps = DefaultComponentProps<
     awareness?: boolean;
   } & Partial<YjsProviderCallbacks>
 >;
-
-export type Field = HTMLInputElement | HTMLTextAreaElement;
