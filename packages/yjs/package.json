@@ -9,7 +9,7 @@
     "require": "./dist/index.cjs.js"
   },
   "files": [
-    "dist"
+    "./dist"
   ],
   "scripts": {
     "test:unit": "jest",
