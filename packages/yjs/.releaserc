@@ -1,16 +1,8 @@
 {
   "branches": [
-    "main",
-    {
-      "name": "beta",
-      "channel": "beta",
-      "prerelease": true
-    },
-    {
-      "name": "lab",
-      "channel": "lab",
-      "prerelease": true
-    }
+    "main", 
+    { "name": "beta", "channel": "beta", "prerelease": true },
+    { "name": "lab", "channel": "lab", "prerelease": true }
   ],
   "tagFormat": "@superviz/yjs/${version}",
   "plugins": [

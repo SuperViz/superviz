@@ -2,31 +2,44 @@ const fs = require('fs');
 const { exec } = require('child_process');
 
 const createFile = (version) => {
-  const filename = '.version.js';
-  const content = `export const version = '${version}'`;
-  fs.writeFileSync(filename, content);
+  return new Promise((resolve, reject) => {
+    const filename = '.version.js';
+    const content = `export const version = '${version}'`;
+    
+    fs.writeFile(filename, content, (err) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve();
+      }
+    });
+  });
 }
 
 const build = () => {
-  exec('pnpm turbo run build', (err, stdout, stderr) => {
-    if (err) {
+  return new Promise((resolve, reject) => {
+    exec('pnpm turbo run build && ls -la ./dist', (err, stdout, stderr) => {
+      if (err) {
         console.error('build package error: ', err);
+        reject(err);
         return;
-    }
+      }
 
-    console.log(`stdout: ${stdout}`);
-    console.log(`stderr: ${stderr}`);
+      console.log(`stdout: ${stdout}`);
+      console.log(`stderr: ${stderr}`);
+      resolve();
+    });
   });
 }
 
 const handle = async (context) => {
   const version = context?.nextRelease?.version;
   if (!version) {
-      throw new Error('Could not determine the version from semantic release.')
+    throw new Error('Could not determine the version from semantic release.')
   }
 
-  createFile(version);
-  build()
+  await createFile(version);
+  await build();
 };
 
 async function prepare(pluginConfig, context) {
