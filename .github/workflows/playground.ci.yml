@@ -12,6 +12,7 @@ on:
       - 'packages/matterport/**'
       - 'packages/autodesk/**'
       - 'packages/three/**'
+      - 'packages/yjs/**'
       - '.github/workflows/playground.ci.yml'
 jobs:
   package:

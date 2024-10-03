@@ -1,0 +1,22 @@
+{
+  "branches": [
+    "main",
+    {
+      "name": "beta",
+      "channel": "beta",
+      "prerelease": true
+    },
+    {
+      "name": "lab",
+      "channel": "lab",
+      "prerelease": true
+    }
+  ],
+  "tagFormat": "@superviz/yjs/${version}",
+  "plugins": [
+    "@semantic-release/commit-analyzer",
+    "@superviz/semantic-release-version-file",
+    "@semantic-release/github",
+    "@semantic-release/npm"
+  ]
+}

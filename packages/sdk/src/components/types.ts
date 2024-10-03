@@ -11,6 +11,7 @@ export enum ComponentNames {
   COMMENTS_AUTODESK = 'comments3dAutodesk',
   COMMENTS_THREEJS = 'comments3dThreejs',
   FORM_ELEMENTS = 'formElements',
+  YJS_PROVIDER = 'yjsProvider',
 }
 
 export enum PresenceMap {
