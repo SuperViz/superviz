@@ -5,12 +5,10 @@ const createFile = (version) => {
   const filename = '.version.js';
   const content = `export const version = '${version}'`;
   fs.writeFileSync(filename, content);
-  
-  console.log('Current folder:', process.cwd());
 }
 
 const build = () => {
-  exec('pnpm run build', (err, stdout, stderr) => {
+  exec('pnpm turbo run build', (err, stdout, stderr) => {
     if (err) {
         console.error('build package error: ', err);
         return;
