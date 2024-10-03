@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "watch": "tsc && vite build --watch",
+    "watch:demo": "vite --host --port 3000",
     "build": "tsc && vite build && cp package.json dist/package.json && cp README.md dist/README.md",
     "lint": "eslint 'src/**/*.{js,jsx,ts,tsx}'",
     "lint:fix": "eslint --fix 'src/**/*.{jsx,ts,tsx}'",

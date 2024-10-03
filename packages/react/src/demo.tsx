@@ -1,43 +1,66 @@
 import './style.css';
 
-import { useCallback, useState } from 'react';
-
-import { VideoConference } from './components/video';
 import { SuperVizRoomProvider } from './contexts/room';
 
-function Room() {
-  const [show, setShow] = useState(true);
-  const toggleShow = () => {
-    setShow(!show);
-  };
+import * as Y from 'yjs';
 
-  const [destroy, setDestroy] = useState(1);
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 
-  const destroyCallback = useCallback(() => {
-    if (destroy === 1) {
-      console.error('state 1');
-    } else {
-      console.error('state 2');
-    }
-  }, [destroy]);
+import ReactQuill, { Quill } from 'react-quill-new';
+import { QuillBinding } from 'y-quill';
+import 'react-quill-new/dist/quill.snow.css';
+import QuillCursors from 'quill-cursors';
+import { YjsProvider } from './components/yjs';
+import { useYjsProvider } from './hooks/useYjsProvider';
 
-  const toggleDestroy = useCallback(() => {
-    setDestroy(destroy === 1 ? 2 : 1);
-  }, [destroy, setDestroy]);
+Quill.register('modules/cursors', QuillCursors);
+
+const providers: any[] = [];
+export function Room() {
+  const ydoc = useMemo(() => new Y.Doc(), []);
+  const binded = useRef(false);
+
+  const quillRef = useRef<ReactQuill | null>(null);
+  const { provider } = useYjsProvider();
+
+  // this effect manages the lifetime of the editor binding
+  useEffect(() => {
+    if (binded.current || !quillRef.current || !provider) return;
+    binded.current = true;
+    const binding = new QuillBinding(
+      ydoc.getText('quill'),
+      quillRef.current.getEditor(),
+      provider.awareness,
+    );
+
+    return () => {
+      // binding.destroy();
+    };
+  }, [ydoc, provider]);
 
   return (
-    <>
-      <button onClick={toggleShow}>Stop Room</button>
-      <button
-        onClick={toggleDestroy}
-        style={{ zIndex: 999999, position: 'fixed', top: '50px', left: '500px' }}
-      >
-        Toggle Destroy
-      </button>
-      {show && (
-        <VideoConference participantType="host" defaultAvatars onDestroy={destroyCallback} />
-      )}
-    </>
+    <div className="p-5 h-full bg-gray-200 flex flex-col gap-5">
+      <div className="shadow-none h-[90%] overflow-auto rounded-sm">
+        <YjsProvider doc={ydoc} />
+        <div className="yRemoteSelectionHead"></div>
+        <ReactQuill
+          placeholder="// Connect to the room to start collaborating"
+          ref={quillRef}
+          theme="snow"
+          modules={{
+            cursors: true,
+            toolbar: [
+              [{ header: [1, 2, false] }],
+              ['bold', 'italic', 'underline'],
+              ['image', 'code-block'],
+            ],
+            history: {
+              userOnly: true,
+            },
+          }}
+        />{' '}
+      </div>
+    </div>
   );
 }
 

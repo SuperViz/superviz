@@ -2,19 +2,20 @@ import type { Presence3D as AutodeskPresence3D } from '@superviz/autodesk-viewer
 import type { Presence3D as MatterportPresence3D } from '@superviz/matterport-plugin';
 import type React from 'react';
 
-import type {
-  CommentsComponent,
-  DefaultComponentNames,
-  FormElementsComponent,
-  LauncherFacade,
-  Participant,
-  PointersCanvas,
-  PointersHTML,
-  RealtimeComponent,
-  SuperVizSdkOptions,
-  ThreeJsPresence3D,
-  VideoConferenceComponent,
-  WhoIsOnlineComponent,
+import {
+  type SuperVizYjsProvider,
+  type CommentsComponent,
+  type DefaultComponentNames,
+  type FormElementsComponent,
+  type LauncherFacade,
+  type Participant,
+  type PointersCanvas,
+  type PointersHTML,
+  type RealtimeComponent,
+  type SuperVizSdkOptions,
+  type ThreeJsPresence3D,
+  type VideoConferenceComponent,
+  type WhoIsOnlineComponent,
 } from '../lib/sdk';
 
 export type ComponentNames = `${DefaultComponentNames}`;
@@ -72,7 +73,8 @@ export type SuperVizComponent =
   | MatterportComponent
   | AutoDeskComponent
   | FormElementsComponent
-  | ThreeJsComponent;
+  | ThreeJsComponent
+  | SuperVizYjsProvider;
 
 export type InternalFeaturesContextData<T> = T extends SuperVizComponent
   ? Omit<RoomContextData, 'hasProvider'> & { component: T }
