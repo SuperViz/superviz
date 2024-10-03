@@ -95,7 +95,8 @@
         "@superviz/matterport-plugin#build",
         "@superviz/sdk#build",
         "@superviz/socket-client#build",
-        "@superviz/threejs-plugin#build"
+        "@superviz/threejs-plugin#build",
+        "@superviz/yjs#build"
       ]
     }
   }
