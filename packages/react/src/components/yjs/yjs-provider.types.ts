@@ -1,4 +1,4 @@
-import type { MessageCallback, ProviderState } from '@superviz/yjs/dist/provider/types';
+import type { MessageCallback, ProviderState } from '@superviz/yjs';
 import type { ReactElement } from 'react';
 import type { DefaultComponentProps } from 'src/common/types/global.types';
 import type { Doc } from 'yjs';

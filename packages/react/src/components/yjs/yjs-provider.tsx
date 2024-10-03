@@ -3,7 +3,7 @@ import { useInternalFeatures } from 'src/contexts/room';
 
 import { SuperVizYjsProvider } from '../../lib/sdk';
 import { YjsProviderCallbacks, YjsProviderProps } from './yjs-provider.types';
-import { Events } from '@superviz/yjs/dist/provider/types';
+import type { Events } from '@superviz/yjs';
 
 const callbacksToEvents = new Map<keyof YjsProviderCallbacks, keyof Events>([
   ['onConnect', 'connect'],

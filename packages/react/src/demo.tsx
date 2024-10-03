@@ -4,7 +4,7 @@ import { SuperVizRoomProvider } from './contexts/room';
 
 import * as Y from 'yjs';
 
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 
 import ReactQuill, { Quill } from 'react-quill-new';
 import { QuillBinding } from 'y-quill';
