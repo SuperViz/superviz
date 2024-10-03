@@ -34,7 +34,7 @@ export default defineConfig({
       fileName: (format) => `superviz-sdk-react.${format}.js`,
     },
     rollupOptions: {
-      external: [...Object.keys(peerDependencies)],
+      external: [...Object.keys(peerDependencies), 'yjs'],
       input: Object.fromEntries(
         glob
           .sync('src/**/*.{ts,tsx}')

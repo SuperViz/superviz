@@ -7,6 +7,8 @@ export * from './components/realtime';
 export * from './components/three';
 export * from './components/video';
 export * from './components/who-is-online';
+export * from './components/yjs';
+
 export { SuperVizRoomProvider } from './contexts/room';
 export { useAutodesk } from './hooks/useAutodesk';
 export { useAutodeskPin } from './hooks/useAutodeskPin';
@@ -24,3 +26,4 @@ export { useThree } from './hooks/useThree';
 export { useThreeJsPin } from './hooks/useThreePin';
 export { useVideo } from './hooks/useVideo';
 export { createTheme } from './utils/create-theme';
+export { useYjsProvider } from './hooks/useYjsProvider';
