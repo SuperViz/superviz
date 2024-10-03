@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "watch:demo": "vite --host --port 3000",
+    "watch": "tsc && vite build --watch",
     "build": "tsc && vite build && cp package.json dist/package.json && cp README.md dist/README.md",
     "lint": "eslint 'src/**/*.{js,jsx,ts,tsx}'",
     "lint:fix": "eslint --fix 'src/**/*.{jsx,ts,tsx}'",
@@ -46,9 +46,10 @@
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
-    "@superviz/semantic-release-version-file": "workspace:*",
-    "@rollup/plugin-replace": "^5.0.7",
     "@eslint/compat": "^1.1.1",
+    "@rollup/plugin-replace": "^5.0.7",
+    "@superviz/semantic-release-version-file": "workspace:*",
+    "yjs": "^13.6.19",
     "@types/forge-viewer": "^7.89.1",
     "@types/lodash": "^4.17.6",
     "@types/node": "^20.14.9",
