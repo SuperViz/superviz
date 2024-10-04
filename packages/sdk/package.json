@@ -75,11 +75,8 @@
     "typescript": "^5.5.2",
     "yargs": "^17.7.2"
   },
-  "bundleDependencies": [
-    "@superviz/socket-client"
-  ],
   "dependencies": {
-    "@superviz/socket-client": "workspace:*",
+    "@superviz/socket-client": "workspace:* || lab",
     "bowser": "^2.11.0",
     "bowser-jr": "^1.0.6",
     "debug": "^4.3.4",
