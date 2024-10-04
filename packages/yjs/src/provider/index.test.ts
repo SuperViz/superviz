@@ -1,8 +1,9 @@
-import { Participant } from '@superviz/sdk';
+import type { Participant } from '@superviz/sdk';
 import type { PresenceEvent, SocketEvent } from '@superviz/socket-client';
 import * as Y from 'yjs';
-import { getUpdatesHistory } from '../utils/getUpdatesHistory';
+
 import { MOCK_IO, MOCK_ROOM } from '../../__mocks__/io.mock';
+import { getUpdatesHistory } from '../utils/getUpdatesHistory';
 
 import { DocUpdate } from './types';
 

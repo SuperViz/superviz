@@ -1,17 +1,12 @@
 import type { Participant } from '@superviz/sdk';
 import type { DefaultAttachComponentOptions } from '@superviz/sdk/dist/components/base/types';
 import type { IOC } from '@superviz/sdk/dist/services/io';
-import {
-  ClientState,
-  ConnectionState,
-  PresenceEvent,
-  PresenceEvents,
-  type SocketEvent,
-} from '@superviz/socket-client';
+import type { ConnectionState, PresenceEvent, SocketEvent } from '@superviz/socket-client';
 import { ObservableV2 } from 'lib0/observable';
 import * as Y from 'yjs';
 
 import { Awareness, Logger } from '../services';
+import { getUpdatesHistory } from '../utils/getUpdatesHistory';
 
 import {
   DocUpdate,
@@ -25,7 +20,6 @@ import {
   storeType,
   ComponentLifeCycleEvent,
 } from './types';
-import { getUpdatesHistory } from '../utils/getUpdatesHistory';
 
 export class SuperVizYjsProvider extends ObservableV2<Events> {
   public readonly name = 'yjsProvider';
@@ -183,7 +177,7 @@ export class SuperVizYjsProvider extends ObservableV2<Events> {
     this.logger.log('Adding room listeners');
 
     this.room.on(ProviderEvents.UPDATE, this.onRemoteDocUpdate);
-    this.room.presence.on(PresenceEvents.JOINED_ROOM, this.onLocalJoinRoom);
+    this.room.presence.on('presence.joined-room', this.onLocalJoinRoom);
     this.ioc.client.connection.on(this.onConnectionChange);
   }
 
@@ -197,7 +191,7 @@ export class SuperVizYjsProvider extends ObservableV2<Events> {
 
     if (this.room) {
       this.room.off(ProviderEvents.UPDATE, this.onRemoteDocUpdate);
-      this.room.presence.off(PresenceEvents.JOINED_ROOM);
+      this.room.presence.off('presence.joined-room');
     }
 
     this.ioc?.client.connection.off();
@@ -298,7 +292,7 @@ export class SuperVizYjsProvider extends ObservableV2<Events> {
    * @returns {void}
    */
   private onConnectionChange = (msg: ConnectionState): void => {
-    if (msg.state === ClientState.DISCONNECTED) {
+    if (msg.state === 'DISCONNECTED') {
       this.logger.log('Disconnected from the room');
       this.emit('disconnect', []);
     }
