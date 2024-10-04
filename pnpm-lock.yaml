@@ -8,6 +8,9 @@ importers:
 
   .:
     devDependencies:
+      '@types/jest':
+        specifier: ^29.5.13
+        version: 29.5.13
       prettier:
         specifier: ^3.2.5
         version: 3.2.5
@@ -446,7 +449,7 @@ importers:
         specifier: ^4.1.12
         version: 4.1.12
       '@types/jest':
-        specifier: ^29.5.12
+        specifier: ^29.5.13
         version: 29.5.13
       '@types/node':
         specifier: ^20.14.8
@@ -6847,6 +6850,7 @@ packages:
 
   three-mesh-bvh@0.7.8:
     resolution: {integrity: sha512-BGEZTOIC14U0XIRw3tO4jY7IjP7n7v24nv9JXS1CyeVRWOCkcOMhRnmENUjuV39gktAw4Ofhr0OvIAiTspQrrw==}
+    deprecated: Deprecated due to three.js version incompatibility. Please use v0.8.0, instead.
     peerDependencies:
       three: '>= 0.151.0'
 

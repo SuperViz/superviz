@@ -6,6 +6,5 @@ export type RemoteConfig = {
 };
 
 export type RemoteConfigParams = {
-  version: string;
   environment: EnvironmentTypes;
 };
