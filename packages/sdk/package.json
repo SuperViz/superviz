@@ -41,12 +41,13 @@
   },
   "homepage": "https://github.com/SuperViz/superviz/tree/main/packages/sdk#readme",
   "devDependencies": {
-    "@superviz/semantic-release-version-file": "workspace:*",
-    "@superviz/eslint-config": "workspace:*",
-    "@superviz/typescript-config": "workspace:*",
+    "@anolilab/semantic-release-pnpm": "^1.1.3",
     "@esm-bundle/chai": "^4.3.4-fix.0",
     "@jest/globals": "^29.7.0",
     "@open-wc/testing-helpers": "^3.0.1",
+    "@superviz/eslint-config": "workspace:*",
+    "@superviz/semantic-release-version-file": "workspace:*",
+    "@superviz/typescript-config": "workspace:*",
     "@types/debug": "^4.1.12",
     "@types/jest": "^29.5.12",
     "@types/luxon": "^3.4.2",
@@ -76,7 +77,7 @@
     "yargs": "^17.7.2"
   },
   "dependencies": {
-    "@superviz/socket-client": "workspace:* || lab",
+    "@superviz/socket-client": "workspace:*",
     "bowser": "^2.11.0",
     "bowser-jr": "^1.0.6",
     "debug": "^4.3.4",

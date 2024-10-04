@@ -150,9 +150,6 @@ importers:
 
   packages/autodesk:
     dependencies:
-      '@superviz/sdk':
-        specifier: 6.4.3
-        version: 6.4.3
       debug:
         specifier: ^4.3.5
         version: 4.3.7
@@ -166,6 +163,9 @@ importers:
       '@superviz/eslint-config':
         specifier: workspace:*
         version: link:../eslint-config
+      '@superviz/sdk':
+        specifier: workspace:*
+        version: link:../sdk
       '@superviz/semantic-release-version-file':
         specifier: workspace:*
         version: link:../semantic-release-version-file
@@ -235,9 +235,6 @@ importers:
 
   packages/matterport:
     dependencies:
-      '@superviz/sdk':
-        specifier: 6.4.3
-        version: 6.4.3
       debug:
         specifier: ^4.3.5
         version: 4.3.7
@@ -251,6 +248,9 @@ importers:
       '@superviz/eslint-config':
         specifier: workspace:*
         version: link:../eslint-config
+      '@superviz/sdk':
+        specifier: workspace:*
+        version: link:../sdk
       '@superviz/semantic-release-version-file':
         specifier: workspace:*
         version: link:../semantic-release-version-file
@@ -524,6 +524,9 @@ importers:
         specifier: ^3.23.8
         version: 3.23.8
     devDependencies:
+      '@anolilab/semantic-release-pnpm':
+        specifier: ^1.1.3
+        version: 1.1.3(yaml@2.5.1)
       '@esm-bundle/chai':
         specifier: ^4.3.4-fix.0
         version: 4.3.4-fix.0
@@ -683,9 +686,6 @@ importers:
 
   packages/three:
     dependencies:
-      '@superviz/sdk':
-        specifier: 6.4.3
-        version: 6.4.3
       debug:
         specifier: ^4.3.5
         version: 4.3.7
@@ -705,6 +705,9 @@ importers:
       '@superviz/eslint-config':
         specifier: workspace:*
         version: link:../eslint-config
+      '@superviz/sdk':
+        specifier: workspace:*
+        version: link:../sdk
       '@superviz/semantic-release-version-file':
         specifier: workspace:*
         version: link:../semantic-release-version-file
@@ -824,6 +827,14 @@ packages:
   '@ampproject/remapping@2.3.0':
     resolution: {integrity: sha512-30iZtAPgz+LTIYoeivqYo853f02jBYSd5uGnGpkFV0M3xOt9aN73erkgYAmZU43x4VfqcnLxW9Kpg3R5LC4YYw==}
     engines: {node: '>=6.0.0'}
+
+  '@anolilab/rc@1.1.2':
+    resolution: {integrity: sha512-rCIUynBi6D6P0ox6Vt1aSYLJgDGXAj0341hDd/EKYg0KptOGwr/RUmg9N6nq3nW/a8AU3LS3PkI26tjAqD81LA==}
+    engines: {node: '>=18.* <=22.*'}
+
+  '@anolilab/semantic-release-pnpm@1.1.3':
+    resolution: {integrity: sha512-K04XyqHFEZsU1U9xFWZ65afpeBLZFRrOdSsdJnExej+LDJ+2YpX9NvbB8CNfc+oA/gHSV8/Tw/8xBsXiSGfBgA==}
+    engines: {node: '>=18.* <=22.*'}
 
   '@babel/code-frame@7.24.7':
     resolution: {integrity: sha512-BcYH1CVJBO9tvyIZ2jVeXgSIMvGZ2FDRvDdOIVQyuklNKSsx+eppDEBq/g47Ayw+RqNFE+URvOShmf+f/qwAlA==}
@@ -2525,9 +2536,6 @@ packages:
   '@socket.io/component-emitter@3.1.2':
     resolution: {integrity: sha512-9BCxFwvbGg/RsZK9tjXd8s4UcwR0MWeFQ1XEKIQVVvAGJyINdrqKMcTRyLoK8Rse1GjzLV9cwjWV1olXRWEXVA==}
 
-  '@superviz/sdk@6.4.3':
-    resolution: {integrity: sha512-9G5viuRPdUTEHI5dMboM9hPs8owdqRNQ++ifneLr3zde8Ot4Y4wtyuMIeGGOxLrp77lF1usprnBgWEbYe4FcFQ==}
-
   '@swc/core-darwin-arm64@1.7.26':
     resolution: {integrity: sha512-FF3CRYTg6a7ZVW4yT9mesxoVVZTrcSWtmZhxKCYJX9brH4CS/7PRPjAKNk6kzWgWuRoglP7hkjQcd6EpMcZEAw==}
     engines: {node: '>=10'}
@@ -2929,6 +2937,40 @@ packages:
 
   '@ungap/structured-clone@1.2.0':
     resolution: {integrity: sha512-zuVdFrMJiuCDQUMCzQaD6KL28MjnqqN8XnAqiEq9PNm/hCPTSGfrXCOfwj1ow4LFb/tNymJPwsNbVePc1xFqrQ==}
+
+  '@visulima/fs@2.1.7':
+    resolution: {integrity: sha512-zrdAoYrjayGWLVZgxbBvumxMeBgXyh3TPpyyZXKYkllCn2+9lTjYmBUhHyq8IwnDFWMBD6/04I2CaWzTJvW48g==}
+    engines: {node: '>=18.* <=22.*'}
+    os: [darwin, linux, win32]
+    peerDependencies:
+      yaml: ^2.4.0
+    peerDependenciesMeta:
+      yaml:
+        optional: true
+
+  '@visulima/fs@2.2.0':
+    resolution: {integrity: sha512-tcgCMPHxwfYWIrxch1v1otuKUsaEHLTQ2ojU+1vWoD9qdNsl5nz9TzRKxU9XCjJ8+nFFcfa5l82jCfx4+dKoow==}
+    engines: {node: '>=18.* <=22.*'}
+    os: [darwin, linux, win32]
+    peerDependencies:
+      yaml: ^2.4.0
+    peerDependenciesMeta:
+      yaml:
+        optional: true
+
+  '@visulima/package@1.10.3':
+    resolution: {integrity: sha512-ckuhAjkLqnalawTxpTgLSbT7FSlkv7UUEi69jZevFrg63+U23wcM8TEOrQqRbGIfgBUlwSYIdRxPGOgDM0fsiQ==}
+    engines: {node: '>=18.* <=22.*'}
+    os: [darwin, linux, win32]
+
+  '@visulima/path@1.0.2':
+    resolution: {integrity: sha512-swUmYnU83E9KTMXCIkatLlsyMLZfIKG0r6EByYVuJPoZu58MTyOFHWu+nMwIVr04VFYAkoFUTHzmzgU0F1HbyA==}
+    engines: {node: '>=18.* <=22.*'}
+
+  '@visulima/path@1.0.9':
+    resolution: {integrity: sha512-hNxVeOR+GPkVZqcXZhLZSOUzW6zUA/Jk1nr6d5kSDB52NSu2UnBhoEY1SvLNwuuhMN5LthgNE15y0Nv6lfiM8g==}
+    engines: {node: '>=18.* <=22.*'}
+    os: [darwin, linux, win32]
 
   '@vitejs/plugin-react-swc@3.7.0':
     resolution: {integrity: sha512-yrknSb3Dci6svCd/qhHqhFPDSw0QtjumcqdKMoNNzmOl5lMXTTiqzjWtG4Qask2HdvvzaNgSunbQGet8/GrKdA==}
@@ -4792,6 +4834,10 @@ packages:
     resolution: {integrity: sha512-QQnnxNyfvmHFIsj7gkPcYymR8Jdw/o7mp5ZFihxn6h8Ci6fh3Dx4E1gPjpQEpIuPo9XVNY/ZUwh4BPMjGyL01g==}
     engines: {node: ^14.17.0 || ^16.13.0 || >=18.0.0}
 
+  ini@4.1.3:
+    resolution: {integrity: sha512-X7rqawQBvfdjS10YU1y1YVreA3SsLrW9dX2CewP2EbBJM4ypVNLDkO5y04gejPwKIY9lR+7r9gn3rFPt/kmWFg==}
+    engines: {node: ^14.17.0 || ^16.13.0 || >=18.0.0}
+
   inquirer@8.2.5:
     resolution: {integrity: sha512-QAgPDQMEgrDssk1XiwwHoOGYF9BAbUcc1+j+FhEvaOt8/cKRqyLn0U5qA6F74fGhTMGxf92pOvPBeh29jQJDTQ==}
     engines: {node: '>=12.0.0'}
@@ -5299,6 +5345,9 @@ packages:
     engines: {node: '>=6'}
     hasBin: true
 
+  jsonc-parser@3.3.1:
+    resolution: {integrity: sha512-HUgH65KyejrUFPvHFPbqOY0rsFip3Bo5wb4ngvdi1EpCYWUQDC5V+Y7mZws+DLkr4M//zQJoanu1SP+87Dv1oQ==}
+
   jsonfile@4.0.0:
     resolution: {integrity: sha512-m6F1R3z8jjlf2imQHS2Qez5sjKWQzbuuhuJ/FKYFRZvPE3PuHcSMVZzfsLhGVOkfd20obL5SWEBew5ShlquNxg==}
 
@@ -5636,6 +5685,10 @@ packages:
 
   moo-color@1.0.3:
     resolution: {integrity: sha512-i/+ZKXMDf6aqYtBhuOcej71YSlbjT3wCO/4H1j8rPvxDJEifdwgg5MaFyu6iYAT8GBZJg2z0dkgK4YMzvURALQ==}
+
+  move-file@3.1.0:
+    resolution: {integrity: sha512-4aE3U7CCBWgrQlQDMq8da4woBWDGHioJFiOZ8Ie6Yq2uwYQ9V2kGhTz4x3u6Wc+OU17nw0yc3rJ/lQ4jIiPe3A==}
+    engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
 
   ms@2.0.0:
     resolution: {integrity: sha512-Tpp60P6IUJDTuOq/5Z8cdskzJujfwqfOTkrwIwj7IRISpnkJnT6SyJ4PCPnGMoFjC9ddhal5KVIYtAt97ix05A==}
@@ -5997,6 +6050,10 @@ packages:
   path-exists@4.0.0:
     resolution: {integrity: sha512-ak9Qy5Q7jYb2Wwcey5Fpvg2KoAc/ZIhLSLOSBmRmygPsGwkVVt0fZa0qrtMz+m6tJTAHfZQ8FnmB4MG4LWy7/w==}
     engines: {node: '>=8'}
+
+  path-exists@5.0.0:
+    resolution: {integrity: sha512-RjhtfwJOxzcFmNOi6ltcbcu4Iu+FL3zEj83dk4kAS+fVpTxXLO1b38RvJgT/0QwvV/L3aY9TAnyv0EOqW4GoMQ==}
+    engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
 
   path-is-absolute@1.0.1:
     resolution: {integrity: sha512-AVbw3UJ2e9bq64vSaS9Am0fje1Pa8pbGqTTsmXfaIiMpnr5DlDhfJOuLj9Sf95ZPVDAUerDfEk88MPmPe7UCQg==}
@@ -6466,9 +6523,6 @@ packages:
   scheduler@0.23.2:
     resolution: {integrity: sha512-UOShsPwz7NrMUqhR6t0hWjFduvOzbtv7toDH1/hIrfRNIDBnnBWd0CwJTGvTpngVlmwGCdP9/Zl/tVrDqcuYzQ==}
 
-  semantic-release-version-file@1.0.2:
-    resolution: {integrity: sha512-/kf9hqGfy0iceKDC1dXGKajKXYfDEHlGFynIaoXOTUv3szlZ4Io2i+7sLl46y4Fv2DCKLeM+3sC/0IWxsgpL9A==}
-
   semantic-release@24.0.0:
     resolution: {integrity: sha512-v46CRPw+9eI3ZuYGF2oAjqPqsfbnfFTwLBgQsv/lch4goD09ytwOTESMN4QIrx/wPLxUGey60/NMx+ANQtWRsA==}
     engines: {node: '>=20.8.1'}
@@ -6930,6 +6984,10 @@ packages:
     engines: {node: '>=16'}
     peerDependencies:
       typescript: '>=4.2.0'
+
+  ts-deepmerge@7.0.1:
+    resolution: {integrity: sha512-JBFCmNenZdUCc+TRNCtXVM6N8y/nDQHAcpj5BlwXG/gnogjam1NunulB9ia68mnqYI446giMfpqeBFFkOleh+g==}
+    engines: {node: '>=14.13.1'}
 
   ts-interface-checker@0.1.13:
     resolution: {integrity: sha512-Y/arvbn+rrz3JCKl9C4kVNfTfSm2/mEp5FSz5EsZSANGPSlQrpRI5M4PKF+mJnE52jOO90PnPSc3Ur3bTQw0gA==}
@@ -7521,6 +7579,31 @@ snapshots:
     dependencies:
       '@jridgewell/gen-mapping': 0.3.5
       '@jridgewell/trace-mapping': 0.3.25
+
+  '@anolilab/rc@1.1.2(yaml@2.5.1)':
+    dependencies:
+      '@visulima/fs': 2.2.0(yaml@2.5.1)
+      ini: 4.1.3
+      ts-deepmerge: 7.0.1
+    transitivePeerDependencies:
+      - yaml
+
+  '@anolilab/semantic-release-pnpm@1.1.3(yaml@2.5.1)':
+    dependencies:
+      '@anolilab/rc': 1.1.2(yaml@2.5.1)
+      '@semantic-release/error': 4.0.0
+      '@visulima/fs': 2.2.0(yaml@2.5.1)
+      '@visulima/package': 1.10.3(yaml@2.5.1)
+      '@visulima/path': 1.0.9
+      aggregate-error: 5.0.0
+      execa: 9.3.1
+      ini: 4.1.3
+      move-file: 3.1.0
+      normalize-url: 8.0.1
+      registry-auth-token: 5.0.2
+      semver: 7.6.3
+    transitivePeerDependencies:
+      - yaml
 
   '@babel/code-frame@7.24.7':
     dependencies:
@@ -9387,25 +9470,6 @@ snapshots:
 
   '@socket.io/component-emitter@3.1.2': {}
 
-  '@superviz/sdk@6.4.3':
-    dependencies:
-      bowser: 2.11.0
-      bowser-jr: 1.0.6
-      debug: 4.3.7
-      lit: 3.2.0
-      lodash: 4.17.21
-      lodash.debounce: 4.0.8
-      lodash.isequal: 4.5.0
-      luxon: 3.5.0
-      rxjs: 7.8.1
-      semantic-release-version-file: 1.0.2
-      socket.io-client: 4.7.5
-      zod: 3.23.8
-    transitivePeerDependencies:
-      - bufferutil
-      - supports-color
-      - utf-8-validate
-
   '@swc/core-darwin-arm64@1.7.26':
     optional: true
 
@@ -9927,6 +9991,32 @@ snapshots:
       eslint-visitor-keys: 3.4.3
 
   '@ungap/structured-clone@1.2.0': {}
+
+  '@visulima/fs@2.1.7(yaml@2.5.1)':
+    dependencies:
+      '@visulima/path': 1.0.2
+    optionalDependencies:
+      yaml: 2.5.1
+
+  '@visulima/fs@2.2.0(yaml@2.5.1)':
+    dependencies:
+      '@visulima/path': 1.0.9
+    optionalDependencies:
+      yaml: 2.5.1
+
+  '@visulima/package@1.10.3(yaml@2.5.1)':
+    dependencies:
+      '@visulima/fs': 2.1.7(yaml@2.5.1)
+      '@visulima/path': 1.0.2
+      jsonc-parser: 3.3.1
+      normalize-package-data: 6.0.2
+      resolve-pkg-maps: 1.0.0
+    transitivePeerDependencies:
+      - yaml
+
+  '@visulima/path@1.0.2': {}
+
+  '@visulima/path@1.0.9': {}
 
   '@vitejs/plugin-react-swc@3.7.0(vite@5.4.5(@types/node@20.16.5)(terser@5.32.0))':
     dependencies:
@@ -12473,6 +12563,8 @@ snapshots:
   ini@4.1.1:
     optional: true
 
+  ini@4.1.3: {}
+
   inquirer@8.2.5:
     dependencies:
       ansi-escapes: 4.3.2
@@ -13183,6 +13275,8 @@ snapshots:
 
   json5@2.2.3: {}
 
+  jsonc-parser@3.3.1: {}
+
   jsonfile@4.0.0:
     optionalDependencies:
       graceful-fs: 4.2.11
@@ -13539,6 +13633,10 @@ snapshots:
     dependencies:
       color-name: 1.1.4
 
+  move-file@3.1.0:
+    dependencies:
+      path-exists: 5.0.0
+
   ms@2.0.0: {}
 
   ms@2.1.2: {}
@@ -13587,7 +13685,7 @@ snapshots:
   normalize-package-data@6.0.2:
     dependencies:
       hosted-git-info: 7.0.2
-      semver: 7.5.4
+      semver: 7.6.3
       validate-npm-package-license: 3.0.4
 
   normalize-path@3.0.0: {}
@@ -13819,6 +13917,8 @@ snapshots:
   path-exists@3.0.0: {}
 
   path-exists@4.0.0: {}
+
+  path-exists@5.0.0: {}
 
   path-is-absolute@1.0.1: {}
 
@@ -14322,8 +14422,6 @@ snapshots:
   scheduler@0.23.2:
     dependencies:
       loose-envify: 1.4.0
-
-  semantic-release-version-file@1.0.2: {}
 
   semantic-release@24.0.0(typescript@5.6.2):
     dependencies:
@@ -14903,6 +15001,8 @@ snapshots:
   ts-api-utils@1.3.0(typescript@5.6.2):
     dependencies:
       typescript: 5.6.2
+
+  ts-deepmerge@7.0.1: {}
 
   ts-interface-checker@0.1.13: {}
 
