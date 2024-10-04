@@ -29,6 +29,9 @@ importers:
       '@superviz/matterport-plugin':
         specifier: workspace:*
         version: link:../../packages/matterport
+      '@superviz/react-sdk':
+        specifier: workspace:*
+        version: link:../../packages/react
       '@superviz/realtime':
         specifier: workspace:*
         version: link:../../packages/realtime
@@ -90,7 +93,7 @@ importers:
         specifier: ^1.0.0
         version: 1.0.0(quill-cursors@4.0.3)(quill@2.0.2)(yjs@13.6.19)
       yjs:
-        specifier: ^13.3.1
+        specifier: ^13.6.19
         version: 13.6.19
       zod:
         specifier: ^3.23.8
@@ -305,6 +308,9 @@ importers:
       '@superviz/threejs-plugin':
         specifier: workspace:*
         version: link:../three
+      '@superviz/yjs':
+        specifier: workspace:*
+        version: link:../yjs
       lodash:
         specifier: ^4.17.21
         version: 4.17.21
@@ -408,6 +414,9 @@ importers:
       vite-tsconfig-paths:
         specifier: ^4.3.2
         version: 4.3.2(typescript@5.6.2)(vite@5.4.5(@types/node@20.16.5)(terser@5.32.0))
+      yjs:
+        specifier: ^13.6.19
+        version: 13.6.19
 
   packages/realtime:
     dependencies:
@@ -800,7 +809,7 @@ importers:
         version: 24.0.0(typescript@5.6.2)
       ts-jest:
         specifier: ^29.2.5
-        version: 29.2.5(@babel/core@7.25.2)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.25.2))(esbuild@0.23.1)(jest@29.7.0)(typescript@5.6.2)
+        version: 29.2.5(@babel/core@7.25.2)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.25.2))(esbuild@0.23.1)(jest@29.7.0(@types/node@20.16.5))(typescript@5.6.2)
 
 packages:
 
@@ -14917,7 +14926,7 @@ snapshots:
       babel-jest: 29.7.0(@babel/core@7.25.2)
       esbuild: 0.21.5
 
-  ts-jest@29.2.5(@babel/core@7.25.2)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.25.2))(esbuild@0.23.1)(jest@29.7.0)(typescript@5.6.2):
+  ts-jest@29.2.5(@babel/core@7.25.2)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.25.2))(esbuild@0.23.1)(jest@29.7.0(@types/node@20.16.5))(typescript@5.6.2):
     dependencies:
       bs-logger: 0.2.6
       ejs: 3.1.10
