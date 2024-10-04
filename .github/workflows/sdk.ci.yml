@@ -6,8 +6,8 @@ on:
       - beta
       - main
     paths:
-      - 'packages/sdk/**'
-      - '.github/workflows/sdk.ci.yml'
+      - "packages/sdk/**"
+      - ".github/workflows/sdk.ci.yml"
 jobs:
   package:
     runs-on: ubuntu-latest
@@ -24,11 +24,11 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'pnpm'
+          cache: "pnpm"
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
         env:
-          NPM_CONFIG_USERCONFIG: .npmrc.ci
+          NPM_CONFIG_USERCONFIG: .npmrc
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
       - name: Create a .remote-config.js file
         run: |
@@ -36,9 +36,9 @@ jobs:
       - run: git config --global user.name SuperViz
       - run: git config --global user.email ci@superviz.com
       - name: Publish npm package
-        run: npm whoami && pnpm run semantic-release --filter=@superviz/sdk
+        run: pnpm whoami && pnpm run semantic-release --filter=@superviz/sdk
         env:
-          NPM_CONFIG_USERCONFIG: .npmrc.ci
+          NPM_CONFIG_USERCONFIG: .npmrc
           GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
   slack:
