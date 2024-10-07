@@ -34,7 +34,7 @@ jobs:
         run: pnpm run build --filter=@superviz/realtime
       - name: Create a .remote-config.js file
         run: |
-          touch .remote-config.js && echo "echo \"module.exports = { remoteConfig: { apiUrl: 'https://api.superviz.com', version: 'prod'}};\" > .remote-config.js" | bash -
+          touch packages/realtime/.remote-config.js && echo "echo \"module.exports = { remoteConfig: { apiUrl: 'https://api.superviz.com' }};\" > .remote-config.js" | bash -
       - run: git config --global user.name SuperViz
       - run: git config --global user.email ci@superviz.com
       - name: Publish npm package
