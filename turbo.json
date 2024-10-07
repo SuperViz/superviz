@@ -78,7 +78,7 @@
       "dependsOn": ["@superviz/socket-client#build"]
     },
     "@superviz/yjs#build": {
-      "dependsOn": ["@superviz/socket-client#build", "@superviz/sdk#build"]
+      "dependsOn": ["@superviz/sdk#build"]
     },
     "@superviz/yjs#test:unit": {
       "dependsOn": ["@superviz/sdk#build", "@superviz/socket-client#build"]
@@ -88,6 +88,15 @@
     },
     "@superviz/yjs#test:unit:coverage": {
       "dependsOn": ["@superviz/yjs#build"]
+    },
+    "@superviz/autodesk-viewer-plugin#build": {
+      "dependsOn": ["@superviz/sdk#build"]
+    },
+    "@superviz/@superviz/threejs-plugin#build": {
+      "dependsOn": ["@superviz/sdk#build"]
+    },
+    "@superviz/matterport-plugin#build": {
+      "dependsOn": ["@superviz/sdk#build"]
     },
     "@superviz/react-sdk#build": {
       "dependsOn": [
