@@ -28,12 +28,6 @@ jest.mock('../../../.remote-config', () => {
   };
 });
 
-jest.mock('../../../.version', () => {
-  return {
-    version: '1.0.0',
-  };
-});
-
 describe('RemoteConfigService', () => {
   describe('getRemoteConfig', () => {
     afterEach(() => {
