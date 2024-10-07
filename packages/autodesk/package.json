@@ -30,8 +30,13 @@
     "semantic-release": "semantic-release"
   },
   "devDependencies": {
-    "@superviz/semantic-release-version-file": "workspace:*",
+    "@anolilab/semantic-release-pnpm": "^1.1.3",
+    "@semantic-release/git": "^10.0.1",
+    "@semantic-release/release-notes-generator": "^14.0.1",
     "@superviz/eslint-config": "workspace:*",
+    "@superviz/sdk": "workspace:*",
+    "@superviz/semantic-release-version-file": "workspace:*",
+    "@superviz/socket-client": "workspace:*",
     "@superviz/typescript-config": "workspace:*",
     "@types/debug": "^4.1.12",
     "@types/forge-viewer": "^7.89.1",
@@ -42,9 +47,7 @@
     "eslint": "8.56.0",
     "semantic-release": "24.0.0",
     "tsc": "^2.0.4",
-    "typescript": "^5.5.2",
-    "@superviz/sdk": "workspace:*",
-    "@superviz/socket-client": "workspace:*"
+    "typescript": "^5.5.2"
   },
   "dependencies": {
     "debug": "^4.3.5",
