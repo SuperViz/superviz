@@ -750,6 +750,15 @@ importers:
         specifier: 1.8.2
         version: 1.8.2(three@0.167.1)
     devDependencies:
+      '@anolilab/semantic-release-pnpm':
+        specifier: ^1.1.3
+        version: 1.1.3(yaml@2.5.1)
+      '@semantic-release/git':
+        specifier: ^10.0.1
+        version: 10.0.1(semantic-release@24.0.0(typescript@5.6.2))
+      '@semantic-release/release-notes-generator':
+        specifier: ^14.0.1
+        version: 14.0.1(semantic-release@24.0.0(typescript@5.6.2))
       '@superviz/eslint-config':
         specifier: workspace:*
         version: link:../eslint-config
@@ -825,9 +834,18 @@ importers:
         specifier: ^13.3.1
         version: 13.6.19
     devDependencies:
+      '@anolilab/semantic-release-pnpm':
+        specifier: ^1.1.3
+        version: 1.1.3(yaml@2.5.1)
       '@jest/globals':
         specifier: ^29.7.0
         version: 29.7.0
+      '@semantic-release/git':
+        specifier: ^10.0.1
+        version: 10.0.1(semantic-release@24.0.0(typescript@5.6.2))
+      '@semantic-release/release-notes-generator':
+        specifier: ^14.0.1
+        version: 14.0.1(semantic-release@24.0.0(typescript@5.6.2))
       '@superviz/eslint-config':
         specifier: workspace:*
         version: link:../eslint-config
@@ -863,7 +881,7 @@ importers:
         version: 24.0.0(typescript@5.6.2)
       ts-jest:
         specifier: ^29.2.5
-        version: 29.2.5(@babel/core@7.25.2)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.25.2))(esbuild@0.23.1)(jest@29.7.0)(typescript@5.6.2)
+        version: 29.2.5(@babel/core@7.25.2)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.25.2))(esbuild@0.23.1)(jest@29.7.0(@types/node@20.16.5))(typescript@5.6.2)
 
 packages:
 
@@ -15267,7 +15285,7 @@ snapshots:
       babel-jest: 29.7.0(@babel/core@7.25.2)
       esbuild: 0.21.5
 
-  ts-jest@29.2.5(@babel/core@7.25.2)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.25.2))(esbuild@0.23.1)(jest@29.7.0)(typescript@5.6.2):
+  ts-jest@29.2.5(@babel/core@7.25.2)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.25.2))(esbuild@0.23.1)(jest@29.7.0(@types/node@20.16.5))(typescript@5.6.2):
     dependencies:
       bs-logger: 0.2.6
       ejs: 3.1.10
