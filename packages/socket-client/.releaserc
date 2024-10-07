@@ -15,7 +15,34 @@
   "tagFormat": "@superviz/socket-client/${version}",
   "plugins": [
     "@semantic-release/commit-analyzer",
-    "@superviz/semantic-release-version-file",
+    [
+      "@semantic-release/release-notes-generator",
+      {
+        "preset": "angular",
+        "parserOpts": {
+          "noteKeywords": [
+            "BREAKING CHANGE",
+            "BREAKING CHANGES",
+            "BREAKING"
+          ]
+        },
+        "writerOpts": {
+          "commitsSort": [
+            "subject",
+            "scope"
+          ]
+        }
+      }
+    ],
+    [
+      "@semantic-release/git",
+      {
+        "assets": [
+          "package.json"
+        ],
+        "message": "release: @superviz/socket-client/${nextRelease.version} \n\n${nextRelease.notes}"
+      }
+    ],
     "@semantic-release/github",
     "@semantic-release/npm"
   ]

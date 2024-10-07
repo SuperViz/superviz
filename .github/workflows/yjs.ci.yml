@@ -7,7 +7,6 @@ on:
       - main
     paths:
       - "packages/yjs/**"
-      - "packages/semantic-release-version-file/**"
       - ".github/workflows/yjs.ci.yml"
 jobs:
   package:

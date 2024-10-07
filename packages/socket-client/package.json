@@ -1,6 +1,6 @@
 {
   "name": "@superviz/socket-client",
-  "version": "0.0.0",
+  "version": "1.13.0-lab.2",
   "description": "SuperViz Socket Client",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -35,8 +35,10 @@
   },
   "homepage": "https://github.com/SuperViz/superviz/tree/main/packages/socket-client#readme",
   "devDependencies": {
-    "@superviz/semantic-release-version-file": "workspace:*",
+    "@semantic-release/git": "^10.0.1",
+    "@semantic-release/release-notes-generator": "^14.0.1",
     "@superviz/eslint-config": "workspace:*",
+    "@superviz/semantic-release-version-file": "workspace:*",
     "@superviz/typescript-config": "workspace:*",
     "@types/debug": "^4.1.12",
     "@types/node": "^20.14.8",
