@@ -7,7 +7,7 @@
     },
     "test:unit": {},
     "test:unit:watch": {
-      "cache": false, 
+      "cache": false,
       "persistent": true
     },
     "test:unit:coverage": {
@@ -15,7 +15,7 @@
       "persistent": true
     },
     "test:unit:ci": {
-      "cache": false, 
+      "cache": false,
       "persistent": true
     },
     "test:unit:web-components": {
@@ -26,7 +26,7 @@
       "persistent": true
     },
     "test:unit:web-components:coverage": {
-      "cache": false, 
+      "cache": false,
       "persistent": false
     },
     "watch": {
@@ -77,13 +77,26 @@
     "@superviz/sdk#test:unit:ci": {
       "dependsOn": ["@superviz/socket-client#build"]
     },
+    "@superviz/yjs#build": {
+      "dependsOn": ["@superviz/socket-client#build", "@superviz/sdk#build"]
+    },
+    "@superviz/yjs#test:unit": {
+      "dependsOn": ["@superviz/sdk#build", "@superviz/socket-client#build"]
+    },
+    "@superviz/yjs#test:unit:ci": {
+      "dependsOn": ["@superviz/sdk#build", "@superviz/socket-client#build"]
+    },
+    "@superviz/yjs#test:unit:coverage": {
+      "dependsOn": ["@superviz/yjs#build"]
+    },
     "@superviz/react-sdk#build": {
       "dependsOn": [
         "@superviz/autodesk-viewer-plugin#build",
         "@superviz/matterport-plugin#build",
         "@superviz/sdk#build",
         "@superviz/socket-client#build",
-        "@superviz/threejs-plugin#build"
+        "@superviz/threejs-plugin#build",
+        "@superviz/yjs#build"
       ]
     }
   }

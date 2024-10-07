@@ -9,6 +9,7 @@
   ],
   "exports": {
     "node": "./dist/node/index.js",
+    "types": "./dist/index.d.ts",
     "default": "./dist/browser/index.js"
   },
   "scripts": {
@@ -34,6 +35,7 @@
   },
   "homepage": "https://github.com/SuperViz/superviz/tree/main/packages/socket-client#readme",
   "devDependencies": {
+    "@superviz/semantic-release-version-file": "workspace:*",
     "@superviz/eslint-config": "workspace:*",
     "@superviz/typescript-config": "workspace:*",
     "@types/debug": "^4.1.12",
@@ -50,7 +52,6 @@
     "debug": "^4.3.5",
     "lodash": "^4.17.21",
     "rxjs": "^7.8.1",
-    "semantic-release-version-file": "^1.0.2",
     "socket.io-client": "^4.7.5",
     "zod": "^3.23.8"
   }

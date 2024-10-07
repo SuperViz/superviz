@@ -15,6 +15,8 @@ export enum RoomEvents {
   ERROR = 'room.error',
 }
 
+export type RoomEventsArg = RoomEvents | `${RoomEvents}` | (string & {});
+
 export enum InternalRoomEvents {
   GET = 'room.get',
 }

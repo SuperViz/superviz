@@ -1,7 +1,6 @@
-import { RemoteConfigParams } from './types';
 import { EnvironmentTypes } from '../../types/options.types';
 
-import { RemoteConfig } from './types';
+import { RemoteConfigParams, RemoteConfig } from './types';
 
 import { RemoteConfigService } from './index';
 
@@ -56,7 +55,7 @@ describe('RemoteConfigService', () => {
 
   describe('createUrl', () => {
     it('should create a URL with the correct version and environment', () => {
-      const params: RemoteConfigParams = { version: '1.0.0', environment: EnvironmentTypes.PROD };
+      const params: RemoteConfigParams = { environment: EnvironmentTypes.PROD };
       const expectedUrl = 'https://remote-config.superviz.com/realtime/prod?env=prod';
 
       const result = RemoteConfigService.createUrl(params);

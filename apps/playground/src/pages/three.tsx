@@ -71,9 +71,11 @@ export function Three() {
     loaded.current = true;
 
     const container = document.querySelector("#model");
-    THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
-    THREE.BufferGeometry.prototype.disposeBoundsTree = disposeBoundsTree;
-    THREE.Mesh.prototype.raycast = acceleratedRaycast;
+    (THREE.BufferGeometry.prototype as any).computeBoundsTree =
+      computeBoundsTree;
+    (THREE.BufferGeometry.prototype as any).disposeBoundsTree =
+      disposeBoundsTree;
+    THREE.Mesh.prototype.raycast = acceleratedRaycast as any;
 
     renderer.current = new THREE.WebGLRenderer({ antialias: true });
     renderer.current.setPixelRatio(window.devicePixelRatio);
