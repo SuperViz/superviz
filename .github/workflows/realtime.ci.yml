@@ -30,11 +30,11 @@ jobs:
         env:
           NPM_CONFIG_USERCONFIG: .npmrc.ci
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-      - name: Build package
-        run: pnpm run build --filter=@superviz/realtime
       - name: Create a .remote-config.js file
         run: |
           touch packages/realtime/.remote-config.js && echo "echo \"module.exports = { remoteConfig: { apiUrl: 'https://api.superviz.com' }};\" > .remote-config.js" | bash -
+      - name: Build package
+        run: pnpm run build --filter=@superviz/realtime
       - run: git config --global user.name SuperViz
       - run: git config --global user.email ci@superviz.com
       - name: Publish npm package
