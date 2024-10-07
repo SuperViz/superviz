@@ -32,7 +32,6 @@ jobs:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
       - name: Create a .version.js file
         run: |
-          touch packages/realtime/.version.js && echo "echo \"export const version = 'test'\" > packages/realtime/.version.js" | bash -
           touch packages/sdk/.version.js && echo "echo \"export const version = 'test'\" > packages/sdk/.version.js" | bash -
       - name: Create a .remote-config.js file
         run: |
