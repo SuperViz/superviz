@@ -30,15 +30,14 @@ jobs:
         env:
           NPM_CONFIG_USERCONFIG: .npmrc.ci
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-      - name: Create a .version.js file
-        run: |
-          touch packages/sdk/.version.js && echo "echo \"export const version = 'test'\" > packages/sdk/.version.js" | bash -
       - name: Create a .remote-config.js file
         run: |
           touch packages/realtime/.remote-config.js && echo "echo \"module.exports = { remoteConfig: { apiUrl: 'https://dev.nodeapi.superviz.com' }};\" > packages/realtime/.remote-config.js" | bash -
           touch packages/sdk/.remote-config.js && echo "echo \"module.exports = { remoteConfig: { apiUrl: 'https://dev.nodeapi.superviz.com', conferenceLayerUrl: 'https://video-frame.superviz.com/lab/index.html'}};\" > .remote-config.js" | bash -
       - run: git config --global user.name SuperViz
       - run: git config --global user.email ci@superviz.com
+      - name: Build package
+        run: pnpm run build --filter=@superviz/matterport-plugin
       - name: Publish npm package
         run: npm whoami && pnpm run semantic-release --filter=@superviz/matterport-plugin
         env:
