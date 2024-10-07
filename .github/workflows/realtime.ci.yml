@@ -31,7 +31,7 @@ jobs:
           NPM_CONFIG_USERCONFIG: .npmrc.ci
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
       - name: Build package
-        run: pnpm run build --filter=@superviz/socket-client
+        run: pnpm run build --filter=@superviz/realtime
       - name: Create a .remote-config.js file
         run: |
           touch .remote-config.js && echo "echo \"module.exports = { remoteConfig: { apiUrl: 'https://api.superviz.com', version: 'prod'}};\" > .remote-config.js" | bash -
