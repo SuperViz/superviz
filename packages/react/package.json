@@ -46,10 +46,12 @@
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
+    "@anolilab/semantic-release-pnpm": "^1.1.3",
     "@eslint/compat": "^1.1.1",
     "@rollup/plugin-replace": "^5.0.7",
+    "@semantic-release/git": "^10.0.1",
+    "@semantic-release/release-notes-generator": "^14.0.1",
     "@superviz/semantic-release-version-file": "workspace:*",
-    "yjs": "^13.6.19",
     "@types/forge-viewer": "^7.89.1",
     "@types/lodash": "^4.17.6",
     "@types/node": "^20.14.9",
@@ -77,6 +79,7 @@
     "vite": "^5.3.2",
     "vite-plugin-dts": "^3.9.1",
     "vite-plugin-linter": "^2.1.1",
-    "vite-tsconfig-paths": "^4.3.2"
+    "vite-tsconfig-paths": "^4.3.2",
+    "yjs": "^13.6.19"
   }
 }
