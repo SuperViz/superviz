@@ -451,12 +451,15 @@ importers:
       '@jest/globals':
         specifier: ^29.7.0
         version: 29.7.0
+      '@semantic-release/git':
+        specifier: ^10.0.1
+        version: 10.0.1(semantic-release@24.1.1(typescript@5.6.2))
+      '@semantic-release/release-notes-generator':
+        specifier: ^14.0.1
+        version: 14.0.1(semantic-release@24.1.1(typescript@5.6.2))
       '@superviz/eslint-config':
         specifier: workspace:*
         version: link:../eslint-config
-      '@superviz/semantic-release-version-file':
-        specifier: workspace:*
-        version: link:../semantic-release-version-file
       '@superviz/typescript-config':
         specifier: workspace:*
         version: link:../typescript-config

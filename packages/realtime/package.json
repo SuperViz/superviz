@@ -54,9 +54,10 @@
   "devDependencies": {
     "@esm-bundle/chai": "^4.3.4-fix.0",
     "@jest/globals": "^29.7.0",
+    "@semantic-release/git": "^10.0.1",
+    "@semantic-release/release-notes-generator": "^14.0.1",
     "@superviz/eslint-config": "workspace:*",
     "@superviz/typescript-config": "workspace:*",
-    "@superviz/semantic-release-version-file": "workspace:*",
     "@types/debug": "^4.1.12",
     "@types/jest": "^29.5.12",
     "@types/node": "^20.14.8",
