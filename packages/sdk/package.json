@@ -45,6 +45,8 @@
     "@esm-bundle/chai": "^4.3.4-fix.0",
     "@jest/globals": "^29.7.0",
     "@open-wc/testing-helpers": "^3.0.1",
+    "@semantic-release/git": "^10.0.1",
+    "@semantic-release/release-notes-generator": "^14.0.1",
     "@superviz/eslint-config": "workspace:*",
     "@superviz/semantic-release-version-file": "workspace:*",
     "@superviz/typescript-config": "workspace:*",
