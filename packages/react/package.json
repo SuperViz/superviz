@@ -46,7 +46,7 @@
   },
   "devDependencies": {
     "@rollup/plugin-replace": "^5.0.7",
-    "@eslint/compat": "^1.1.1",
+    "@eslint/compat": "^1.2.0",
     "@types/forge-viewer": "^7.89.1",
     "@types/lodash": "^4.17.6",
     "@types/node": "^20.14.9",
