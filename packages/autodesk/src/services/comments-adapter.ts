@@ -1,10 +1,6 @@
 // eslint-disable-next-line max-classes-per-file
-import type {
-  Annotation,
-  PinAdapter,
-  PinCoordinates,
-  Observer as ObserverType,
-} from '@superviz/sdk';
+import type { Annotation, PinAdapter, PinCoordinates } from '@superviz/sdk';
+import type { Observer as ObserverType } from '@superviz/sdk/dist/common/utils/observer';
 import { Vector3 } from 'three';
 
 import { Logger } from '../common/utils/logger';

@@ -42,10 +42,11 @@
     "semantic-release": "24.0.0",
     "three": "0.167.1",
     "tsc": "^2.0.4",
-    "typescript": "^5.5.2"
+    "typescript": "^5.5.2",
+    "@superviz/sdk": "workspace:*",
+    "@superviz/socket-client": "workspace:*"
   },
   "dependencies": {
-    "@superviz/sdk": "6.4.3",
     "debug": "^4.3.5",
     "lodash": "^4.17.21",
     "three-spritetext": "^1.8.2"

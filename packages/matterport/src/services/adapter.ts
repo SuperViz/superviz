@@ -1,14 +1,9 @@
 import type { Participant, Presence3DManager, StoreType } from '@superviz/sdk';
-import type { useStore } from '@superviz/sdk/lib/common/utils/use-store';
-import type { DefaultAttachComponentOptions } from '@superviz/sdk/lib/components/base/types';
-import type { EventBus } from '@superviz/sdk/lib/services/event-bus';
-import type { ParticipantDataInput } from '@superviz/sdk/lib/services/presence-3d-manager/types';
-import type {
-  PresenceEvent,
-  PresenceEvents,
-  Room,
-  SocketEvent,
-} from '@superviz/sdk/lib/lib/socket';
+import type { useStore } from '@superviz/sdk/dist/common/utils/use-store';
+import type { DefaultAttachComponentOptions } from '@superviz/sdk/dist/components/base/types';
+import type { EventBus } from '@superviz/sdk/dist/services/event-bus';
+import type { ParticipantDataInput } from '@superviz/sdk/dist/services/presence-3d-manager/types';
+import type { PresenceEvent, PresenceEvents, Room, SocketEvent } from '@superviz/socket-client';
 import { isEqual } from 'lodash';
 import { Vector3, Quaternion } from 'three';
 
@@ -1065,7 +1060,7 @@ export class Presence3D {
     const position: Coordinates = { x, y: y + 0.35, z };
     remoteAvatar.obj3D.getWorldQuaternion(this.tempQuaternion);
     if (laserInstance) {
-      const slot = participant.slot;
+      const { slot } = participant;
       laserInstance.updateGeometry(
         position,
         laserDestinationPosition,

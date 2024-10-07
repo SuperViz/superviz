@@ -42,10 +42,11 @@
     "eslint": "8.56.0",
     "semantic-release": "24.0.0",
     "tsc": "^2.0.4",
-    "typescript": "^5.5.2"
+    "typescript": "^5.5.2",
+    "@superviz/sdk": "workspace:*",
+    "@superviz/socket-client": "workspace:*"
   },
   "dependencies": {
-    "@superviz/sdk": "6.4.3",
     "debug": "^4.3.5",
     "lodash": "^4.17.21",
     "three": "0.139.2"

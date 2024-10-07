@@ -172,6 +172,9 @@ importers:
       '@superviz/semantic-release-version-file':
         specifier: workspace:*
         version: link:../semantic-release-version-file
+      '@superviz/socket-client':
+        specifier: workspace:*
+        version: link:../socket-client
       '@superviz/typescript-config':
         specifier: workspace:*
         version: link:../typescript-config
@@ -257,6 +260,9 @@ importers:
       '@superviz/semantic-release-version-file':
         specifier: workspace:*
         version: link:../semantic-release-version-file
+      '@superviz/socket-client':
+        specifier: workspace:*
+        version: link:../socket-client
       '@superviz/typescript-config':
         specifier: workspace:*
         version: link:../typescript-config
@@ -500,7 +506,7 @@ importers:
   packages/sdk:
     dependencies:
       '@superviz/socket-client':
-        specifier: workspace:*
+        specifier: workspace:latest
         version: link:../socket-client
       bowser:
         specifier: ^2.11.0
@@ -714,6 +720,9 @@ importers:
       '@superviz/semantic-release-version-file':
         specifier: workspace:*
         version: link:../semantic-release-version-file
+      '@superviz/socket-client':
+        specifier: workspace:*
+        version: link:../socket-client
       '@superviz/typescript-config':
         specifier: workspace:*
         version: link:../typescript-config
