@@ -31,7 +31,7 @@ jobs:
           NPM_CONFIG_USERCONFIG: .npmrc
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
       - name: Build package
-        run: pnpm run build --filter=@superviz/realtime
+        run: pnpm run build --filter=@superviz/sdk
       - name: Create a .remote-config.js file
         run: |
           touch packages/sdk/.remote-config.js && echo "echo \"module.exports = { remoteConfig: { apiUrl: 'https://api.superviz.com', conferenceLayerUrl: 'https://video-frame.superviz.com/lab/index.html'}};\" > .remote-config.js" | bash -
