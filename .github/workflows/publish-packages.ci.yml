@@ -127,7 +127,7 @@ jobs:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
       - name: Commit, push changes, and push tags
         run: |
-          git add . ':!.npmrc'
+          git add . ':!.npmrc' ':!packages/**/.npmrc'
           git commit -m "chore(release): update package versions [skip ci]" || echo "No changes to commit"
           git push
           git push --tags
