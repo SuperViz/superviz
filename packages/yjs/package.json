@@ -1,6 +1,6 @@
 {
   "name": "@superviz/yjs",
-  "version": "1.0.0-lab.10",
+  "version": "1.0.0-lab.11",
   "description": "",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
