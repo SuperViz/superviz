@@ -36,7 +36,6 @@
     ],
     "@anolilab/semantic-release-pnpm",
     [
-      "@semantic-release/git",
       {
         "assets": [
           "package.json"
