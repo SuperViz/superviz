@@ -36,15 +36,6 @@
     ],
     "@anolilab/semantic-release-pnpm",
     [
-      "@semantic-release/git",
-      {
-        "assets": [
-          "package.json"
-        ],
-        "message": "release: @superviz/three/${nextRelease.version} \n\n${nextRelease.notes}"
-      }
-    ],
-    [
       "@semantic-release/github",
       {
         "successComment": ":tada: This issue has been resolved in version @superviz/three/${nextRelease.version} :tada:\n\nThe release is available on [GitHub release](<github_release_url>)"
