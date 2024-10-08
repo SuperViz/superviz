@@ -1,6 +1,6 @@
 {
   "name": "@superviz/autodesk-viewer-plugin",
-  "version": "1.22.0-lab.4",
+  "version": "1.22.0-beta.3",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
