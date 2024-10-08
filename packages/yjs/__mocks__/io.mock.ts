@@ -1,6 +1,6 @@
 import { jest } from '@jest/globals';
 // has to be imported to avoid type errors
-import { PresenceEvent, PresenceEvents, Room, SocketEvent } from '@superviz/socket-client';
+import type { PresenceEvent, PresenceEvents, Room, SocketEvent } from '@superviz/socket-client';
 import type { ModuleMocker } from 'jest-mock';
 
 export class MockRealtime {

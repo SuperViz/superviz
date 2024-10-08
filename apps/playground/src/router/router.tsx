@@ -17,6 +17,7 @@ import { Three } from "../pages/three.tsx";
 import { PointersCanvas } from "../pages/pointers-canvas.tsx";
 import { YjsMonacoWio } from "../pages/yjs-monaco-wio.tsx";
 import { YjsQuillWio } from "../pages/yjs-quill-wio.tsx";
+import { YjsQuillReact } from "../pages/yjs-quill-react.tsx";
 
 export const routeList: RouteObject[] = [
   {
@@ -89,6 +90,10 @@ export const routeList: RouteObject[] = [
       {
         path: "yjs-with-quill",
         element: <YjsQuillWio />,
+      },
+      {
+        path: "yjs-with-react",
+        element: <YjsQuillReact />,
       },
     ],
   },

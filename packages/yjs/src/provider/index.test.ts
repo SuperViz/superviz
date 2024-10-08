@@ -1,12 +1,17 @@
-import { Participant } from '@superviz/sdk';
+import type { Participant } from '@superviz/sdk';
 import type { PresenceEvent, SocketEvent } from '@superviz/socket-client';
 import * as Y from 'yjs';
 
 import { MOCK_IO, MOCK_ROOM } from '../../__mocks__/io.mock';
+import { getUpdatesHistory } from '../utils/getUpdatesHistory';
 
-import { DocUpdate, MessageToHost } from './types';
+import { DocUpdate } from './types';
 
 import { SuperVizYjsProvider } from '.';
+
+jest.mock('../utils/getUpdatesHistory.ts', () => ({
+  getUpdatesHistory: jest.fn(),
+}));
 
 function createProvider(awareness: boolean = true) {
   const doc = new Y.Doc();
@@ -29,6 +34,14 @@ function createProvider(awareness: boolean = true) {
 }
 
 describe('provider', () => {
+  const updateMock = [
+    new Uint8Array([
+      0, 0, 6, 199, 157, 230, 254, 9, 0, 1, 0, 0, 1, 132, 3, 1, 51, 1, 0, 0, 0, 1, 1, 1, 0,
+    ]),
+  ];
+
+  (getUpdatesHistory as jest.Mock).mockResolvedValue(updateMock);
+
   beforeEach(() => {
     jest.clearAllMocks();
     jest.restoreAllMocks();
@@ -64,6 +77,7 @@ describe('provider', () => {
           hasJoinedRoom: { value: true },
           localParticipant: { value: { id: 'local-participant-id' } },
         }),
+        config: { roomId: 'room-id' },
       } as any);
 
       expect(provider['connect']).toHaveBeenCalled();
@@ -118,14 +132,10 @@ describe('provider', () => {
       });
 
       const awarenessSpy = jest.spyOn(provider['awareness'], 'destroy');
-      const hostServiceSpy = jest.spyOn(provider['hostService']!, 'destroy');
 
       provider['destroyProvider']();
 
       expect(awarenessSpy).toHaveBeenCalled();
-      expect(hostServiceSpy).toHaveBeenCalled();
-
-      expect(provider['hostService']).toBeNull();
     });
 
     test('should disconnect from room', () => {
@@ -152,8 +162,8 @@ describe('provider', () => {
       provider['destroyProvider']();
 
       expect(offSpy).toHaveBeenCalled();
-      expect(MOCK_ROOM.off).toHaveBeenCalledTimes(4);
-      expect(MOCK_ROOM.presence.off).toHaveBeenCalledTimes(5);
+      expect(MOCK_ROOM.off).toHaveBeenCalledTimes(1);
+      expect(MOCK_ROOM.presence.off).toHaveBeenCalledTimes(3);
     });
 
     test('should do nothing if already destroyed', () => {
@@ -163,7 +173,6 @@ describe('provider', () => {
       });
 
       const awarenessSpy = jest.spyOn(provider['awareness'], 'destroy');
-      const hostServiceSpy = jest.spyOn(provider['hostService']!, 'destroy');
       const offSpy = jest.spyOn(provider['doc'], 'off');
       const disconnectSpy = jest.spyOn(provider['room']!, 'disconnect');
 
@@ -173,9 +182,8 @@ describe('provider', () => {
       provider['destroyProvider']();
 
       expect(awarenessSpy).toHaveBeenCalledTimes(1);
-      expect(hostServiceSpy).toHaveBeenCalledTimes(1);
       expect(offSpy).toHaveBeenCalledTimes(1);
-      expect(disconnectSpy).toHaveBeenCalledTimes(2);
+      expect(disconnectSpy).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -250,21 +258,51 @@ describe('provider', () => {
 
       provider['removeRoomListeners']();
 
-      expect(MOCK_ROOM.off).toHaveBeenCalledTimes(3);
+      expect(MOCK_ROOM.off).toHaveBeenCalledTimes(1);
       expect(MOCK_ROOM.presence.off).toHaveBeenCalledTimes(1);
     });
   });
 
   describe('fetch', () => {
-    test('should emit doc state', () => {
+    beforeEach(() => {
+      const updateMock = [
+        new Uint8Array([
+          0, 0, 6, 199, 157, 230, 254, 9, 0, 1, 0, 0, 1, 132, 3, 1, 51, 1, 0, 0, 0, 1, 1, 1, 0,
+        ]),
+      ];
+
+      (getUpdatesHistory as jest.Mock).mockResolvedValue(updateMock);
+    });
+
+    afterEach(() => {
+      jest.clearAllMocks();
+    });
+
+    test('should not apply updates if no updates are returned', async () => {
       const provider = createProvider();
-      const state = Y.encodeStateAsUpdateV2(provider['doc']);
+      const state = Y.encodeStateAsUpdate(provider.doc);
 
-      provider['fetch']();
+      (getUpdatesHistory as jest.Mock).mockResolvedValue([]);
+      await provider['fetch']();
 
-      expect(MOCK_ROOM.emit).toHaveBeenCalledWith('provider.message-to-host', {
-        update: state,
-      });
+      expect(state).toEqual(Y.encodeStateAsUpdate(provider.doc));
+    });
+
+    test('should apply updates if updates are returned', async () => {
+      const provider = createProvider();
+      const state = Y.encodeStateAsUpdate(provider.doc);
+
+      await provider['fetch']();
+
+      expect(state).not.toEqual(Y.encodeStateAsUpdate(provider.doc));
+    });
+
+    test('should set _synced to true after fetching updates', async () => {
+      const provider = createProvider();
+
+      await provider['fetch']();
+
+      expect(provider.synced).toBe(true);
     });
   });
 
@@ -291,48 +329,6 @@ describe('provider', () => {
       provider['changeState']('provider.connected');
 
       expect(provider['state']).toEqual('provider.connected');
-    });
-  });
-
-  describe('onMessageToHost', () => {
-    test('should apply and broadcast update', () => {
-      const provider = createProvider();
-      provider['hostService']!['setHostId']('local-participant-id');
-
-      const doc = new Y.Doc();
-      doc.getArray('test').insert(0, ['test']);
-
-      provider['updateDocument'] = jest.fn();
-
-      const comingUpdate = Y.encodeStateAsUpdateV2(doc);
-
-      provider['onMessageToHost']({
-        data: { update: comingUpdate },
-      } as SocketEvent<MessageToHost>);
-
-      const update = Y.encodeStateAsUpdateV2(provider['doc'], new Uint8Array(comingUpdate));
-
-      expect(provider['updateDocument']).toHaveBeenCalledWith(comingUpdate);
-      expect(MOCK_ROOM.emit).toHaveBeenCalledWith('provider.broadcast', {
-        update,
-      });
-    });
-
-    test('should do nothing if user is not the host', () => {
-      const provider = createProvider();
-      const doc = new Y.Doc();
-      doc.getArray('test').insert(0, ['test']);
-
-      provider['updateDocument'] = jest.fn();
-
-      const comingUpdate = Y.encodeStateAsUpdateV2(doc);
-
-      provider['onMessageToHost']({
-        data: { update: comingUpdate },
-      } as SocketEvent<MessageToHost>);
-
-      expect(provider['updateDocument']).not.toHaveBeenCalled();
-      expect(MOCK_ROOM.emit).not.toHaveBeenCalled();
     });
   });
 
@@ -443,63 +439,6 @@ describe('provider', () => {
       } as SocketEvent<DocUpdate>);
 
       expect(provider['updateDocument']).not.toHaveBeenCalled();
-    });
-  });
-
-  describe('onBroadcast', () => {
-    test('should apply update and set synced', () => {
-      const provider = createProvider();
-      provider['_synced'] = false;
-
-      const doc = new Y.Doc();
-      doc.getArray('test').insert(0, ['test']);
-      const update = Y.encodeStateAsUpdateV2(doc);
-
-      provider['updateDocument'] = jest.fn();
-      provider['onBroadcast']({
-        data: { update },
-      } as SocketEvent<DocUpdate>);
-
-      expect(provider['updateDocument']).toHaveBeenCalledWith(update);
-      expect(provider.synced).toBe(true);
-    });
-
-    test('should do nothing if user is host', () => {
-      const provider = createProvider();
-      provider['_synced'] = false;
-      provider['hostService']!['setHostId']('local-participant-id');
-
-      const doc = new Y.Doc();
-      doc.getArray('test').insert(0, ['test']);
-      const update = Y.encodeStateAsUpdateV2(doc);
-
-      provider['updateDocument'] = jest.fn();
-      provider['onBroadcast']({
-        data: { update },
-      } as SocketEvent<DocUpdate>);
-
-      expect(provider['updateDocument']).not.toHaveBeenCalled();
-      expect(provider.synced).toBe(true);
-    });
-  });
-
-  describe('onHostChange', () => {
-    test('should fetch host document', () => {
-      const provider = createProvider();
-      provider['fetch'] = jest.fn();
-
-      provider['onHostChange']('host-id');
-
-      expect(provider['fetch']).toHaveBeenCalled();
-    });
-
-    test('should set synced true if host is local', () => {
-      const provider = createProvider();
-      provider['_synced'] = false;
-
-      provider['onHostChange']('local-participant-id');
-
-      expect(provider.synced).toBe(true);
     });
   });
 

@@ -1,3 +1,4 @@
+import { version } from '../../../package.json';
 import { RemoteConfigParams } from '../../common/types/remote-config.types';
 import { EnvironmentTypes } from '../../common/types/sdk-options.types';
 import { doRequest } from '../../common/utils';
@@ -17,8 +18,6 @@ export default class RemoteConfigService {
   static async getRemoteConfig(
     environment: EnvironmentTypes = EnvironmentTypes.PROD,
   ): Promise<RemoteConfig> {
-    const { version } = await import('../../../.version.js');
-
     if (environment === EnvironmentTypes.LOCAL) {
       const all = await import('../../../.remote-config.js');
       return all.default.remoteConfig;

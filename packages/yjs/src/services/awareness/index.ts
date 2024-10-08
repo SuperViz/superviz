@@ -1,4 +1,4 @@
-import { PresenceEvent } from '@superviz/socket-client';
+import type { PresenceEvent } from '@superviz/socket-client';
 import { ObservableV2 } from 'lib0/observable';
 import * as Y from 'yjs';
 

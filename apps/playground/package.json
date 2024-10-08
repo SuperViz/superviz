@@ -16,6 +16,7 @@
     "@superviz/realtime": "workspace:*",
     "@superviz/sdk": "workspace:*",
     "@superviz/threejs-plugin": "workspace:*",
+    "@superviz/react-sdk": "workspace:*",
     "@superviz/yjs": "workspace:*",
     "@types/three": "^0.167.1",
     "lib0": "^0.2.97",
@@ -33,7 +34,7 @@
     "y-monaco": "^0.1.6",
     "y-protocols": "^1.0.6",
     "y-quill": "^1.0.0",
-    "yjs": "^13.3.1",
+    "yjs": "^13.6.19",
     "zod": "^3.23.8"
   },
   "devDependencies": {

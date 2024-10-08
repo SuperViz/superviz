@@ -1,14 +1,55 @@
 {
   "branches": [
-    "main", 
-    { "name": "beta", "channel": "beta", "prerelease": true },
-    { "name": "lab", "channel": "lab", "prerelease": true }
+    "main",
+    {
+      "name": "beta",
+      "channel": "beta",
+      "prerelease": true
+    },
+    {
+      "name": "lab",
+      "channel": "lab",
+      "prerelease": true
+    }
   ],
   "tagFormat": "@superviz/sdk/${version}",
   "plugins": [
     "@semantic-release/commit-analyzer",
-    "@superviz/semantic-release-version-file",
-    "@semantic-release/github",
-    "@semantic-release/npm"
-  ]
+    [
+      "@semantic-release/release-notes-generator",
+      {
+        "preset": "angular",
+        "parserOpts": {
+          "noteKeywords": [
+            "BREAKING CHANGE",
+            "BREAKING CHANGES",
+            "BREAKING"
+          ]
+        },
+        "writerOpts": {
+          "commitsSort": [
+            "subject",
+            "scope"
+          ]
+        }
+      }
+    ],
+    "@anolilab/semantic-release-pnpm",
+    [
+      {
+        "assets": [
+          "package.json"
+        ],
+        "message": "release: @superviz/sdk/${nextRelease.version} \n\n${nextRelease.notes}"
+      }
+    ],
+    [
+      "@semantic-release/github",
+      {
+        "successComment": ":tada: This issue has been resolved in version @superviz/sdk/${nextRelease.version} :tada:\n\nThe release is available on [GitHub release](<github_release_url>)"
+      } 
+    ]
+    
+  ],
+  "preset": "angular"
 }

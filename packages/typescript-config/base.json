@@ -15,7 +15,8 @@
     "moduleResolution": "Node",
     "experimentalDecorators": true,
     "skipLibCheck": true,
-    "allowJs": true
+    "allowJs": true,
+    "resolveJsonModule": true
   },
   "include": ["./src"],
   "exclude": ["./src/**/*.test.ts", "node_modules"]

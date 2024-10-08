@@ -1,6 +1,6 @@
 {
   "name": "@superviz/realtime",
-  "version": "0.0.0",
+  "version": "1.2.0-lab.2",
   "description": "SuperViz Real-Time",
   "main": "./dist/node/index.cjs.js",
   "module": "./dist/browser/index.js",
@@ -52,11 +52,12 @@
   },
   "homepage": "https://github.com/SuperViz/superviz/tree/main/packages/realtime#readme",
   "devDependencies": {
+    "@anolilab/semantic-release-pnpm": "^1.1.3",
     "@esm-bundle/chai": "^4.3.4-fix.0",
     "@jest/globals": "^29.7.0",
+    "@semantic-release/release-notes-generator": "^14.0.1",
     "@superviz/eslint-config": "workspace:*",
     "@superviz/typescript-config": "workspace:*",
-    "@superviz/semantic-release-version-file": "workspace:*",
     "@types/debug": "^4.1.12",
     "@types/jest": "^29.5.12",
     "@types/node": "^20.14.8",

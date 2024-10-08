@@ -1,14 +1,9 @@
 import type { Participant, Presence3DManager, StoreType } from '@superviz/sdk';
-import type { useStore } from '@superviz/sdk/lib/common/utils/use-store';
-import type { DefaultAttachComponentOptions } from '@superviz/sdk/lib/components/base/types';
-import type { EventBus } from '@superviz/sdk/lib/services/event-bus';
-import type { ParticipantDataInput } from '@superviz/sdk/lib/services/presence-3d-manager/types';
-import type {
-  PresenceEvent,
-  PresenceEvents,
-  Room,
-  SocketEvent,
-} from '@superviz/sdk/lib/lib/socket';
+import type { useStore } from '@superviz/sdk/dist/common/utils/use-store';
+import type { DefaultAttachComponentOptions } from '@superviz/sdk/dist/components/base/types';
+import type { EventBus } from '@superviz/sdk/dist/services/event-bus';
+import type { ParticipantDataInput } from '@superviz/sdk/dist/services/presence-3d-manager/types';
+import type { PresenceEvent, PresenceEvents, Room, SocketEvent } from '@superviz/socket-client';
 import { isEqual, pickBy, identity } from 'lodash';
 import {
   Box3,
@@ -167,9 +162,11 @@ class Presence3D {
     participants.subscribe(this.onParticipantsUpdated);
     const { localParticipant, hasJoinedRoom } = this.useStore(storeType.GLOBAL);
 
-    this.localParticipant = localParticipant.value
+    this.localParticipant = localParticipant.value;
 
-    localParticipant.subscribe((participant) => { this.localParticipant = participant });
+    localParticipant.subscribe((participant) => {
+      this.localParticipant = participant;
+    });
     hasJoinedRoom.subscribe();
 
     this.start();
@@ -244,7 +241,7 @@ class Presence3D {
 
   private subscribeToRealtimeEvents = (): void => {
     this.logger.log('three js component @ subscribeToRealtimeEvents');
-    this.room.on<Participant>(Presence3dEvents.PARTICIPANT_JOINED, this.onParticipantJoined)
+    this.room.on<Participant>(Presence3dEvents.PARTICIPANT_JOINED, this.onParticipantJoined);
     this.room.on<{ id?: string }>(Presence3dEvents.GATHER, this.onGatherUpdate);
     this.room.on<{ id?: string }>(Presence3dEvents.FOLLOW_ME, this.onFollowParticipantUpdate);
     this.room.presence.on('presence.leave' as PresenceEvents, this.onParticipantLeave);
@@ -253,7 +250,7 @@ class Presence3D {
   private unsubscribeFromRealtimeEvents = (): void => {
     this.logger.log('three js component @ unsubscribeFromRealtimeEvents');
     this.room.presence.off('presence.leave' as PresenceEvents);
-    this.room.off<Participant>(Presence3dEvents.PARTICIPANT_JOINED, this.onParticipantJoined)
+    this.room.off<Participant>(Presence3dEvents.PARTICIPANT_JOINED, this.onParticipantJoined);
     this.room.off(Presence3dEvents.GATHER, this.onGatherUpdate);
     this.room.off(Presence3dEvents.FOLLOW_ME, this.onFollowParticipantUpdate);
   };
@@ -362,12 +359,13 @@ class Presence3D {
   };
 
   private updateParticipant = async (participant): Promise<void> => {
-    if(participant?.id && !this.participants?.length) { 
+    if (participant?.id && !this.participants?.length) {
       this.addParticipant(participant);
-      return
+      return;
     }
 
-    if (!this.participants || this.participants.length === 0 || !participant || !participant.id) return;
+    if (!this.participants || this.participants.length === 0 || !participant || !participant.id)
+      return;
 
     const participantToBeUpdated = this.participants.find(
       (oldParticipant) => oldParticipant.id === participant.id,
@@ -466,10 +464,15 @@ class Presence3D {
   };
 
   private addParticipant = async (participant): Promise<void> => {
-    if (!participant || !participant.id || participant.type === 'audience' || !this.localParticipantId) {
-      return
-    };
-    
+    if (
+      !participant ||
+      !participant.id ||
+      participant.type === 'audience' ||
+      !this.localParticipantId
+    ) {
+      return;
+    }
+
     const participantOn3D = this.createParticipantOn3D(participant);
 
     if (this.participants.find((p) => p.id === participantOn3D.id)) {
@@ -490,7 +493,12 @@ class Presence3D {
     this.presence3DManager.subscribeToUpdates(participantOn3D.id, this.onParticipantUpdated);
 
     // audience listens to the hosts broadcast channel
-    if (this.localParticipantId && (participant.id === this.localParticipantId && !this.config.renderLocalAvatar)) return;
+    if (
+      this.localParticipantId &&
+      participant.id === this.localParticipantId &&
+      !this.config.renderLocalAvatar
+    )
+      return;
 
     this.create3dPresence(participantOn3D);
   };
@@ -662,7 +670,7 @@ class Presence3D {
     const boundingBox = new Box3().setFromObject(avatarModel);
     const size = new Vector3(0, 0, 0);
     boundingBox.getSize(size);
-    const slot = participant.slot;
+    const { slot } = participant;
     let nameHeight = size.y * 1.2;
 
     if (isDefaultAvatar) {
@@ -718,7 +726,7 @@ class Presence3D {
 
     const mouse = new Mouse(this.scene);
     this.mouses[participant.id] = mouse;
-    const slot = participant.slot;
+    const { slot } = participant;
     mouse.load(participant.name, slot);
 
     this.raycaster = new Raycaster();
@@ -796,7 +804,7 @@ class Presence3D {
     const myAvatar = this.avatars[this.localParticipantId];
 
     const { localParticipant } = this.useStore(storeType.GLOBAL);
-    const slot = localParticipant.value.slot;
+    const { slot } = localParticipant.value;
 
     if (myAvatar) {
       // update local avatar if it exists (render local avatar = true)
@@ -850,7 +858,7 @@ class Presence3D {
         return;
       }
 
-      const slot = participant.slot;
+      const { slot } = participant;
 
       this.positionInfos[participantId] = {
         position,

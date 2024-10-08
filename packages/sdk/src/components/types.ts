@@ -21,6 +21,7 @@ export enum PresenceMap {
   'presence3dThreejs' = 'presence',
   'whoIsOnline' = 'presence',
   'formElements' = 'presence',
+  'yjsProvider' = 'presence',
 }
 
 export enum Comments3d {

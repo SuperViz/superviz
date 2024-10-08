@@ -1,23 +1,17 @@
 import type { Participant } from '@superviz/sdk';
 import type { DefaultAttachComponentOptions } from '@superviz/sdk/dist/components/base/types';
 import type { IOC } from '@superviz/sdk/dist/services/io';
-import {
-  ClientState,
-  ConnectionState,
-  PresenceEvent,
-  PresenceEvents,
-  type SocketEvent,
-} from '@superviz/socket-client';
+import type { ConnectionState, PresenceEvent, SocketEvent } from '@superviz/socket-client';
 import { ObservableV2 } from 'lib0/observable';
 import * as Y from 'yjs';
 
-import { Awareness, HostService, Logger } from '../services';
+import { Awareness, Logger } from '../services';
+import { getUpdatesHistory } from '../utils/getUpdatesHistory';
 
 import {
   DocUpdate,
   Emitter,
   Message,
-  MessageToHost,
   Events,
   Params,
   ProviderEvents,
@@ -41,8 +35,7 @@ export class SuperVizYjsProvider extends ObservableV2<Events> {
   private room: RealtimeRoom | null = null;
   private logger: Logger;
   private ioc: IOC | null = null;
-
-  private hostService: HostService | null = null;
+  private roomId: string;
 
   constructor(
     public doc: Y.Doc,
@@ -69,7 +62,7 @@ export class SuperVizYjsProvider extends ObservableV2<Events> {
       throw new Error(message);
     }
 
-    const { useStore, ioc } = params;
+    const { useStore, ioc, config } = params;
     const { isDomainWhitelisted, hasJoinedRoom, localParticipant } = useStore(storeType.GLOBAL);
 
     if (!isDomainWhitelisted.value) {
@@ -83,6 +76,7 @@ export class SuperVizYjsProvider extends ObservableV2<Events> {
       return;
     }
 
+    this.roomId = config.roomId;
     this.ioc = ioc;
     this.localParticipant = localParticipant.value;
     this.isAttached = true;
@@ -141,12 +135,6 @@ export class SuperVizYjsProvider extends ObservableV2<Events> {
     this._synced = false;
 
     this.awareness?.destroy();
-    this.hostService?.destroy();
-
-    // we do not set awareness to null because in
-    // case of a reconnect, it is only ever instantiated
-    // in the constructor
-    this.hostService = null;
 
     this.doc.off('updateV2', this.onDocUpdate);
 
@@ -189,7 +177,7 @@ export class SuperVizYjsProvider extends ObservableV2<Events> {
     this.logger.log('Adding room listeners');
 
     this.room.on(ProviderEvents.UPDATE, this.onRemoteDocUpdate);
-    this.room.presence.on(PresenceEvents.JOINED_ROOM, this.onLocalJoinRoom);
+    this.room.presence.on('presence.joined-room', this.onLocalJoinRoom);
     this.ioc.client.connection.on(this.onConnectionChange);
   }
 
@@ -203,9 +191,7 @@ export class SuperVizYjsProvider extends ObservableV2<Events> {
 
     if (this.room) {
       this.room.off(ProviderEvents.UPDATE, this.onRemoteDocUpdate);
-      this.room.off(ProviderEvents.MESSAGE_TO_HOST, this.onMessageToHost);
-      this.room.off(ProviderEvents.BROADCAST, this.onBroadcast);
-      this.room.presence.off(PresenceEvents.JOINED_ROOM);
+      this.room.presence.off('presence.joined-room');
     }
 
     this.ioc?.client.connection.off();
@@ -218,28 +204,24 @@ export class SuperVizYjsProvider extends ObservableV2<Events> {
    */
   private startRealtime(): void {
     this.createRoom();
-    this.hostService = new HostService(this.ioc, this.localParticipant.id, this.onHostChange);
     this.addRoomListeners();
   }
 
   /**
    * @function fetch
-   * @description Request the host to send the current state of the document
+   * @description Request and apply all document updates from server
    * @returns {void}
    */
-  private fetch = (): void => {
+  private fetch = async (): Promise<void> => {
     this.logger.log('Fetching the document');
-
     this._synced = false;
 
-    const update = Y.encodeStateAsUpdateV2(this.doc);
-    this.beforeSendRealtimeMessage(ProviderEvents.MESSAGE_TO_HOST, {
-      update,
-    });
+    const updates = await getUpdatesHistory(this.roomId, this.ioc!['client']['apiKey']);
 
-    this.room!.emit(ProviderEvents.MESSAGE_TO_HOST, {
-      update,
-    });
+    this._synced = true;
+    if (!updates.length) return;
+
+    Y.applyUpdateV2(this.doc, Y.mergeUpdatesV2(updates));
   };
 
   /**
@@ -269,35 +251,6 @@ export class SuperVizYjsProvider extends ObservableV2<Events> {
 
   // #region events callbacks
   /**
-   * @function onMessageToHost
-   * @description Receive a message directed to the host. Apply the
-   * changes to the document and broadcast the changes to all participants
-   * if there is a new update, or send a new update only to the target participant
-   * @param {SocketEvent<MessageToHost>} event The message containing the state
-   * from the participant who requested the host state
-   * @returns {void}
-   */
-  private onMessageToHost = (event: SocketEvent<MessageToHost>): void => {
-    if (!this.hostService.isHost) return;
-
-    this.logger.log('Received message to host', event);
-
-    this._synced = false;
-
-    const comingUpdate = new Uint8Array(event.data.update);
-    this.onReceiveRealtimeMessage(ProviderEvents.MESSAGE_TO_HOST, {
-      update: comingUpdate,
-    });
-
-    this.updateDocument(comingUpdate);
-
-    const update = Y.encodeStateAsUpdateV2(this.doc, comingUpdate);
-
-    this.beforeSendRealtimeMessage(ProviderEvents.BROADCAST, { update });
-    this.room!.emit(ProviderEvents.BROADCAST, { update });
-  };
-
-  /**
    * @function onDocUpdate
    * @description Broadcast the local document update to all participants
    * @param {Uint8Array} update The update to broadcast
@@ -325,8 +278,9 @@ export class SuperVizYjsProvider extends ObservableV2<Events> {
     this.changeState(ProviderState.CONNECTED);
     this.emit('connect', []);
 
-    this.room!.on(ProviderEvents.MESSAGE_TO_HOST, this.onMessageToHost);
-    this.room!.on(ProviderEvents.BROADCAST, this.onBroadcast);
+    const update = Y.encodeStateAsUpdateV2(this.doc);
+    this.beforeSendRealtimeMessage(ProviderEvents.UPDATE, { update });
+    this.room!.emit('provider.update', { update });
 
     this.fetch();
   };
@@ -338,7 +292,7 @@ export class SuperVizYjsProvider extends ObservableV2<Events> {
    * @returns {void}
    */
   private onConnectionChange = (msg: ConnectionState): void => {
-    if (msg.state === ClientState.DISCONNECTED) {
+    if (msg.state === 'DISCONNECTED') {
       this.logger.log('Disconnected from the room');
       this.emit('disconnect', []);
     }
@@ -358,45 +312,6 @@ export class SuperVizYjsProvider extends ObservableV2<Events> {
     this.onReceiveRealtimeMessage(ProviderEvents.UPDATE, { update });
 
     this.updateDocument(update);
-  };
-
-  /**
-   * @function onBroadcast
-   * @description Apply changes to the host's document to the local
-   * document. Set the provider as synced
-   * @param {SocketEvent<DocUpdate>} event The event containing the update
-   * @returns {void}
-   */
-  private onBroadcast = (event: SocketEvent<DocUpdate>): void => {
-    if (this.hostService?.isHost) return;
-    this.logger.log('Received broadcast', event);
-
-    const update = new Uint8Array(event.data.update);
-    this.onReceiveRealtimeMessage(ProviderEvents.BROADCAST, { update });
-
-    this.updateDocument(update);
-    this._synced = true;
-
-    this.emit('synced', []);
-    this.emit('sync', []);
-  };
-
-  /**
-   * @function onHostChange
-   * @description Handle the host change event. If the host is the current
-   * participant, set the provider as synced. Otherwise, fetch the document from the host
-   * @param {string} hostId The new host id
-   * @returns {void}
-   */
-  private onHostChange = (hostId: string): void => {
-    this.logger.log('Host changed', hostId);
-
-    if (hostId === this.localParticipant.id) {
-      this._synced = true;
-      return;
-    }
-
-    this.fetch();
   };
 
   // #region Emitting messages

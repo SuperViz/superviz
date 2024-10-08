@@ -12,15 +12,8 @@ export enum ProviderState {
 }
 
 export enum ProviderEvents {
-  MESSAGE_TO_HOST = 'provider.message-to-host',
-  BROADCAST = 'provider.broadcast',
   UPDATE = 'provider.update',
 }
-
-export type MessageToHost = {
-  update: Uint8Array;
-  originId: string;
-};
 
 export type DocUpdate = {
   update: Uint8Array;

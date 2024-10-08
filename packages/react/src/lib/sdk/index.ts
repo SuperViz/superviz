@@ -27,6 +27,7 @@ export {
   VideoConference as VideoConferenceComponent,
   WhoIsOnline as WhoIsOnlineComponent,
 } from '@superviz/sdk';
+export { SuperVizYjsProvider } from '@superviz/yjs';
 export type { ColorsVariablesNames } from '@superviz/sdk/dist/common/types/colors.types';
 export type {
   DeviceEvent,
