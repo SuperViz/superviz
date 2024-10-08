@@ -31,11 +31,9 @@
   },
   "devDependencies": {
     "@anolilab/semantic-release-pnpm": "^1.1.3",
-    "@semantic-release/git": "^10.0.1",
     "@semantic-release/release-notes-generator": "^14.0.1",
     "@superviz/eslint-config": "workspace:*",
     "@superviz/sdk": "workspace:*",
-    "@superviz/semantic-release-version-file": "workspace:*",
     "@superviz/socket-client": "workspace:*",
     "@superviz/typescript-config": "workspace:*",
     "@types/debug": "^4.1.12",
