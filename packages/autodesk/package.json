@@ -45,7 +45,7 @@
     "eslint": "8.56.0",
     "semantic-release": "24.0.0",
     "tsc": "^2.0.4",
-    "typescript": "^5.5.2"
+    "typescript": "^5.6.2"
   },
   "dependencies": {
     "debug": "^4.3.5",
