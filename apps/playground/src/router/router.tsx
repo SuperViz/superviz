@@ -15,6 +15,9 @@ import { MatterportWithWioCommentsAndVideo } from "../pages/matterport-with-wio-
 import { Video } from "../pages/video.tsx";
 import { Three } from "../pages/three.tsx";
 import { PointersCanvas } from "../pages/pointers-canvas.tsx";
+import { YjsMonacoWio } from "../pages/yjs-monaco-wio.tsx";
+import { YjsQuillWio } from "../pages/yjs-quill-wio.tsx";
+import { YjsQuillReact } from "../pages/yjs-quill-react.tsx";
 
 export const routeList: RouteObject[] = [
   {
@@ -80,8 +83,21 @@ export const routeList: RouteObject[] = [
         path: "pointers-canvas",
         element: <PointersCanvas />,
       },
+      {
+        path: "yjs-with-monaco",
+        element: <YjsMonacoWio />,
+      },
+      {
+        path: "yjs-with-quill",
+        element: <YjsQuillWio />,
+      },
+      {
+        path: "yjs-with-react",
+        element: <YjsQuillReact />,
+      },
     ],
   },
 ];
 
-export const router: ReturnType<typeof createBrowserRouter> = createBrowserRouter(routeList);
+export const router: ReturnType<typeof createBrowserRouter> =
+  createBrowserRouter(routeList);

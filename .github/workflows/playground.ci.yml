@@ -12,6 +12,7 @@ on:
       - 'packages/matterport/**'
       - 'packages/autodesk/**'
       - 'packages/three/**'
+      - 'packages/yjs/**'
       - '.github/workflows/playground.ci.yml'
 jobs:
   package:
@@ -40,7 +41,6 @@ jobs:
         run: pnpm install --no-frozen-lockfile
       - name: Create a .version.js file
         run: |
-          touch packages/realtime/.version.js && echo "echo \"export const version = 'lab'\" > packages/realtime/.version.js" | bash -
           touch packages/sdk/.version.js && echo "echo \"export const version = 'lab'\" > packages/sdk/.version.js" | bash -
       - name: Create a .remote-config.js file
         run: |

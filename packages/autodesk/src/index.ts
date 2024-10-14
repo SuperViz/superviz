@@ -1,13 +1,9 @@
 import type { Participant, Presence3DManager, StoreType } from '@superviz/sdk';
-import type { useStore } from '@superviz/sdk/lib/common/utils/use-store';
-import type { DefaultAttachComponentOptions } from '@superviz/sdk/lib/components/base/types';
-import type { EventBus } from '@superviz/sdk/lib/services/event-bus';
-import type {
-  PresenceEvent,
-  PresenceEvents,
-  Room,
-  SocketEvent,
-} from '@superviz/sdk/lib/lib/socket';
+import type { useStore } from '@superviz/sdk/dist/common/utils/use-store';
+import type { DefaultAttachComponentOptions } from '@superviz/sdk/dist/components/base/types';
+import type { EventBus } from '@superviz/sdk/dist/services/event-bus';
+import type { ParticipantDataInput } from '@superviz/sdk/dist/services/presence-3d-manager/types';
+import type { PresenceEvent, PresenceEvents, Room, SocketEvent } from '@superviz/socket-client';
 import { isEqual } from 'lodash';
 import { Mesh, Object3D, Vector3 } from 'three';
 
@@ -24,7 +20,6 @@ import {
   Presence3dEvents,
 } from './types';
 import { Logger } from './utils/logger';
-import type { ParticipantDataInput } from '@superviz/sdk/lib/services/presence-3d-manager/types';
 
 const MY_PROPERTIES_MOUSE_THROTTLE = 100;
 const DEFAULT_AVATAR: AvatarType = {
@@ -586,7 +581,7 @@ class Presence3D {
     }
 
     // laser
-    const slot = this.roomParticipants[participant.id].slot;
+    const { slot } = this.roomParticipants[participant.id];
     this.lasers[participant.id] = new Laser(this.viewer, slot, laserOrigin);
   }
 
@@ -618,7 +613,7 @@ class Presence3D {
     if (!this.isAttached) return;
 
     // mouse
-    const slot = this.roomParticipants[participant.id].slot;
+    const { slot } = this.roomParticipants[participant.id];
 
     const mouse = new Mouse(this.viewer, participant.id);
     this.mouses[participant.id] = mouse;
@@ -717,7 +712,7 @@ class Presence3D {
       const remoteAvatar: Avatar = this.avatars[participantId];
       const remoteLaser: Laser = this.lasers[participantId];
       const remoteMouse: Mouse = this.mouses[participantId];
-      const slot = participant.slot;
+      const { slot } = participant;
 
       const { position, quaternion, target, mouse, isPrivate } = participant;
 

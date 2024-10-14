@@ -1,16 +1,16 @@
-import { cjsConfig, esmConfig } from "./config.js";
-import esbuild from "esbuild";
+import { cjsConfig, esmConfig } from './config.js';
+import esbuild from 'esbuild';
 
 (async () => {
   try {
     await Promise.all([
       esbuild.build({
         ...cjsConfig,
-        outfile: "dist/index.cjs.js",
+        outfile: 'dist/index.cjs.js',
       }),
       esbuild.build({
         ...esmConfig,
-        outdir: "dist",
+        outdir: 'dist',
       }),
     ]);
   } catch (error) {
