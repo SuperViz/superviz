@@ -43,7 +43,8 @@
   },
   "peerDependencies": {
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "yjs": ">=13.6.20"
   },
   "devDependencies": {
     "@anolilab/semantic-release-pnpm": "^1.1.3",
