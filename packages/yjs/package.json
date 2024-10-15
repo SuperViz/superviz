@@ -63,5 +63,8 @@
     "jest-mock": "^29.7.0",
     "semantic-release": "^24.0.0",
     "ts-jest": "^29.2.5"
+  },
+  "peerDependencies": {
+    "yjs": ">=13.6.20"
   }
 }
