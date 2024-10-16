@@ -44,8 +44,7 @@
     "esbuild": "^0.23.1",
     "lib0": "^0.2.97",
     "rxjs": "^7.8.1",
-    "typescript": "^5.6.2",
-    "y-protocols": "^1.0.6"
+    "typescript": "^5.6.2"
   },
   "devDependencies": {
     "@anolilab/semantic-release-pnpm": "^1.1.3",
@@ -64,6 +63,7 @@
     "ts-jest": "^29.2.5"
   },
   "peerDependencies": {
-    "yjs": ">=13.6.20"
+    "yjs": ">=13.6.20",
+    "y-protocols": ">=1.0.6"
   }
 }
