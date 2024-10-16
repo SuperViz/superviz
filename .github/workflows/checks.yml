@@ -180,7 +180,7 @@ jobs:
           NPM_CONFIG_USERCONFIG: .npmrc.ci
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
       - name: Install Playwright browsers
-        run: pnpx playwright install --with-deps
+        run: pnpm --filter=@superviz/sdk exec playwright install --with-deps
       - name: Create a .version.js file
         run: |
           touch packages/sdk/.version.js && echo "echo \"export const version = 'test'\" > .version.js" | bash -
