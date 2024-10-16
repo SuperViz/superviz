@@ -1,7 +1,7 @@
 {
   "name": "@superviz/react-sdk",
   "private": false,
-  "version": "1.14.0-lab.7",
+  "version": "1.14.0-lab.8",
   "type": "module",
   "scripts": {
     "watch": "./node_modules/typescript/bin/tsc && vite build --watch",
