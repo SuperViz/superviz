@@ -18,6 +18,7 @@ import { PointersCanvas } from "../pages/pointers-canvas.tsx";
 import { YjsMonacoWio } from "../pages/yjs-monaco-wio.tsx";
 import { YjsQuillWio } from "../pages/yjs-quill-wio.tsx";
 import { YjsQuillReact } from "../pages/yjs-quill-react.tsx";
+import { ReactFlowWithReactSDK } from "../pages/react-flow-with-react-sdk.tsx";
 
 export const routeList: RouteObject[] = [
   {
@@ -94,6 +95,10 @@ export const routeList: RouteObject[] = [
       {
         path: "yjs-with-react",
         element: <YjsQuillReact />,
+      },
+      {
+        path: "react-flow-with-react-sdk",
+        element: <ReactFlowWithReactSDK />,
       },
     ],
   },

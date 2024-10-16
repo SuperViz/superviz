@@ -28,6 +28,7 @@
     "react-helmet-async": "^2.0.5",
     "react-quill-new": "^3.3.2",
     "react-router-dom": "^6.26.1",
+    "reactflow": "^11.11.4",
     "three": "0.167.1",
     "three-mesh-bvh": "^0.7.8",
     "uuid": "^10.0.0",

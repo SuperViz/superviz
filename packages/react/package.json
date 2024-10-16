@@ -4,8 +4,8 @@
   "version": "1.14.0-lab.7",
   "type": "module",
   "scripts": {
-    "watch": "tsc && vite build --watch",
-    "build": "tsc && vite build && cp package.json dist/package.json && cp README.md dist/README.md",
+    "watch": "./node_modules/typescript/bin/tsc && vite build --watch",
+    "build": "./node_modules/typescript/bin/tsc && vite build && cp package.json dist/package.json && cp README.md dist/README.md",
     "lint": "eslint 'src/**/*.{js,jsx,ts,tsx}'",
     "lint:fix": "eslint --fix 'src/**/*.{jsx,ts,tsx}'",
     "format": "prettier --write src//**/*.{ts,tsx,css} --config ./.prettierrc",
