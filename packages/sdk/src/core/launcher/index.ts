@@ -2,7 +2,7 @@ import * as Socket from '@superviz/socket-client';
 import { isEqual } from 'lodash';
 
 import { ParticipantEvent } from '../../common/types/events.types';
-import { Participant, ParticipantType } from '../../common/types/participant.types';
+import { Participant } from '../../common/types/participant.types';
 import { StoreType } from '../../common/types/stores.types';
 import { Observable } from '../../common/utils';
 import { Logger } from '../../common/utils/logger';
@@ -19,7 +19,7 @@ import { Presence3DManager } from '../../services/presence-3d-manager';
 import { SlotService } from '../../services/slot';
 import { useGlobalStore } from '../../services/stores';
 
-import { DefaultLauncher, LauncherFacade, LauncherOptions } from './types';
+import { DefaultLauncher, LauncherFacade, LauncherOptions, LauncherUnsubscribe } from './types';
 
 export class Launcher extends Observable implements DefaultLauncher {
   protected readonly logger: Logger;
@@ -267,7 +267,7 @@ export class Launcher extends Observable implements DefaultLauncher {
 
     this.destroy();
     console.error(
-      `[SuperViz] Room cannot be initialized because this website's domain is not whitelisted. If you are the developer, please add your domain in https://dashboard.superviz.com/developer`,
+      "[SuperViz] Room cannot be initialized because this website's domain is not whitelisted. If you are the developer, please add your domain in https://dashboard.superviz.com/developer",
     );
   };
 
@@ -352,7 +352,6 @@ export class Launcher extends Observable implements DefaultLauncher {
 
     if (state === IOCState.SAME_ACCOUNT_ERROR) {
       this.onSameAccount();
-      return;
     }
   };
 
@@ -412,16 +411,17 @@ export class Launcher extends Observable implements DefaultLauncher {
     const { localParticipant } = useStore(StoreType.GLOBAL);
 
     if (localParticipant.value && presence.id === localParticipant.value.id) {
-      localParticipant.publish({
+      const update = {
         ...localParticipant.value,
         ...presence.data,
+      };
+
+      localParticipant.publish({
+        ...update,
         timestamp: presence.timestamp,
       } as Participant);
 
-      this.publish(ParticipantEvent.LOCAL_UPDATED, {
-        ...localParticipant.value,
-        ...presence.data,
-      });
+      this.publish(ParticipantEvent.LOCAL_UPDATED, update);
       this.logger.log('Publishing ParticipantEvent.UPDATED', presence.data);
     }
 
@@ -463,7 +463,7 @@ export default (options: LauncherOptions): LauncherFacade => {
     return {
       destroy: window.SUPERVIZ.destroy,
       subscribe: window.SUPERVIZ.subscribe,
-      unsubscribe: window.SUPERVIZ.unsubscribe,
+      unsubscribe: window.SUPERVIZ.unsubscribe as LauncherUnsubscribe,
       addComponent: window.SUPERVIZ.addComponent,
       removeComponent: window.SUPERVIZ.removeComponent,
     };
@@ -478,7 +478,7 @@ export default (options: LauncherOptions): LauncherFacade => {
   return {
     destroy: launcher.destroy,
     subscribe: launcher.subscribe,
-    unsubscribe: launcher.unsubscribe,
+    unsubscribe: launcher.unsubscribe as LauncherUnsubscribe,
     addComponent: launcher.addComponent,
     removeComponent: launcher.removeComponent,
   };

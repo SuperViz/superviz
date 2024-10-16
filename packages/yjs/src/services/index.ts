@@ -1,1 +1,2 @@
-export * from "./awareness";
+export { Awareness } from './awareness';
+export { Logger } from './logger';

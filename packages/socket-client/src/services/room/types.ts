@@ -11,7 +11,7 @@ export type SocketEvent<T extends any | unknown> = {
   timestamp: number;
 };
 
-export type RoomHistory = {
+export type RoomHistory<T = unknown> = {
   roomId: string;
   room: {
     id?: string;
@@ -20,7 +20,7 @@ export type RoomHistory = {
     apiKey: string;
     createdAt: Date;
   };
-  events: SocketEvent<unknown>[];
+  events: SocketEvent<T>[];
   connectionId: string;
   timestamp: Date;
 };

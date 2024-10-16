@@ -1,0 +1,148 @@
+name: Publish Packages
+on:
+  push:
+    branches:
+      - lab
+      - beta
+      - main
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [20]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.10.0
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'pnpm'
+      - name: Install dependencies
+        run: pnpm install --no-frozen-lockfile
+        env:
+          NPM_CONFIG_USERCONFIG: .npmrc.ci
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Create a .remote-config.js file
+        run: |
+          touch packages/sdk/.remote-config.js && echo "echo \"module.exports = { remoteConfig: { apiUrl: 'https://api.superviz.com', conferenceLayerUrl: 'https://video-frame.superviz.com/lab/index.html'}};\" > .remote-config.js" | bash -
+          touch packages/realtime/.remote-config.js && echo "echo \"module.exports = { remoteConfig: { apiUrl: 'https://api.superviz.com' }};\" > .remote-config.js" | bash -  
+      - name: Configure Git credentials
+        run: |
+          git config --global user.name SuperViz
+          git config --global user.email dev@superviz.com
+      - name: Build package
+        run: pnpm run build
+      - name: Check for changes in packages/socket-client
+        id: check_socket_client_changes
+        run: |
+          git diff --quiet HEAD^ HEAD packages/socket-client || echo "socket_client_changed=true" >> $GITHUB_OUTPUT
+      - name: Publish Socket Client package
+        if: steps.check_socket_client_changes.outputs.socket_client_changed == 'true'
+        run: npm whoami && pnpm run semantic-release --filter=@superviz/socket-client
+        env:
+          NPM_CONFIG_USERCONFIG: .npmrc.ci
+          GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Check for changes in packages/realtime
+        id: check_realtime_changes
+        run: |
+          git diff --quiet HEAD^ HEAD packages/realtime || echo "realtime_changed=true" >> $GITHUB_OUTPUT
+      - name: Publish realtime package
+        if: steps.check_realtime_changes.outputs.realtime_changed == 'true'
+        run: npm whoami && pnpm run semantic-release --filter=@superviz/realtime
+        env:
+          NPM_CONFIG_USERCONFIG: .npmrc.ci
+          GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Check for changes in packages/sdk
+        id: check_sdk_changes
+        run: |
+          git diff --quiet HEAD^ HEAD packages/sdk || echo "sdk_changed=true" >> $GITHUB_OUTPUT
+      - name: Publish SDK package
+        if: steps.check_sdk_changes.outputs.sdk_changed == 'true'
+        run: npm whoami && pnpm run semantic-release --filter=@superviz/sdk
+        env:
+          NPM_CONFIG_USERCONFIG: .npmrc.ci
+          GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Check for changes in packages/yjs
+        id: check_yjs_changes
+        run: |
+          git diff --quiet HEAD^ HEAD packages/yjs || echo "yjs_changed=true" >> $GITHUB_OUTPUT
+      - name: Publish YJS package
+        if: steps.check_yjs_changes.outputs.yjs_changed == 'true'
+        run: npm whoami && pnpm run semantic-release --filter=@superviz/yjs
+        env:
+          NPM_CONFIG_USERCONFIG: .npmrc.ci
+          GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Check for changes in packages/autodesk
+        id: check_autodesk_changes
+        run: |
+          git diff --quiet HEAD^ HEAD packages/autodesk || echo "autodesk_changed=true" >> $GITHUB_OUTPUT
+      - name: Publish Autodesk package
+        if: steps.check_autodesk_changes.outputs.autodesk_changed == 'true'
+        run: npm whoami && pnpm run semantic-release --filter=@superviz/autodesk-viewer-plugin
+        env:
+          NPM_CONFIG_USERCONFIG: .npmrc.ci
+          GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Check for changes in packages/matterport
+        id: check_matterport_changes
+        run: |
+          git diff --quiet HEAD^ HEAD packages/matterport || echo "matterport_changed=true" >> $GITHUB_OUTPUT
+      - name: Publish matterport package
+        if: steps.check_matterport_changes.outputs.matterport_changed == 'true'
+        run: npm whoami && pnpm run semantic-release --filter=@superviz/matterport-plugin
+        env:
+          NPM_CONFIG_USERCONFIG: .npmrc.ci
+          GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Check for changes in packages/three
+        id: check_three_changes
+        run: |
+          git diff --quiet HEAD^ HEAD packages/three || echo "three_changed=true" >> $GITHUB_OUTPUT
+      - name: Publish three package
+        if: steps.check_three_changes.outputs.three_changed == 'true'
+        run: npm whoami && pnpm run semantic-release --filter=@superviz/threejs-plugin
+        env:
+          NPM_CONFIG_USERCONFIG: .npmrc.ci
+          GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Check for changes in packages/react
+        id: check_react_changes
+        run: |
+          git diff --quiet HEAD^ HEAD packages/react || echo "react_changed=true" >> $GITHUB_OUTPUT
+      - name: Publish react package
+        if: steps.check_react_changes.outputs.react_changed == 'true'
+        run: npm whoami && pnpm run semantic-release --filter=@superviz/react-sdk
+        env:
+          NPM_CONFIG_USERCONFIG: .npmrc.ci
+          GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Commit, push changes, and push tags
+        run: |
+          git add . ':!.npmrc' ':!packages/**/.npmrc'
+          git commit -m "chore(release): update package versions [skip ci]" || echo "No changes to commit"
+          git push
+          git push --tags
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
+  slack:
+    needs: package
+    name: Slack Notification
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Slack Notification
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          SLACK_ICON: https://avatars.slack-edge.com/2020-11-18/1496892993975_af721d1c045bea2d5a46_48.png
+          MSG_MINIMAL: true
+          SLACK_USERNAME: Deploy SuperViz - ${{ github.ref_name }}
