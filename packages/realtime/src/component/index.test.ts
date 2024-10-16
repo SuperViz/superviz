@@ -10,8 +10,6 @@ import { RealtimeComponentState } from './types';
 
 import { Realtime } from '.';
 
-jest.mock('lodash/throttle', () => jest.fn((fn) => fn));
-
 jest.mock('../utils/generate-hash', () => {
   return {
     generateHash: jest.fn().mockReturnValue('test-hash'),

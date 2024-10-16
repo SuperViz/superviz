@@ -6,7 +6,6 @@ import { IOC } from '../io';
 import { Channel } from './channel';
 import { RealtimeChannelState } from '../../component/types';
 
-jest.mock('lodash/throttle', () => jest.fn((fn) => fn));
 jest.useFakeTimers();
 
 describe('Realtime Channel', () => {

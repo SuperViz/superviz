@@ -1,5 +1,4 @@
 import * as Socket from '@superviz/socket-client';
-import throttle from 'lodash/throttle';
 
 import {
   RealtimeChannelEvent,
@@ -66,7 +65,7 @@ export class Channel extends Observable {
    * @param event - The name of the event to publish.
    * @param data - Data to be sent along with the event.
    */
-  public publish: RealtimePublish = throttle((event: string, data): void => {
+  public publish: RealtimePublish = (event: string, data): void => {
     if (this.state !== RealtimeChannelState.CONNECTED) {
       const message = `Realtime channel ${this.name} has not started yet. You can't publish event ${event} before start`;
       this.logger.log(message);
@@ -75,7 +74,7 @@ export class Channel extends Observable {
     }
 
     this.channel.emit(`message:${this.name}`, { name: event, payload: data });
-  }, 30);
+  }
 
   /**
    * @function subscribe
