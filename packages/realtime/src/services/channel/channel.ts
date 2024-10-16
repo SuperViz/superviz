@@ -1,10 +1,6 @@
 import * as Socket from '@superviz/socket-client';
 import throttle from 'lodash/throttle';
 
-import { Participant } from '../../types/participant.types';
-import { Logger, Observable, Observer } from '../../utils';
-import { IOC } from '../io';
-
 import {
   RealtimeChannelEvent,
   RealtimeChannelState,
@@ -14,6 +10,9 @@ import {
   RealtimeChannelSubscribe,
   Callback,
 } from '../../component/types';
+import { Participant } from '../../types/participant.types';
+import { Logger, Observable, Observer } from '../../utils';
+import { IOC } from '../io';
 import { RealtimePresence } from '../presence';
 
 export class Channel extends Observable {
@@ -27,6 +26,7 @@ export class Channel extends Observable {
     event: string;
     callback: (data: unknown) => void;
   }> = [];
+
   public participant: RealtimePresence;
 
   constructor(
@@ -165,7 +165,8 @@ export class Channel extends Observable {
     eventName?: string,
   ): Promise<RealtimeMessage[] | Record<string, RealtimeMessage[]> | null> => {
     if (this.state !== RealtimeChannelState.CONNECTED) {
-      const message = `Realtime component has not started yet. You can't retrieve history before start`;
+      const message =
+        "Realtime component has not started yet. You can't retrieve history before start";
 
       this.logger.log(message);
       console.warn(`[SuperViz] ${message}`);
