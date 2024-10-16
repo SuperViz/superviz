@@ -1,7 +1,7 @@
-import { RealtimeCdn } from './types/cdn.types';
+import type { Realtime } from './component';
 
 declare global {
   interface Window {
-    Realtime: RealtimeCdn;
+    Realtime: typeof Realtime;
   }
 }
