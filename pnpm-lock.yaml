@@ -335,6 +335,9 @@ importers:
       react-dom:
         specifier: ^18.2.0
         version: 18.3.1(react@18.3.1)
+      yjs:
+        specifier: '>=13.6.20'
+        version: 13.6.20
     devDependencies:
       '@anolilab/semantic-release-pnpm':
         specifier: ^1.1.3
@@ -432,9 +435,6 @@ importers:
       vite-tsconfig-paths:
         specifier: ^4.3.2
         version: 4.3.2(typescript@5.6.2)(vite@5.4.5(@types/node@20.16.5)(terser@5.32.0))
-      yjs:
-        specifier: ^13.6.20
-        version: 13.6.20
 
   packages/realtime:
     dependencies:
@@ -799,7 +799,7 @@ importers:
         specifier: ^1.0.6
         version: 1.0.6(yjs@13.6.20)
       yjs:
-        specifier: ^13.6.20
+        specifier: '>=13.6.20'
         version: 13.6.20
     devDependencies:
       '@anolilab/semantic-release-pnpm':
