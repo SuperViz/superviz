@@ -629,6 +629,9 @@ importers:
       jest-fetch-mock:
         specifier: ^3.0.3
         version: 3.0.3
+      playwright:
+        specifier: ^1.48.1
+        version: 1.48.1
       rimraf:
         specifier: ^5.0.7
         version: 5.0.10
@@ -796,7 +799,7 @@ importers:
         specifier: ^5.6.2
         version: 5.6.2
       y-protocols:
-        specifier: ^1.0.6
+        specifier: '>=1.0.6'
         version: 1.0.6(yjs@13.6.20)
       yjs:
         specifier: '>=13.6.20'
@@ -6203,13 +6206,13 @@ packages:
     resolution: {integrity: sha512-HRDzbaKjC+AOWVXxAU/x54COGeIv9eb+6CkDSQoNTt4XyWoIJvuPsXizxu/Fr23EiekbtZwmh1IcIG/l/a10GQ==}
     engines: {node: '>=8'}
 
-  playwright-core@1.47.1:
-    resolution: {integrity: sha512-i1iyJdLftqtt51mEk6AhYFaAJCDx0xQ/O5NU8EKaWFgMjItPVma542Nh/Aq8aLCjIJSzjaiEQGW/nyqLkGF1OQ==}
+  playwright-core@1.48.1:
+    resolution: {integrity: sha512-Yw/t4VAFX/bBr1OzwCuOMZkY1Cnb4z/doAFSwf4huqAGWmf9eMNjmK7NiOljCdLmxeRYcGPPmcDgU0zOlzP0YA==}
     engines: {node: '>=18'}
     hasBin: true
 
-  playwright@1.47.1:
-    resolution: {integrity: sha512-SUEKi6947IqYbKxRiqnbUobVZY4bF1uu+ZnZNJX9DfU1tlf2UhWfvVjLf01pQx9URsOr18bFVUKXmanYWhbfkw==}
+  playwright@1.48.1:
+    resolution: {integrity: sha512-j8CiHW/V6HxmbntOfyB4+T/uk08tBy6ph0MpBXwuoofkSnLmlfdYNNkFTYD6ofzzlSqLA1fwH4vwvVFvJgLN0w==}
     engines: {node: '>=18'}
     hasBin: true
 
@@ -10454,7 +10457,7 @@ snapshots:
     dependencies:
       '@web/test-runner-core': 0.13.3
       '@web/test-runner-coverage-v8': 0.8.0
-      playwright: 1.47.1
+      playwright: 1.48.1
     transitivePeerDependencies:
       - bufferutil
       - supports-color
@@ -14125,11 +14128,11 @@ snapshots:
     dependencies:
       find-up: 4.1.0
 
-  playwright-core@1.47.1: {}
+  playwright-core@1.48.1: {}
 
-  playwright@1.47.1:
+  playwright@1.48.1:
     dependencies:
-      playwright-core: 1.47.1
+      playwright-core: 1.48.1
     optionalDependencies:
       fsevents: 2.3.2
 
