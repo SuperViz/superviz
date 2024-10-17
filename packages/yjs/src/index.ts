@@ -4,6 +4,6 @@ export type { Events, MessageCallback, ProviderState } from './provider/types';
 
 export { SuperVizYjsProvider };
 
-if (typeof window !== undefined) {
+if (typeof window !== 'undefined') {
   window.SuperVizYjsProvider = SuperVizYjsProvider;
 }
