@@ -64,17 +64,18 @@ The SuperVizRoomProvider is your primary gateway to access all SDK features, off
 
 ```jsx
 <SuperVizRoomProvider
-		developerKey="DEVELOPER_KEY"
-		group={{
-			id: "<group-id>",
-			name: "<group-name>",
-		}}
-		participant={{
-			id: "<user-id>",
-			name: "<user-name>",
-		}}
-		roomId="<room-id>">
-	<h1>This is a room</h1>
+  developerKey="DEVELOPER_KEY"
+  group={{
+    id: "<group-id>",
+    name: "<group-name>",
+  }}
+  participant={{
+    id: "<user-id>",
+    name: "<user-name>",
+  }}
+  roomId="<room-id>"
+>
+  <h1>This is a room</h1>
 </SuperVizRoomProvider>
 ```
 
