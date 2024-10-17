@@ -2,7 +2,6 @@
 
 SuperViz provides powerful SDKs and APIs that enable developers to easily integrate real-time features into web applications. Our platform accelerates development across various industries with robust, scalable infrastructure and a low-code approach.
 
-
 The SuperVizYjsProvider component enables real-time collaboration and synchronization using Yjs, a library for building collaborative applications. It supports offline editing, real-time updates, and awareness for all participants within a shared room.
 
 ## Overview
