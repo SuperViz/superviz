@@ -230,8 +230,8 @@ importers:
         specifier: ^9.1.0
         version: 9.1.0(eslint@9.10.0(jiti@1.21.6))
       eslint-config-turbo:
-        specifier: ^2.0.0
-        version: 2.0.0(eslint@9.10.0(jiti@1.21.6))
+        specifier: ^2.1.3
+        version: 2.1.3(eslint@9.10.0(jiti@1.21.6))
       eslint-import-resolver-typescript:
         specifier: ^3.6.3
         version: 3.6.3(@typescript-eslint/parser@7.1.0(eslint@9.10.0(jiti@1.21.6))(typescript@5.6.2))(eslint-plugin-import@2.30.0)(eslint@9.10.0(jiti@1.21.6))
@@ -4342,8 +4342,8 @@ packages:
     peerDependencies:
       eslint: '>=7.0.0'
 
-  eslint-config-turbo@2.0.0:
-    resolution: {integrity: sha512-EtdL8t3iuj6JFHq8nESXwnu0U7K/ug7dkxTsYNctuR6udOudjLMZz3A0P131Bz5ZFmPoFmkdHjlRYwocGgLbOw==}
+  eslint-config-turbo@2.1.3:
+    resolution: {integrity: sha512-smdkhd01V/e/I4EjJxaZA1kxZ1vdFCHpyryolxLtRBP0bZTrHDYh1H6NAyZ3Fy1jkhsQzXw+L+6m17ygROvNFw==}
     peerDependencies:
       eslint: '>6.6.0'
 
@@ -4434,8 +4434,8 @@ packages:
     peerDependencies:
       eslint: '>=5.0.0'
 
-  eslint-plugin-turbo@2.0.0:
-    resolution: {integrity: sha512-31tZqfGbjBn6BzXVsmW50c2m8NDra6mOS2us/qHxUwN4YrHI/uYSpyItAw4qdVrxk7RmilvmnJ5WXFwtnfuLqw==}
+  eslint-plugin-turbo@2.1.3:
+    resolution: {integrity: sha512-I9vPArzyOSYa6bm0iMCgD07MgdExc1VK2wGuVz21g4BUdj83w7mDKyCXR2rwOtCEW+wemFwgxanJ81imQZijNg==}
     peerDependencies:
       eslint: '>6.6.0'
 
@@ -12216,10 +12216,10 @@ snapshots:
     dependencies:
       eslint: 9.10.0(jiti@1.21.6)
 
-  eslint-config-turbo@2.0.0(eslint@9.10.0(jiti@1.21.6)):
+  eslint-config-turbo@2.1.3(eslint@9.10.0(jiti@1.21.6)):
     dependencies:
       eslint: 9.10.0(jiti@1.21.6)
-      eslint-plugin-turbo: 2.0.0(eslint@9.10.0(jiti@1.21.6))
+      eslint-plugin-turbo: 2.1.3(eslint@9.10.0(jiti@1.21.6))
 
   eslint-import-resolver-node@0.3.9:
     dependencies:
@@ -12341,7 +12341,7 @@ snapshots:
     dependencies:
       eslint: 9.10.0(jiti@1.21.6)
 
-  eslint-plugin-turbo@2.0.0(eslint@9.10.0(jiti@1.21.6)):
+  eslint-plugin-turbo@2.1.3(eslint@9.10.0(jiti@1.21.6)):
     dependencies:
       dotenv: 16.0.3
       eslint: 9.10.0(jiti@1.21.6)
