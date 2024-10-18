@@ -1,3 +1,7 @@
+:root { 
+  --presence-color: red
+}
+
 #monaco-editor {
   width: 100%;
   height: 600px;
@@ -5,13 +9,13 @@
 }
 
 .yRemoteSelection {
-  background-color: red;
+  background-color: var(--presence-color);
   opacity: 0.5;
 }
 
 .yRemoteSelectionHead {
   position: absolute;
-  background-color: red;
+  background-color: var(--presence-color);
   height: 200%;
   bottom: 0;
   width: 2px;
@@ -20,13 +24,13 @@
 
 .yRemoteSelectionHead:after {
   position: absolute;
-  content: ' ';
+  content: " ";
   font-size: 10px;
   padding: 2px;
   font-family: sans-serif;
   font-weight: bold;
-  background-color: red;
-  color: white;
+  background-color: var(--presence-color);
+  color: var(--sv-text-color);
   border-radius: 4px;
   left: 0px;
   bottom: 60%;
@@ -34,15 +38,15 @@
 }
 
 .ql-cursor-selections .ql-cursor-selection-block {
-  background-color: red !important;
+  background-color: var(--presence-color) !important;
   opacity: 0.4;
 }
 
 .ql-cursor-caret-container .ql-cursor-caret {
-  background-color: red !important;
+  background-color: var(--presence-color) !important;
 }
 
 .ql-cursor-flag {
-  background-color: red !important;
-  color: white !important;
+  background-color: var(--presence-color) !important;
+  color: var(--sv-text-color) !important;
 }
