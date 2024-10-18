@@ -1,6 +1,6 @@
 {
   "name": "@superviz/realtime",
-  "version": "1.2.0-beta.3",
+  "version": "1.2.0-lab.9",
   "description": "SuperViz Real-Time",
   "main": "./dist/node/index.cjs.js",
   "module": "./dist/browser/index.js",
@@ -70,7 +70,7 @@
     "semantic-release": "^24.0.0",
     "ts-jest": "^29.2.5",
     "tsc": "^2.0.4",
-    "typescript": "^5.5.2",
+    "typescript": "^5.6.2",
     "yargs": "^17.7.2"
   },
   "dependencies": {

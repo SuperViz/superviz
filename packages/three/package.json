@@ -1,6 +1,6 @@
 {
   "name": "@superviz/threejs-plugin",
-  "version": "1.2.0-beta.4",
+  "version": "1.2.0-lab.6",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
@@ -45,7 +45,7 @@
     "husky": "^9.0.11",
     "semantic-release": "24.0.0",
     "tsc": "^2.0.4",
-    "typescript": "^5.5.2"
+    "typescript": "^5.6.2"
   },
   "dependencies": {
     "debug": "^4.3.5",

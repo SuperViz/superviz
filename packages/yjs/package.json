@@ -1,6 +1,6 @@
 {
   "name": "@superviz/yjs",
-  "version": "1.0.0-beta.4",
+  "version": "1.0.0-lab.13",
   "description": "",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -44,9 +44,7 @@
     "esbuild": "^0.23.1",
     "lib0": "^0.2.97",
     "rxjs": "^7.8.1",
-    "typescript": "^5.6.2",
-    "y-protocols": "^1.0.6",
-    "yjs": "^13.3.1"
+    "typescript": "^5.6.2"
   },
   "devDependencies": {
     "@anolilab/semantic-release-pnpm": "^1.1.3",
@@ -63,5 +61,9 @@
     "jest-mock": "^29.7.0",
     "semantic-release": "^24.0.0",
     "ts-jest": "^29.2.5"
+  },
+  "peerDependencies": {
+    "yjs": ">=13.6.20",
+    "y-protocols": ">=1.0.6"
   }
 }

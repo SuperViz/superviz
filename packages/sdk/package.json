@@ -1,6 +1,6 @@
 {
   "name": "@superviz/sdk",
-  "version": "6.7.0-beta.3",
+  "version": "6.7.0-lab.16",
   "description": "SuperViz SDK",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -55,7 +55,7 @@
     "@web/dev-server-esbuild": "^0.4.3",
     "@web/dev-server-import-maps": "^0.2.0",
     "@web/dev-server-legacy": "^2.0.3",
-    "@web/test-runner": "^0.17.2",
+    "@web/test-runner": "^0.19.0",
     "@web/test-runner-playwright": "^0.11.0",
     "concurrently": "^8.2.2",
     "cz-conventional-changelog": "^3.3.0",
@@ -69,11 +69,12 @@
     "jest-canvas-mock": "^2.5.2",
     "jest-environment-jsdom": "^29.7.0",
     "jest-fetch-mock": "^3.0.3",
+    "playwright": "^1.48.1",
     "rimraf": "^5.0.7",
     "semantic-release": "^24.0.0",
     "ts-jest": "^29.1.5",
     "tsc": "^2.0.4",
-    "typescript": "^5.5.2",
+    "typescript": "^5.6.2",
     "yargs": "^17.7.2"
   },
   "dependencies": {
