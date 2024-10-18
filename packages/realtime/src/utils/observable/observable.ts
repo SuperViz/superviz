@@ -1,3 +1,6 @@
+import { RealtimeComponentEvent } from '../../component/types';
+import { ComponentLifeCycleEvent } from '../../types/events.types';
+import type { Subscribe, Unsubscribe } from '../../types/observable';
 import { Logger } from '../logger';
 import { Observer } from '../observer';
 
@@ -12,7 +15,14 @@ export abstract class Observable {
    * @param listener - event callback
    * @returns {void}
    */
-  public subscribe = (type: string, listener: Function): void => {
+  public subscribe: Subscribe = (
+    type:
+      | `${RealtimeComponentEvent}`
+      | `${ComponentLifeCycleEvent}`
+      | RealtimeComponentEvent
+      | ComponentLifeCycleEvent,
+    listener: Function,
+  ): void => {
     this.logger.log(`subscribed to ${type} event`);
 
     if (!this.observers[type]) {
@@ -28,18 +38,25 @@ export abstract class Observable {
    * @param type - event type
    * @returns {void}
    */
-  public unsubscribe = (type: string, callback?: (data: unknown) => void): void => {
+  public unsubscribe: Unsubscribe = (
+    type:
+      | `${RealtimeComponentEvent}`
+      | `${ComponentLifeCycleEvent}`
+      | RealtimeComponentEvent
+      | ComponentLifeCycleEvent,
+    listener?: Function,
+  ): void => {
     this.logger.log(`unsubscribed from ${type} event`);
 
     if (!this.observers[type]) return;
 
-    if (!callback) {
+    if (!listener) {
       this.observers[type].destroy();
       delete this.observers[type];
       return;
     }
 
-    this.observers[type].unsubscribe(callback);
+    this.observers[type].unsubscribe(listener);
   };
 
   /**

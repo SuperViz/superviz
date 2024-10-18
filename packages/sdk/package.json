@@ -1,6 +1,6 @@
 {
   "name": "@superviz/sdk",
-  "version": "0.0.0",
+  "version": "6.7.0-beta.4",
   "description": "SuperViz SDK",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -41,11 +41,13 @@
   },
   "homepage": "https://github.com/SuperViz/superviz/tree/main/packages/sdk#readme",
   "devDependencies": {
-    "@superviz/eslint-config": "workspace:*",
-    "@superviz/typescript-config": "workspace:*",
+    "@anolilab/semantic-release-pnpm": "^1.1.3",
     "@esm-bundle/chai": "^4.3.4-fix.0",
     "@jest/globals": "^29.7.0",
     "@open-wc/testing-helpers": "^3.0.1",
+    "@semantic-release/release-notes-generator": "^14.0.1",
+    "@superviz/eslint-config": "workspace:*",
+    "@superviz/typescript-config": "workspace:*",
     "@types/debug": "^4.1.12",
     "@types/jest": "^29.5.12",
     "@types/luxon": "^3.4.2",
@@ -53,8 +55,8 @@
     "@web/dev-server-esbuild": "^0.4.3",
     "@web/dev-server-import-maps": "^0.2.0",
     "@web/dev-server-legacy": "^2.0.3",
-    "@web/test-runner": "^0.17.2",
-    "@web/test-runner-playwright": "^0.10.2",
+    "@web/test-runner": "^0.19.0",
+    "@web/test-runner-playwright": "^0.11.0",
     "concurrently": "^8.2.2",
     "cz-conventional-changelog": "^3.3.0",
     "dotenv": "^16.4.5",
@@ -67,11 +69,12 @@
     "jest-canvas-mock": "^2.5.2",
     "jest-environment-jsdom": "^29.7.0",
     "jest-fetch-mock": "^3.0.3",
+    "playwright": "^1.48.1",
     "rimraf": "^5.0.7",
     "semantic-release": "^24.0.0",
     "ts-jest": "^29.1.5",
     "tsc": "^2.0.4",
-    "typescript": "^5.5.2",
+    "typescript": "^5.6.2",
     "yargs": "^17.7.2"
   },
   "dependencies": {
@@ -83,7 +86,6 @@
     "lodash": "^4.17.21",
     "luxon": "^3.4.4",
     "rxjs": "^7.8.1",
-    "semantic-release-version-file": "^1.0.2",
     "zod": "^3.23.8"
   }
 }

@@ -1,10 +1,6 @@
 // eslint-disable-next-line max-classes-per-file
-import type {
-  Annotation,
-  PinAdapter,
-  PinCoordinates,
-  Observer as ObserverType,
-} from '@superviz/sdk';
+import type { Annotation, PinAdapter, PinCoordinates } from '@superviz/sdk';
+import type { Observer as ObserverType } from '@superviz/sdk/dist/common/utils/observer';
 import { Vector3 } from 'three';
 
 import type { Rotation, MpSdk as Matterport } from '../common/types/matterport.types';
@@ -335,7 +331,8 @@ export class MatterportPin implements PinAdapter {
   private hideTemporaryPin = (event: MouseEvent): void => {
     const target = event.target as HTMLElement;
 
-    if (this.showcaseDiv.contains(target) || this.pins.get('temporary-pin')?.contains(target)) return;
+    if (this.showcaseDiv.contains(target) || this.pins.get('temporary-pin')?.contains(target))
+      return;
 
     this.removeAnnotationPin('temporary-pin');
   };

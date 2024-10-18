@@ -1,9 +1,4 @@
 import * as Socket from '@superviz/socket-client';
-import throttle from 'lodash/throttle';
-
-import { Participant } from '../../types/participant.types';
-import { Logger, Observable, Observer } from '../../utils';
-import { IOC } from '../io';
 
 import {
   RealtimeChannelEvent,
@@ -14,6 +9,9 @@ import {
   RealtimeChannelSubscribe,
   Callback,
 } from '../../component/types';
+import { Participant } from '../../types/participant.types';
+import { Logger, Observable, Observer } from '../../utils';
+import { IOC } from '../io';
 import { RealtimePresence } from '../presence';
 
 export class Channel extends Observable {
@@ -27,6 +25,7 @@ export class Channel extends Observable {
     event: string;
     callback: (data: unknown) => void;
   }> = [];
+
   public participant: RealtimePresence;
 
   constructor(
@@ -66,7 +65,7 @@ export class Channel extends Observable {
    * @param event - The name of the event to publish.
    * @param data - Data to be sent along with the event.
    */
-  public publish: RealtimePublish = throttle((event: string, data): void => {
+  public publish: RealtimePublish = (event: string, data): void => {
     if (this.state !== RealtimeChannelState.CONNECTED) {
       const message = `Realtime channel ${this.name} has not started yet. You can't publish event ${event} before start`;
       this.logger.log(message);
@@ -75,7 +74,7 @@ export class Channel extends Observable {
     }
 
     this.channel.emit(`message:${this.name}`, { name: event, payload: data });
-  }, 30);
+  }
 
   /**
    * @function subscribe
@@ -165,7 +164,8 @@ export class Channel extends Observable {
     eventName?: string,
   ): Promise<RealtimeMessage[] | Record<string, RealtimeMessage[]> | null> => {
     if (this.state !== RealtimeChannelState.CONNECTED) {
-      const message = `Realtime component has not started yet. You can't retrieve history before start`;
+      const message =
+        "Realtime component has not started yet. You can't retrieve history before start";
 
       this.logger.log(message);
       console.warn(`[SuperViz] ${message}`);

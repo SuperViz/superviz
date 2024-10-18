@@ -2,7 +2,7 @@ import { Subject, Subscription } from 'rxjs';
 import type { Socket } from 'socket.io-client';
 
 import { ErrorCallback } from '../../common/types/callbacks.types';
-import { InternalRoomEvents, RoomEvents } from '../../common/types/event.types';
+import { InternalRoomEvents, RoomEvents, RoomEventsArg } from '../../common/types/event.types';
 import { Presence } from '../../common/types/presence.types';
 import { Logger } from '../../utils';
 import { PresenceRoom } from '../presence';
@@ -54,7 +54,7 @@ export class Room {
    * @param callback - The callback to execute when the event is emitted
    * @returns {void}
    */
-  public on<T>(event: string, callback: Callback<T>): void {
+  public on<T>(event: RoomEventsArg, callback: Callback<T>): void {
     this.logger.log('room @ on', event);
 
     let subject = this.observers.get(event);
@@ -121,7 +121,7 @@ export class Room {
    * @description Get the presences in the room
    * @returns {void}
    */
-  public history(next: (data: RoomHistory) => void, error?: ErrorCallback): void {
+  public history<T = unknown>(next: (data: RoomHistory<T>) => void, error?: ErrorCallback): void {
     const subject = new Subject<RoomHistory>();
 
     subject.subscribe({

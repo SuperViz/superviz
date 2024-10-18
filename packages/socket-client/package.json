@@ -1,6 +1,6 @@
 {
   "name": "@superviz/socket-client",
-  "version": "0.0.0",
+  "version": "1.13.0-beta.4",
   "description": "SuperViz Socket Client",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -9,6 +9,7 @@
   ],
   "exports": {
     "node": "./dist/node/index.js",
+    "types": "./dist/index.d.ts",
     "default": "./dist/browser/index.js"
   },
   "scripts": {
@@ -34,6 +35,8 @@
   },
   "homepage": "https://github.com/SuperViz/superviz/tree/main/packages/socket-client#readme",
   "devDependencies": {
+    "@anolilab/semantic-release-pnpm": "^1.1.3",
+    "@semantic-release/release-notes-generator": "^14.0.1",
     "@superviz/eslint-config": "workspace:*",
     "@superviz/typescript-config": "workspace:*",
     "@types/debug": "^4.1.12",
@@ -43,14 +46,13 @@
     "eslint": "8.56.0",
     "semantic-release": "^24.0.0",
     "tsc": "^2.0.4",
-    "typescript": "^5.5.2"
+    "typescript": "^5.6.2"
   },
   "dependencies": {
     "@reactivex/rxjs": "^6.6.7",
     "debug": "^4.3.5",
     "lodash": "^4.17.21",
     "rxjs": "^7.8.1",
-    "semantic-release-version-file": "^1.0.2",
     "socket.io-client": "^4.7.5",
     "zod": "^3.23.8"
   }

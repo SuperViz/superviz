@@ -1,16 +1,14 @@
-import { Realtime } from '.';
+import { MOCK_PARAMS } from '../../__mocks__/params.mock';
+import { ApiService } from '../services/api';
+import { isValidApiKey } from '../services/auth-service';
+import config from '../services/config';
+import { RemoteConfigService } from '../services/remote-config';
+import { EnvironmentTypes } from '../types/options.types';
+import * as environment from '../utils/environment';
 
 import { RealtimeComponentState } from './types';
 
-import * as environment from '../utils/environment';
-import { MOCK_PARAMS } from '../../__mocks__/params.mock';
-import config from '../services/config';
-import { RemoteConfigService } from '../services/remote-config';
-import { isValidApiKey } from '../services/auth-service';
-import { ApiService } from '../services/api';
-import { EnvironmentTypes } from '../types/options.types';
-
-jest.mock('lodash/throttle', () => jest.fn((fn) => fn));
+import { Realtime } from '.';
 
 jest.mock('../utils/generate-hash', () => {
   return {

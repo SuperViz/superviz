@@ -8,4 +8,5 @@ export {
   MousePointers,
   ParticipantType,
   type LauncherFacade,
+  type Participant,
 } from "@superviz/sdk";

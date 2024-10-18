@@ -49,7 +49,6 @@ jobs:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
       - name: Create a .version.js file
         run: |
-          touch packages/realtime/.version.js && echo "echo \"export const version = 'test'\" > packages/realtime/.version.js" | bash -
           touch packages/sdk/.version.js && echo "echo \"export const version = 'test'\" > packages/sdk/.version.js" | bash -
       - name: Create a .remote-config.js file
         run: |
@@ -90,9 +89,6 @@ jobs:
         env:
           NPM_CONFIG_USERCONFIG: .npmrc.ci
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-      - name: Create a .version.js file
-        run: |
-          touch packages/realtime/.version.js && echo "echo \"export const version = 'test'\" > .version.js" | bash -
       - name: Create a .remote-config.js file
         run: |
           touch packages/realtime/.remote-config.js && echo "echo \"module.exports = { remoteConfig: { apiUrl: 'https://dev.nodeapi.superviz.com' }};\" > .remote-config.js" | bash -
@@ -184,7 +180,7 @@ jobs:
           NPM_CONFIG_USERCONFIG: .npmrc.ci
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
       - name: Install Playwright browsers
-        run: pnpx playwright install --with-deps
+        run: pnpm --filter=@superviz/sdk exec playwright install --with-deps
       - name: Create a .version.js file
         run: |
           touch packages/sdk/.version.js && echo "echo \"export const version = 'test'\" > .version.js" | bash -
@@ -234,6 +230,13 @@ jobs:
         env:
           NPM_CONFIG_USERCONFIG: .npmrc.ci
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Create a .version.js file
+        run: |
+          touch packages/sdk/.version.js && echo "echo \"export const version = 'test'\" > packages/sdk/.version.js" | bash -
+      - name: Create a .remote-config.js file
+        run: |
+          touch packages/realtime/.remote-config.js && echo "echo \"module.exports = { remoteConfig: { apiUrl: 'https://dev.nodeapi.superviz.com' }};\" > packages/realtime/.remote-config.js" | bash -
+          touch packages/sdk/.remote-config.js && echo "echo \"module.exports = { remoteConfig: { apiUrl: 'https://dev.nodeapi.superviz.com', conferenceLayerUrl: 'https://video-frame.superviz.com/lab/index.html'}};\" > .remote-config.js" | bash -
       - name: Run tests
         run: pnpm run test:unit:ci --filter=@superviz/yjs
       - name: Post PR Comment

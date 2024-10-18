@@ -83,7 +83,7 @@ export function ThreeWithVideo() {
       computeBoundsTree;
     (THREE.BufferGeometry.prototype as any).disposeBoundsTree =
       disposeBoundsTree;
-    THREE.Mesh.prototype.raycast = acceleratedRaycast;
+    THREE.Mesh.prototype.raycast = acceleratedRaycast as any;
 
     renderer.current = new THREE.WebGLRenderer({ antialias: true });
     renderer.current.setPixelRatio(window.devicePixelRatio);

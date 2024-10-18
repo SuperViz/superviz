@@ -1,11 +1,11 @@
 {
   "name": "@superviz/react-sdk",
   "private": false,
-  "version": "0.0.0",
+  "version": "1.14.0-beta.5",
   "type": "module",
   "scripts": {
-    "watch": "tsc && vite build --watch",
-    "build": "tsc && vite build && cp package.json dist/package.json && cp README.md dist/README.md",
+    "watch": "./node_modules/typescript/bin/tsc && vite build --watch",
+    "build": "./node_modules/typescript/bin/tsc && vite build && cp package.json dist/package.json && cp README.md dist/README.md",
     "lint": "eslint 'src/**/*.{js,jsx,ts,tsx}'",
     "lint:fix": "eslint --fix 'src/**/*.{jsx,ts,tsx}'",
     "format": "prettier --write src//**/*.{ts,tsx,css} --config ./.prettierrc",
@@ -36,17 +36,21 @@
     "@superviz/sdk": "workspace:*",
     "@superviz/socket-client": "workspace:*",
     "@superviz/threejs-plugin": "workspace:*",
+    "@superviz/yjs": "workspace:*",
     "lodash": "^4.17.21",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
   "peerDependencies": {
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "yjs": ">=13.6.20"
   },
   "devDependencies": {
-    "@rollup/plugin-replace": "^5.0.7",
+    "@anolilab/semantic-release-pnpm": "^1.1.3",
     "@eslint/compat": "^1.1.1",
+    "@rollup/plugin-replace": "^5.0.7",
+    "@semantic-release/release-notes-generator": "^14.0.1",
     "@types/forge-viewer": "^7.89.1",
     "@types/lodash": "^4.17.6",
     "@types/node": "^20.14.9",
@@ -70,8 +74,7 @@
     "prettier": "^3.3.2",
     "react-hooks": "^1.0.1",
     "semantic-release": "^24.0.0",
-    "semantic-release-version-file": "^1.0.2",
-    "typescript": "^5.5.2",
+    "typescript": "^5.6.2",
     "vite": "^5.3.2",
     "vite-plugin-dts": "^3.9.1",
     "vite-plugin-linter": "^2.1.1",

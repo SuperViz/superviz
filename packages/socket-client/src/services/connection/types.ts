@@ -24,7 +24,7 @@ export enum ClientState {
  * @property reason - the reason for the state change
  */
 export interface ConnectionState {
-  state: ClientState;
+  state: ClientState | `${ClientState}`;
   reason?: string;
 }
 
