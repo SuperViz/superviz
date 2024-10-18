@@ -177,6 +177,7 @@ export class SlotService {
       ComponentNames.PRESENCE_AUTODESK,
       ComponentNames.PRESENCE_MATTERPORT,
       ComponentNames.PRESENCE_THREEJS,
+      ComponentNames.YJS_PROVIDER,
     ];
 
     const componentsNeedSlot = COMPONENTS_THAT_NEED_SLOT.some((component) => {
