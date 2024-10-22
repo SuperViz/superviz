@@ -1,4 +1,3 @@
-import { version } from '../../../package.json';
 import { RemoteConfigParams } from '../../common/types/remote-config.types';
 import { EnvironmentTypes } from '../../common/types/sdk-options.types';
 import { doRequest } from '../../common/utils';
@@ -22,10 +21,16 @@ export default class RemoteConfigService {
       const all = await import('../../../.remote-config.js');
       return all.default.remoteConfig;
     }
+
+    const { version } = await import('../../../package.json');
+
+    console.log(`[SuperViz] - v.${version}`);
+
     const remoteConfigParams: RemoteConfigParams = {
       version,
       environment,
     };
+
     const url = this.createUrl(remoteConfigParams);
     return doRequest(url, 'GET', null) as Promise<RemoteConfig>;
   }
