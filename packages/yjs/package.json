@@ -17,6 +17,7 @@
     "test:unit:coverage": "jest --coverage",
     "test:unit:ci": "jest --ci",
     "build": "node ./.esbuild/build.js",
+    "prepack": "pnpm build",
     "postbuild": "./node_modules/typescript/bin/tsc --declaration --emitDeclarationOnly --declarationDir dist",
     "watch": "concurrently -n code,types \"pnpm watch:code\" \"pnpm watch:types\"",
     "watch:code": "node ./.esbuild/watch.js",
