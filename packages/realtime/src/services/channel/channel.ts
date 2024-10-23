@@ -109,6 +109,11 @@ export class Channel extends Observable {
     event: string,
     callback?: Callback<T>,
   ): void => {
+    if (!callback) {
+      this.observers[event]?.reset();
+      return;
+    }
+
     this.observers[event]?.unsubscribe(callback);
   };
 

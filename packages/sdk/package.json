@@ -1,6 +1,6 @@
 {
   "name": "@superviz/sdk",
-  "version": "6.7.1",
+  "version": "6.7.2-beta.1",
   "description": "SuperViz SDK",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -17,6 +17,7 @@
     "watch": "concurrently -n code,types \"pnpm watch:code\" \"pnpm watch:types\"",
     "watch:code": "node ./.esbuild/watch.js",
     "watch:types": "./node_modules/typescript/bin/tsc --watch --outDir ./dist",
+    "prepack": "pnpm build",
     "test:unit": "jest",
     "test:unit:watch": "jest --watch",
     "test:unit:coverage": "jest --coverage",

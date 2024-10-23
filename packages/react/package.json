@@ -1,11 +1,12 @@
 {
   "name": "@superviz/react-sdk",
   "private": false,
-  "version": "1.14.1",
+  "version": "1.14.2-beta.1",
   "type": "module",
   "scripts": {
     "watch": "./node_modules/typescript/bin/tsc && vite build --watch",
     "build": "./node_modules/typescript/bin/tsc && vite build && cp package.json dist/package.json && cp README.md dist/README.md",
+    "prepack": "pnpm build",
     "lint": "eslint 'src/**/*.{js,jsx,ts,tsx}'",
     "lint:fix": "eslint --fix 'src/**/*.{jsx,ts,tsx}'",
     "format": "prettier --write src//**/*.{ts,tsx,css} --config ./.prettierrc",
