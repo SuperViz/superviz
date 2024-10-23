@@ -1,10 +1,10 @@
 import { LIMITS_MOCK } from '../../../__mocks__/limits.mock';
 import { MOCK_OBSERVER_HELPER } from '../../../__mocks__/observer-helper.mock';
 import { MOCK_LOCAL_PARTICIPANT } from '../../../__mocks__/participants.mock';
+import { RealtimeChannelState } from '../../component/types';
 import { IOC } from '../io';
 
 import { Channel } from './channel';
-import { RealtimeChannelState } from '../../component/types';
 
 jest.mock('lodash/throttle', () => jest.fn((fn) => fn));
 jest.useFakeTimers();
@@ -75,6 +75,15 @@ describe('Realtime Channel', () => {
       ChannelInstance['observers']['test'] = MOCK_OBSERVER_HELPER;
       const spy = jest.spyOn(ChannelInstance['observers']['test'], 'unsubscribe' as any);
       ChannelInstance.unsubscribe('test', () => {});
+
+      expect(spy).toHaveBeenCalled();
+    });
+
+    test('should reset an event if no callback is provided', () => {
+      ChannelInstance['observers']['test'] = MOCK_OBSERVER_HELPER;
+      const spy = jest.spyOn(ChannelInstance['observers']['test'], 'reset' as any);
+
+      ChannelInstance.unsubscribe('test');
 
       expect(spy).toHaveBeenCalled();
     });
