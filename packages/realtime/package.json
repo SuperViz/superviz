@@ -1,6 +1,6 @@
 {
   "name": "@superviz/realtime",
-  "version": "1.2.1-beta.1",
+  "version": "1.2.2-lab.2",
   "description": "SuperViz Real-Time",
   "main": "./dist/node/index.cjs.js",
   "module": "./dist/browser/index.js",
@@ -31,6 +31,7 @@
     "watch": "concurrently -n code,types \"pnpm run watch:code\" \"pnpm watch:types\"",
     "watch:code": "node ./.esbuild/watch.js",
     "watch:types": "./node_modules/typescript/bin/tsc --watch --outDir ./dist",
+    "prepack": "pnpm build",
     "test:unit": "jest",
     "test:unit:watch": "jest --watch",
     "test:unit:coverage": "jest --coverage",

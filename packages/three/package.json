@@ -1,6 +1,6 @@
 {
   "name": "@superviz/threejs-plugin",
-  "version": "1.2.1-beta.1",
+  "version": "1.2.2-lab.1",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
@@ -23,6 +23,7 @@
   "scripts": {
     "build": "node ./.esbuild/build.js",
     "postbuild": "./node_modules/typescript/bin/tsc",
+    "prepack": "pnpm build",
     "watch": "concurrently -n code,types \"pnpm watch:code\" \"pnpm watch:types\"",
     "watch:code": "node ./.esbuild/watch.js",
     "watch:types": "./node_modules/typescript/bin/tsc --watch",
