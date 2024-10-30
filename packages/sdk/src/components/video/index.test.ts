@@ -4,6 +4,7 @@ import { PresenceEvent } from '@superviz/socket-client';
 
 import { MOCK_CONFIG } from '../../../__mocks__/config.mock';
 import { EVENT_BUS_MOCK } from '../../../__mocks__/event-bus.mock';
+import { LIMITS_MOCK } from '../../../__mocks__/limits.mock';
 import { MOCK_OBSERVER_HELPER } from '../../../__mocks__/observer-helper.mock';
 import { MOCK_AVATAR, MOCK_LOCAL_PARTICIPANT } from '../../../__mocks__/participants.mock';
 import {
@@ -16,6 +17,7 @@ import {
   RealtimeEvent,
   TranscriptState,
 } from '../../common/types/events.types';
+import { MEETING_COLORS } from '../../common/types/meeting-colors.types';
 import {
   Participant,
   ParticipantType,
@@ -23,14 +25,15 @@ import {
 } from '../../common/types/participant.types';
 import { StoreType } from '../../common/types/stores.types';
 import { useStore } from '../../common/utils/use-store';
+import config from '../../services/config';
 import { IOC } from '../../services/io';
 import { Presence3DManager } from '../../services/presence-3d-manager';
-import { VideoFrameState } from '../../services/video-conference-manager/types';
+import VideoConfereceManager from '../../services/video-conference-manager';
+import { CamerasPosition, LayoutMode, LayoutPosition, VideoFrameState, VideoManagerOptions } from '../../services/video-conference-manager/types';
+
 import { ParticipantToFrame } from './types';
 
-import { VideoConference } from '.';
-import { MEETING_COLORS } from '../../common/types/meeting-colors.types';
-import { LIMITS_MOCK } from '../../../__mocks__/limits.mock';
+import { VideoComponent } from '.';
 
 Object.assign(global, { TextDecoder, TextEncoder });
 
@@ -77,6 +80,44 @@ jest.mock('../../services/event-bus', () => {
 
 jest.useFakeTimers();
 
+class VideoConference extends VideoComponent {
+  protected allowGuests: boolean = false;
+  protected userType = ParticipantType.HOST;
+
+  protected startVideo = (): void => {
+    const options: VideoManagerOptions = {
+      canUseChat: true,
+      canUseCams: true,
+      canShowAudienceList: true,
+      canUseRecording: true,
+      canUseScreenshare: true,
+      canUseDefaultAvatars: false,
+      canUseGather: true,
+      canUseFollow: true,
+      canUseGoTo: true,
+      canUseDefaultToolbar: true,
+      collaborationMode: false,
+      skipMeetingSettings: false,
+      camerasPosition: CamerasPosition.LEFT,
+      waterMark: config.get<boolean>('waterMark'),
+      layoutPosition: LayoutPosition.CENTER,
+      layoutMode: LayoutMode.GRID,
+      devices: { audioInput: true, audioOutput: true, videoInput: true },
+      browserService: this.browserService,
+      locales: [],
+      avatars: [],
+      styles: undefined,
+      offset: undefined,
+      callbacks: undefined,
+    };
+
+    this.videoConfig = options;
+
+    this.logger.log('video meeting @ start video', this.videoConfig);
+    this.videoManager = new VideoConfereceManager(options);
+  };
+}
+
 describe('VideoConference', () => {
   let VideoConferenceInstance: VideoConference;
 
@@ -88,10 +129,7 @@ describe('VideoConference', () => {
     localParticipant.publish(MOCK_LOCAL_PARTICIPANT);
     hasJoinedRoom.publish(true);
 
-    VideoConferenceInstance = new VideoConference({
-      userType: 'host',
-      allowGuests: false,
-    });
+    VideoConferenceInstance = new VideoConference();
 
     VideoConferenceInstance['localParticipant'] = MOCK_LOCAL_PARTICIPANT as VideoParticipant;
     VideoConferenceInstance.attach({
@@ -110,9 +148,7 @@ describe('VideoConference', () => {
   test('should not show avatar settings if local participant has avatar', () => {
     VideoConferenceInstance.detach();
 
-    VideoConferenceInstance = new VideoConference({
-      defaultAvatars: true,
-    });
+    VideoConferenceInstance = new VideoConference();
 
     VideoConferenceInstance['localParticipant'] = {
       ...MOCK_LOCAL_PARTICIPANT,

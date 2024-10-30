@@ -2,7 +2,7 @@ import { Comments } from './comments';
 import { CanvasPin } from './comments/canvas-pin-adapter';
 import { MousePointers } from './presence-mouse';
 import { Realtime } from './realtime';
-import { VideoConference } from './video';
+import { VideoConference } from './video-conference';
 
 import * as Components from '.';
 
