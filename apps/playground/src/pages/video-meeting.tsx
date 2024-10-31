@@ -40,7 +40,18 @@ export function VideoMeetingPage() {
       debug: true,
     });
 
-    video.current = new VideoMeeting();
+    video.current = new VideoMeeting({
+      participantType: 'guest', 
+      permissions: { 
+        allowGuests: true,
+        toggleCamera: false, 
+        toggleChat: false, 
+        toggleMic: false, 
+        toggleParticipantList: false,
+        toggleRecording: false, 
+        toggleScreenShare: false,
+      }
+    });
 
     room.current.addComponent(video.current);
   }, []);
