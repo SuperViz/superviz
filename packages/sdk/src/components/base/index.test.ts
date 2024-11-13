@@ -1,5 +1,6 @@
 import { MOCK_CONFIG } from '../../../__mocks__/config.mock';
 import { EVENT_BUS_MOCK } from '../../../__mocks__/event-bus.mock';
+import { LIMITS_MOCK } from '../../../__mocks__/limits.mock';
 import { MOCK_OBSERVER_HELPER } from '../../../__mocks__/observer-helper.mock';
 import { MOCK_GROUP, MOCK_LOCAL_PARTICIPANT } from '../../../__mocks__/participants.mock';
 import { StoreType } from '../../common/types/stores.types';
@@ -13,7 +14,6 @@ import { useGlobalStore } from '../../services/stores';
 import { ComponentNames } from '../types';
 
 import { BaseComponent } from '.';
-import { LIMITS_MOCK } from '../../../__mocks__/limits.mock';
 
 class DummyComponent extends BaseComponent {
   protected logger: Logger;
@@ -183,7 +183,7 @@ describe('BaseComponent', () => {
 
       expect(spyDestroy).toBeCalled();
       expect(spyReset).toBeCalled();
-      expect(DummyComponentInstance['observers']).toBeUndefined();
+      expect(DummyComponentInstance['observers']).toEqual({});
     });
 
     test('should not detach the component if it is not attached', () => {
