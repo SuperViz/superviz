@@ -907,7 +907,7 @@ export class Presence3D {
   };
 
   private createCircleOfPositions(): void {
-    const amountOfPeople = 50;
+    const amountOfPeople = 25;
     let radiusOfCircle = amountOfPeople * 0.3;
 
     let degrees = 0;
