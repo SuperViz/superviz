@@ -1,3 +1,5 @@
+import { PresenceEvents } from '@superviz/socket-client';
+
 import type {
   CanvasPin,
   HTMLPin,
@@ -7,7 +9,9 @@ import type {
   VideoConference,
   WhoIsOnline,
   FormElements,
+  VideoMeeting,
 } from '../../components';
+import { FieldEvents } from '../../components/form-elements/types';
 import type {
   RealtimeComponentEvent,
   RealtimeComponentState,
@@ -18,6 +22,7 @@ import type {
   LayoutMode,
   LayoutPosition,
 } from '../../services/video-conference-manager/types';
+import { PinMode } from '../../web-components/comments/components/types';
 
 import type {
   DeviceEvent,
@@ -34,10 +39,7 @@ import type {
 } from './events.types';
 import { ParticipantType } from './participant.types';
 import { SuperVizSdkOptions } from './sdk-options.types';
-import { StoreType } from '../types/stores.types';
-import { PresenceEvents } from '@superviz/socket-client';
-import { FieldEvents } from '../../components/form-elements/types';
-import { PinMode } from '../../web-components/comments/components/types';
+import { StoreType } from './stores.types';
 
 export interface SuperVizCdn {
   init: (apiKey: string, options: SuperVizSdkOptions) => Promise<LauncherFacade>;
@@ -57,6 +59,7 @@ export interface SuperVizCdn {
   LayoutPosition: typeof LayoutPosition;
   CamerasPosition: typeof CamerasPosition;
   VideoConference: typeof VideoConference;
+  VideoMeeting: typeof VideoMeeting;
   MousePointers: typeof MousePointers;
   Realtime: typeof Realtime;
   Comments: typeof Comments;

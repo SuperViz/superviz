@@ -19,6 +19,7 @@ import { YjsMonacoWio } from "../pages/yjs-monaco-wio.tsx";
 import { YjsQuillWio } from "../pages/yjs-quill-wio.tsx";
 import { YjsQuillReact } from "../pages/yjs-quill-react.tsx";
 import { ReactFlowWithReactSDK } from "../pages/react-flow-with-react-sdk.tsx";
+import { VideoMeetingPage } from "../pages/video-meeting.tsx";
 
 export const routeList: RouteObject[] = [
   {
@@ -31,6 +32,10 @@ export const routeList: RouteObject[] = [
       {
         path: "video",
         element: <Video />,
+      },
+      {
+        path: "video-meeting",
+        element: <VideoMeetingPage />,
       },
       {
         path: "matterport",

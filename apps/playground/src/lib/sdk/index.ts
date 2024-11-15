@@ -1,6 +1,7 @@
 export {
   default as Room,
   VideoConference,
+  VideoMeeting,
   WhoIsOnline,
   FormElements,
   Comments,

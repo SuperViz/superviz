@@ -1,6 +1,5 @@
 import { PresenceEvent, PresenceEvents, Room } from '@superviz/socket-client';
 
-import { ColorsVariables } from '../../common/types/colors.types';
 import {
   DeviceEvent,
   Dimensions,
@@ -12,6 +11,7 @@ import {
   RealtimeEvent,
   TranscriptState,
 } from '../../common/types/events.types';
+import { MEETING_COLORS } from '../../common/types/meeting-colors.types';
 import {
   VideoParticipant,
   ParticipantType,
@@ -22,6 +22,7 @@ import { Logger } from '../../common/utils';
 import { BrowserService } from '../../services/browser';
 import config from '../../services/config';
 import { ConnectionService } from '../../services/connection-status';
+import { coreBridge } from '../../services/core-bridge';
 import { RoomStateService } from '../../services/room-state';
 import VideoConferenceManager from '../../services/video-conference-manager';
 import {
@@ -36,34 +37,28 @@ import {
 import { BaseComponent } from '../base';
 import { ComponentNames } from '../types';
 
-import { ParticipantToFrame, VideoComponentOptions } from './types';
-import { MEETING_COLORS } from '../../common/types/meeting-colors.types';
-import { coreBridge } from '../../services/core-bridge';
+import { ParticipantToFrame } from './types';
 
 const KICK_PARTICIPANTS_TIME = 1000 * 60;
 let KICK_PARTICIPANTS_TIMEOUT: ReturnType<typeof setTimeout> | null = null;
-export class VideoConference extends BaseComponent {
+export abstract class VideoComponent extends BaseComponent {
   public name: ComponentNames;
   protected logger: Logger;
-  private participantsOnMeeting: Partial<VideoParticipant>[] = [];
-  private localParticipant: VideoParticipant;
-  private videoManager: VideoConferenceManager;
-  private connectionService: ConnectionService;
-  private browserService: BrowserService;
-  private videoConfig: VideoManagerOptions;
-  private params?: VideoComponentOptions;
-  private roomState: RoomStateService;
-  private drawingRoom: Room;
+  protected participantsOnMeeting: Partial<VideoParticipant>[] = [];
+  protected localParticipant: VideoParticipant;
+  protected videoManager: VideoConferenceManager;
+  protected connectionService: ConnectionService;
+  protected browserService: BrowserService;
+  protected videoConfig: VideoManagerOptions;
+  protected roomState: RoomStateService;
+  protected drawingRoom: Room;
+  protected kickParticipantsOnHostLeave = false;
 
-  private kickParticipantsOnHostLeave = false;
+  protected abstract userType: ParticipantType | `${ParticipantType}`;
+  protected abstract allowGuests: boolean;
 
-  constructor(params?: VideoComponentOptions) {
+  constructor() {
     super();
-
-    this.params = {
-      ...params,
-      userType: params?.participantType ?? params?.userType ?? ParticipantType.GUEST,
-    };
 
     this.name = ComponentNames.VIDEO_CONFERENCE;
     this.logger = new Logger(`@superviz/sdk/${ComponentNames.VIDEO_CONFERENCE}`);
@@ -172,6 +167,7 @@ export class VideoConference extends BaseComponent {
     this.subscribeToStoreUpdates();
     this.suscribeToRealtimeEvents();
     this.startVideo();
+    this.subscribeToVideoEvents();
   }
 
   /**
@@ -203,47 +199,7 @@ export class VideoConference extends BaseComponent {
    * @description start video manager
    * @returns {void}
    */
-  private startVideo = (): void => {
-    const defaultAvatars =
-      this.params?.userType !== ParticipantType.AUDIENCE && this.params?.defaultAvatars === true;
-
-    this.videoConfig = {
-      language: this.params?.language,
-      canUseRecording: !!this.params?.enableRecording,
-      canShowAudienceList: this.params?.showAudienceList ?? true,
-      canUseChat: !this.params?.chatOff,
-      canUseCams: !this.params?.camsOff,
-      canUseScreenshare: !this.params?.screenshareOff,
-      canUseDefaultAvatars: defaultAvatars && !this.localParticipant?.avatar?.model3DUrl,
-      canUseGather: !!this.params?.enableGather,
-      canUseFollow: !!this.params?.enableFollow,
-      canUseGoTo: !!this.params?.enableGoTo,
-      canUseDefaultToolbar: this.params?.defaultToolbar ?? true,
-      camerasPosition: this.params?.collaborationMode?.position as CamerasPosition,
-      devices: this.params?.devices,
-      skipMeetingSettings: this.params?.skipMeetingSettings,
-      browserService: this.browserService,
-      offset: this.params?.offset,
-      locales: this.params?.locales ?? [],
-      avatars: this.params?.avatars ?? [],
-      customColors: config.get<ColorsVariables>('colors'),
-      waterMark: config.get<boolean>('waterMark'),
-      styles: this.params?.styles,
-      collaborationMode: this.params?.collaborationMode?.enabled ?? true,
-      layoutPosition:
-        this.params?.collaborationMode?.enabled === false
-          ? LayoutPosition.CENTER
-          : (this.params?.collaborationMode?.modalPosition as LayoutPosition) ??
-            LayoutPosition.CENTER,
-      layoutMode: (this.params?.collaborationMode?.initialView as LayoutMode) ?? LayoutMode.LIST,
-      callbacks: this.params?.callbacks,
-    };
-
-    this.logger.log('video conference @ start video', this.videoConfig);
-    this.videoManager = new VideoConferenceManager(this.videoConfig);
-
-    this.subscribeToVideoEvents();
-  };
+  protected abstract startVideo: () => void
 
   /**
    * @function subscribeToVideoEvents
@@ -332,7 +288,7 @@ export class VideoConference extends BaseComponent {
       this.localParticipant = {
         ...this.localParticipant,
         ...participant,
-        type: this.params.userType,
+        type: this.userType,
       };
     });
 
@@ -466,9 +422,9 @@ export class VideoConference extends BaseComponent {
     this.roomState.kickParticipantObserver.subscribe(this.onKickLocalParticipant);
     this.roomState.start();
 
-    if (this.params.userType !== ParticipantType.GUEST) {
+    if (this.userType !== ParticipantType.GUEST) {
       this.localParticipant = Object.assign(this.localParticipant, {
-        type: this.params.userType,
+        type: this.userType,
       });
 
       this.roomState.updateMyProperties({
@@ -497,8 +453,7 @@ export class VideoConference extends BaseComponent {
     const _ = {
       [RealtimeEvent.REALTIME_HOST_CHANGE]: (data: string) => this.roomState.setHost(data),
       [RealtimeEvent.REALTIME_GATHER]: (data: boolean) => this.roomState.setGather(data),
-      [RealtimeEvent.REALTIME_GRID_MODE_CHANGE]: (data: boolean) =>
-        this.roomState.setGridMode(data),
+      [RealtimeEvent.REALTIME_GRID_MODE_CHANGE]: (data: boolean) => this.roomState.setGridMode(data),
       [RealtimeEvent.REALTIME_DRAWING_CHANGE]: (data: DrawingData) => {
         this.roomState.setDrawing(data);
       },
@@ -530,7 +485,7 @@ export class VideoConference extends BaseComponent {
 
     this.publish(MeetingEvent.MEETING_PARTICIPANT_JOINED, participant);
     this.publish(MeetingEvent.MY_PARTICIPANT_JOINED, participant);
-    this.kickParticipantsOnHostLeave = !this.params?.allowGuests;
+    this.kickParticipantsOnHostLeave = !this.allowGuests;
 
     const { localParticipant, participants } = this.useStore(StoreType.GLOBAL);
 
@@ -548,7 +503,7 @@ export class VideoConference extends BaseComponent {
         ...localParticipant.value,
         avatar: participant.avatar,
         name: participant.name,
-        type: this.params.userType,
+        type: this.userType,
       });
 
       coreBridge.updateParticipantsList({
@@ -566,7 +521,7 @@ export class VideoConference extends BaseComponent {
     coreBridge.updateLocalParticipant({
       ...localParticipant.value,
       name: newParticipantName,
-      type: this.params.userType,
+      type: this.userType,
     });
 
     coreBridge.updateParticipantsList({
@@ -574,7 +529,7 @@ export class VideoConference extends BaseComponent {
       [participant.id]: {
         ...participants.value[participant.id],
         name: newParticipantName,
-        type: this.params.userType,
+        type: this.userType,
       },
     });
 
@@ -798,13 +753,13 @@ export class VideoConference extends BaseComponent {
 
     const newHost = participant
       ? {
-          id: participant.id,
-          color: participant.slot?.color || MEETING_COLORS.gray,
-          avatar: participant.avatar,
-          type: participant.type,
-          name: participant.name,
-          isHost: participant.id === hostId,
-        }
+        id: participant.id,
+        color: participant.slot?.color || MEETING_COLORS.gray,
+        avatar: participant.avatar,
+        type: participant.type,
+        name: participant.name,
+        isHost: participant.id === hostId,
+      }
       : null;
 
     if (KICK_PARTICIPANTS_TIMEOUT && !!newHost) {
