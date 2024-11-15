@@ -1,6 +1,6 @@
 {
   "name": "@superviz/socket-client",
-  "version": "1.13.2-lab.4",
+  "version": "1.13.2-lab.5",
   "description": "SuperViz Socket Client",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
