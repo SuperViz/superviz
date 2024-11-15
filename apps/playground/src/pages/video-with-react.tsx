@@ -7,15 +7,11 @@ import {
 
 function Room() {
 
-  const callback = (event) => {
-    console.log('new event', event)
-  }
-
   return (
     <div className="p-5 h-full bg-gray-200 flex flex-col gap-5">
       <div className="shadow-none h-[90%] overflow-auto rounded-sm">\
         test
-        <VideoConference participantType="host" onLocalParticipantJoin={callback} onLocalParticipantLeave={callback} onParticipantJoin={callback} onParticipantLeave={callback} onParticipantListChange={callback} /> 
+        <VideoConference participantType="host" /> 
       </div>
     </div>
   );
