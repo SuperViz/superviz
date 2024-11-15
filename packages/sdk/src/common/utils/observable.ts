@@ -31,7 +31,7 @@ export abstract class Observable {
   public unsubscribe = (type: string, callback?: (data: unknown) => void): void => {
     this.logger.log(`unsubscribed from ${type} event`);
 
-    if (!this.observers[type]) return;
+    if (!this.observers?.[type]) return;
 
     if (!callback) {
       this.observers[type].destroy();
