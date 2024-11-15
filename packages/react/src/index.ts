@@ -27,8 +27,3 @@ export { useThreeJsPin } from './hooks/useThreePin';
 export { useVideo } from './hooks/useVideo';
 export { createTheme } from './utils/create-theme';
 export { useYjsProvider } from './hooks/useYjsProvider';
-
-
-import { version } from '../package.json'
-
-console.log(`[SuperViz] - React - v.${version}`);

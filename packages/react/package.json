@@ -20,13 +20,13 @@
     ".": {
       "import": "./dist/superviz-sdk-react.es.js",
       "require": "./dist/superviz-sdk-react.cjs.js",
-      "types": "./dist/src/index.d.ts"
+      "types": "./dist/index.d.ts"
     },
     "./dist/style.css": "./dist/style.css"
   },
   "main": "./dist/superviz-sdk-react.cjs.js",
   "module": "./dist/superviz-sdk-react.es.js",
-  "types": "./dist/src/index.d.ts",
+  "types": "./dist/index.d.ts",
   "publishConfig": {
     "access": "public",
     "scope": "@superviz"
