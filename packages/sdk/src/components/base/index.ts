@@ -68,8 +68,6 @@ export abstract class BaseComponent extends Observable {
 
     this.logger.log(`${this.name} @ attached`);
 
-    this.observers = {};
-
     this.start();
     this.publish(ComponentLifeCycleEvent.MOUNT);
   };
@@ -99,7 +97,7 @@ export abstract class BaseComponent extends Observable {
       observer.destroy();
     });
 
-    this.observers = undefined;
+    this.observers = {};
     this.isAttached = false;
   };
 
