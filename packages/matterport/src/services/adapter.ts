@@ -199,8 +199,8 @@ export class Presence3D {
     this.useStore = undefined;
 
     this.isAttached = false;
-    this.ambientLight.stop();
-    this.directionalLight.stop();
+    this.ambientLight?.stop();
+    this.directionalLight?.stop();
 
     this.participants.forEach((participant) => {
       this.removeParticipant(participant, true);
