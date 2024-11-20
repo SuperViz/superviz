@@ -4,14 +4,19 @@ import {
   SuperVizRoomProvider,
   VideoConference,
 } from "@superviz/react-sdk";
+import { ParticipantType } from "@superviz/sdk";
+import { useSearchParams } from "react-router-dom";
+
 
 function Room() {
+  const [searchParams] = useSearchParams();
+  const type = (searchParams.get("userType") as ParticipantType) || ParticipantType.HOST;
 
   return (
     <div className="p-5 h-full bg-gray-200 flex flex-col gap-5">
       <div className="shadow-none h-[90%] overflow-auto rounded-sm">\
         test
-        <VideoConference participantType="host" /> 
+        <VideoConference participantType={type} onHostChange={(host) => { console.log(host) }} /> 
       </div>
     </div>
   );
