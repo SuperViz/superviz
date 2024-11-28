@@ -41,7 +41,7 @@
     "@superviz/eslint-config": "workspace:*",
     "@superviz/typescript-config": "workspace:*",
     "@types/debug": "^4.1.12",
-    "@types/node": "^20.14.8",
+    "@types/node": "^22.10.1",
     "concurrently": "^8.2.2",
     "esbuild": "^0.21.5",
     "eslint": "8.56.0",
