@@ -18,6 +18,53 @@
  * TO THE EXTENT PERMITTED UNDER APPLICABLE LAW UNDER NO CIRCUMSTANCES, INCLUDING, BUT NOT LIMITED TO, NEGLIGENCE, SHALL MATTERPORT OR ITS AFFILIATES OR LICENSORS BE LIABLE FOR ANY CONSEQUENTIAL, EXEMPLARY, PUNITIVE, SPECIAL, INCIDENTAL OR OTHER INDIRECT DAMAGES, EVEN IF MATTERPORT OR A MATTERPORT AUTHORIZED REPRESENTATIVE HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES. APPLICABLE LAW MAY NOT ALLOW SOME OR ALL OF THIS LIMITATION OF LIABILITY, SO IT MAY NOT APPLY TO YOU.
  *
  */
-.room-view{color:#222;padding:12px 16px 0;margin-bottom:32px}
-.room-title{font-family:IBM Plex Sans,sans-serif;font-style:normal;font-weight:700;font-size:28px;line-height:1.285;letter-spacing:.4px;overflow-wrap:break-word}
-.room-size-info{display:flex;flex-direction:column;margin-top:32px}.room-size-info .room-info-title{font-family:IBM Plex Sans,sans-serif;font-style:normal;font-weight:700;font-size:14px;line-height:1.57;letter-spacing:.6px}.room-size-info .area{display:flex;justify-content:space-between;align-items:baseline}.room-size-info .area-info{margin-bottom:24px;border-radius:8px;background-color:#f5f4f3;padding:16px}.room-size-info .area-info .p3{color:#444}.room-size-info .area-info .area-info-detail:not(:first-child){margin-top:16px}
+
+/*! Player.js - v0.1.0 - 2017-10-24
+* http://github.com/embedly/player.js
+* Copyright (c) 2017 Embedly; Licensed BSD */
+
+/**
+ * @license
+ * Copyright 2016 Google Inc.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
+/**
+ * @license
+ * Copyright 2017 Google Inc.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
