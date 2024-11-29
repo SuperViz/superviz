@@ -595,18 +595,15 @@ export class Presence3D {
     ) {
       return;
     }
-    const { mode } = this.positionInfos[participantId];
+    const { mode, sweep } = this.positionInfos[participantId];
 
-    if (mode === Mode.INSIDE) {
-      const { sweep } = this.positionInfos[participantId];
+    if (mode === Mode.INSIDE && sweep) {
+      const rotation: Rotation = this.positionInfos[participantId].rotation || {
+        x: 0,
+        y: 0,
+      };
 
-      if (sweep) {
-        const rotation: Rotation = this.positionInfos[participantId].rotation || {
-          x: 0,
-          y: 0,
-        };
-        this.moveToSweep(sweep, rotation);
-      }
+      this.moveToSweep(sweep, rotation);
     }
 
     if (mode === Mode.DOLLHOUSE || mode === Mode.FLOORPLAN) {
@@ -747,7 +744,7 @@ export class Presence3D {
   private _onLocalSweepChangeObserver = (sweep: Matterport.Sweep.ObservableSweepData): void => {
     if (!this.presence3DManager) return;
 
-    this.currentSweepId = sweep.uuid;
+    this.currentSweepId = sweep.id;
 
     if (this.isPrivate) return;
 
@@ -793,7 +790,6 @@ export class Presence3D {
 
     this.currentLocalPosition = this.adjustMyPositionToCircle(position);
     this.currentLocalRotation = rotation;
-    this.currentSweepId = sweep;
 
     if (this.isPrivate) return;
 
@@ -961,7 +957,14 @@ export class Presence3D {
     Object.values(participants).forEach((participant: ParticipantOn3D) => {
       if (participant.id === this.localParticipantId) return;
       const participantId = participant.id;
-      const { position, rotation, sweep, floor, mode, isPrivate } = participant;
+      const {
+        position,
+        rotation,
+        sweep,
+        floor,
+        mode,
+        isPrivate,
+      } = participant;
 
       this.positionInfos[participantId] = {
         position,
@@ -1011,6 +1014,8 @@ export class Presence3D {
       transitionTime: SWEEP_DURATION,
       transition: this.matterportSdk.Sweep.Transition.FLY,
       rotation: rotation || this.currentLocalRotation,
+    }).catch((e) => {
+      console.log('[SuperViz] Error when trying to sweep', e);
     }).finally(() => {
       this.isSweeping = false;
       if (this.mpInputComponent) {
