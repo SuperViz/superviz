@@ -1,3 +1,4 @@
+// 24.11.2_webgl-798-gf42d1db434
 /// <reference types="webxr" />
 
 import * as THREE from 'three';
@@ -103,7 +104,7 @@ export interface IObservable<DataT> {
 	 * @param {ICondition | ConditionCallback} condition
 	 * @returns {Promise<void>} A promise that is resolved when `condition` returns true.
 	 */
-	waitUntil(condition: ICondition<DataT> | ConditionCallback<DataT>): Promise<void>;
+	waitUntil(condition: ICondition<DataT> | ConditionCallback<DataT>): Promise<DataT>;
 }
 /**
  * An observer that can subscribe to changes of an [[IObservableMap]]
@@ -215,12 +216,25 @@ export declare namespace App {
 		WORKSHOP = "application.workshop"
 	}
 	/**
+	 * Feature availability and activation data is returned as a part of the [[features]] observable.
+	 */
+	enum Feature {
+		RoomBounds = "feature.roombounds"
+	}
+	/**
 	 * @deprecated This type is used by deprecated functionality. Use [[state]] observable.
 	 */
 	type AppState = {
 		application: Application;
 		phase: Phase;
 	};
+	/**
+	 *  An observable collection of features and their state
+	 *  'true'      - Feature is available
+	 *  'false'     - Feature is not available
+	 *  'undefined' - Feature availability cannot be determined.
+	 */
+	type Features = Record<Feature, boolean | undefined>;
 	type State = {
 		application: Application;
 		phase: Phase;
@@ -245,11 +259,75 @@ export declare namespace App {
 			[phase: string]: number;
 		};
 	};
+	/**
+	 *  App.Locale Module for Internal Use.
+	 *
+	 * @hidden
+	 * @internal
+	 * @experimental
+	 */
+	namespace Locale {
+		/**
+		 * Return the language code currently used by Showcase.
+		 *
+		 * ```
+		 * const locale = await mpSdk.App.Locale.getLanguageCode();
+		 * ```
+		 *
+		 * @return string
+		 *
+		 * @hidden
+		 * @internal
+		 * @experimental
+		 */
+		function getLanguageCode(): Promise<string>;
+		/**
+		 * Returns a translation function to use with registered strings.
+		 *
+		 * ```
+		 * const t = mpSdk.App.Locale.getT();
+		 * let string = t('EXPLORE_3D_SPACE');
+		 * console.log(string);
+		 * ```
+		 * output (if locale is 'es'):
+		 * > Explorar el espacio 3D
+		 *
+		 * @return t(key: string, options?: number): string
+		 *
+		 * @hidden
+		 * @internal
+		 * @experimental
+		 *
+		 */
+		function getT(): Promise<(key: string, options?: number) => string>;
+	}
 }
 export interface App {
 	Event: typeof App.Event;
+	Feature: typeof App.Feature;
 	Phase: typeof App.Phase;
 	Application: typeof App.Application;
+	/**
+	 * An observable list of features, their availability and their presence in Showcase.
+	 *
+	 * ```typescript
+	 * App.features.subscribe({
+	 *   onChanged(features) {
+	 *     // room bounds setting has changed
+	 *     if (features[App.Feature.RoomBounds] !== undefined) {
+	 *       console.log('RoomBounds are ', features[App.Feature.RoomBounds] ? 'available' : 'unavailable');
+	 *     }
+	 *     else {
+	 *       console.log('RoomBounds are unavailable.');
+	 *     }
+	 *   }
+	 * });
+	 * ```
+	 * @embed
+	 * @bundle
+	 * @introduced 24.9.3
+	 */
+	features: IObservable<App.Features>;
 	/**
 	 * @deprecated Use [[state]] observable to get the current phase or application.
 	 */
@@ -281,6 +359,42 @@ export interface App {
 	 * ```
 	 */
 	state: IObservable<App.State>;
+	Locale: {
+		/**
+		 * Return the language code currently used by Showcase.
+		 *
+		 * ```
+		 * const locale = await mpSdk.App.Locale.getLanguageCode();
+		 * ```
+		 *
+		 * @return string
+		 *
+		 * @hidden
+		 * @internal
+		 * @experimental
+		 */
+		getLanguageCode(): Promise<string>;
+		/**
+		 * Returns a translation function to use with registered strings.
+		 * Options can be a number to show plurality.
+		 *
+		 * ```
+		 * const t = mpSdk.App.Locale.getT();
+		 * let string = t('EXPLORE_3D_SPACE');
+		 * console.log(string);
+		 * ```
+		 * output (if locale is 'es'):
+		 * > Explorar el espacio 3D
+		 *
+		 * @return t(key: string, options?: unknown): string
+		 *
+		 * @hidden
+		 * @internal
+		 * @experimental
+		 *
+		 */
+		getT(): Promise<(key: string, options?: number) => string>;
+	};
 }
 export declare namespace Asset {
 	/**
@@ -390,6 +504,11 @@ export interface Asset {
 	 * @experimental
 	 */
 	getVrColorplans(): Promise<Asset.VrColorplanData>;
+	/**
+   * @hidden
+   * @internal
+   * @experimental
+   */
 	getVrColorplans(sid: string): Promise<Asset.VrColorplanData>;
 	/**
 	 * Register a texture to use with subsequent calls like [[Tag.editIcon]].
@@ -1786,16 +1905,7 @@ export declare namespace Mattertag {
 		/** The size of the frame to create */
 		size?: Size;
 		/**
-		 * The path between Showcase's window and your window (with the sdk).
-		 *
-		 * If you embed Showcase normally, this can be omitted.
-		 *
-		 * If you put Showcase within another level of iframe on your page, the path would be `'parent.parent'`;
-		 * Showcase's parent is the iframe, the parent of that frame is your page.
-		 *
-		 * If you programmatically open Showcase in a new window, use `'opener'`.
-		 *
-		 * When using the Bundle SDK use `''`.
+		 * @deprecated This option is no longer required and will be ignored
 		 */
 		windowPath?: string;
 		/**
@@ -2286,6 +2396,8 @@ export interface Sweep {
 	/**
 	 * An observable collection of sweep data that can be subscribed to.
 	 *
+	 * When first subscribing, the current set of Sweeps will call the observer's `onAdded` for each Sweep as the data becomes available.
+	*
 	 * ```
 	 * mpSdk.Sweep.data.subscribe({
 	 *   onAdded: function (index, item, collection) {
@@ -2348,6 +2460,12 @@ export interface Sweep {
 	 *     console.log('On floor', currentSweep.floorInfo.sequence);
 	 *   }
 	 * });
+	 * ```
+	 *
+	 * You can also use this observable to wait until the user is in a sweep before executing additional code:
+	 *
+	 * ```typescript
+	 * await mpSdk.Sweep.current.waitUntil((currentSweep) => currentSweep.id !== '');
 	 * ```
 	 */
 	current: IObservable<Sweep.ObservableSweepData>;
@@ -2448,6 +2566,7 @@ export declare namespace Model {
 		sid: string;
 		name?: string;
 		presentedBy?: string;
+		description?: string;
 		summary?: string;
 		address?: string;
 		formattedAddress?: string;
@@ -2491,6 +2610,7 @@ export interface Model {
 	 *     console.log('Model sid:' + modelDetails.sid);
 	 *     console.log('Model name:' + modelDetails.name);
 	 *     console.log('Model summary:' + modelDetails.summary);
+	 *     console.log('Model description:' + modelDetails.description);
 	 *   })
 	 *   .catch(function(error) {
 	 *     // Model details retrieval error.
@@ -2796,6 +2916,7 @@ export interface Renderer {
 export declare namespace Room {
 	type RoomData = {
 		id: string;
+		label: string;
 		bounds: {
 			min: Vector3;
 			max: Vector3;
@@ -2806,6 +2927,9 @@ export declare namespace Room {
 		};
 		size: Vector3;
 		center: Vector3;
+	};
+	type CurrentRooms = {
+		rooms: Room.RoomData[];
 	};
 	namespace Conversion {
 		/**
@@ -2841,9 +2965,7 @@ export interface Room {
 	 * });
 	 * ```
 	 */
-	current: IObservable<{
-		rooms: Room.RoomData[];
-	}>;
+	current: IObservable<Room.CurrentRooms>;
 	/**
 	 * An observable collection of Room data that can be subscribed to.
 	 *
@@ -3206,6 +3328,10 @@ export declare namespace Tag {
 		iconId?: string;
 		attachments?: string[];
 	};
+	type EditPositionDescriptor = {
+		id: string;
+		options: Partial<PositionOptions>;
+	};
 	type PositionOptions = {
 		anchorPosition: Vector3;
 		stemVector: Vector3;
@@ -3214,6 +3340,23 @@ export declare namespace Tag {
 	type StemHeightEditOptions = {
 		stemHeight: number;
 		stemVisible: boolean;
+	};
+	/**
+	 * @hidden
+	 * @internal
+	 * @experimental
+	 */
+	type ProgressOptions = {
+		progress?: (percentComplete: number) => void;
+	};
+	/**
+	 * @hidden
+	 * @internal
+	 * @experimental
+	 */
+	type ImportTagsOptions = {
+		progress?: (percentComplete: number) => void;
+		allowedLayers?: string[];
 	};
 	type EditableProperties = {
 		label: string;
@@ -3336,9 +3479,23 @@ export interface Tag {
 	 * @hidden
 	 * @internal
 	 * @experimental
+	 *
 	 * @param sid external space id containg tags
+	 * @param options
 	 */
-	importTags(spaceSid: string): Promise<string[]>;
+	importTags(spaceSid: string, options: Partial<Tag.ImportTagsOptions>): Promise<string[]>;
+	/**
+	 * Moves all transient tags into a persistent layer. Tag sids are not preserved.
+	 *
+	 * @return The list of newly created tags.
+	 *
+	 * @hidden
+	 * @internal
+	 * @experimental
+	 *
+	 * @param options
+	 */
+	saveToLayer(options: Partial<Tag.ProgressOptions>): Promise<string[]>;
 	/**
 	 * Detach [[Attachment]] from a Tag.
 	 *
@@ -3556,7 +3713,7 @@ export interface Tag {
 	 * ```
 	 *
 	 * @param tags The descriptors for all Tags to be added.
-	 * @returns A promise that resolves with the arary of ids for the newly added Tags.
+	 * @returns A promise that resolves with the array of ids for the newly added Tags.
 	 *
 	 * @embed
 	 * @bundle
@@ -3695,13 +3852,19 @@ export interface Tag {
 	 */
 	editColor(id: string, color: Color): Promise<void>;
 	/**
-	 * Change the icon of the Tag disc
+	 * Change the icon of the Tag disc. Icons can be registered asset textures or font ids provided by the player.
+	 * Supported font ids can be found at https://matterport.github.io/showcase-sdk/tags_icons_reference.html.
 	 *
 	 * **Note**: these changes are not persisted between refreshes of Showcase. They are only valid for the current browser session.
 	 *
 	 * ```typescript
 	 * // change the icon of the Tag using the id used in a previous `Asset.registerTexture` call
 	 * mpSdk.Tag.editIcon(id, 'customIconId');
+	 * ```
+	 *
+	 * ```typescript
+	 * // change the icon of the Tag to a font id.
+	 * mpSdk.Tag.editIcon(id, 'public_buildings_apartment');
 	 * ```
 	 *
 	 * @param tagId The id of the Tag to edit
@@ -3789,6 +3952,53 @@ export interface Tag {
 	 * @introduced 3.1.68.12-7-g858688944a
 	 */
 	editPosition(id: string, options: Partial<Tag.PositionOptions>): Promise<void>;
+	/**
+	 * Move and reorient a list of Tags. Prefer to call this method once over calling [[Tag.editPosition]] multiple times.
+	 *
+	 * ```
+	 * const newRoomId; // precomputed room id
+	 * const tagId1, tagId2, tagId3; // predetermined tag ids.
+	 * const tagIds: MpSdk.Tag.EditPositionDescriptor[] = []; // an array of tag edit position descriptors
+	 *
+	 * // updates anchorPosition for tag1
+	 * tagIds.push({
+	 *   id: tag1,
+	 *   options: {
+	 *     anchorPosition: {
+	 *       x: 0,
+	 *       y: 0,
+	 *       z: 0,
+	 *     },
+	 *   },
+	 * });
+	 *
+	 * // updates roomId for tag2
+	 * tagIds.push({
+	 *   id: tag2,
+	 *   options: {
+	 *     roomId: newRoomId,
+	 *   },
+	 * });
+	 *
+	 * // updates stemVector for tag3
+	 * tagIds.push({
+	 *   id: tag3,
+	 *   options: {
+	 *     stemVector: { // make the Tag stick straight up and make it 0.30 meters (~1 foot) tall
+	 *       x: 0,
+	 *       y: 0.30,
+	 *       z: 0,
+	 *     },
+	 *   },
+	 * });
+	 *
+	 * // apply bulk updates
+	 * await mpSdk.Tag.editPositions(...tagIds);
+	 *
+	 * ```
+	 * @param tags The edit position descriptors for all Tags to be modified.
+	 */
+	editPositions(...tags: Tag.EditPositionDescriptor[]): Promise<void>;
 	/**
 	 * Removes one or more Tags from Showcase.
 	 *
@@ -3933,6 +4143,10 @@ interface Test {
 	 * @param arg
 	 */
 	echoAsync(arg: string): Promise<string>;
+	/**
+	 * Get the current visibility state of Tags. Visibility can be affected by which layers are active.
+	 */
+	getTagVisibility(): Promise<Record<string, boolean>>;
 	/**
 	 * A sub-namespace that simply namespaces and sub-namespaces the functions in this interface
 	 */
@@ -4214,16 +4428,16 @@ export declare namespace View {
 		 */
 		readonly layers: IterableIterator<Layer>;
 		/**
-		 * Set this View as the currently active one.
+		 * Set this View as the currently active one optionally, returning to the start location for the new View.
 		 *
 		 * Only one View can be active at a time.
 		 *
 		 * ```typescript
 		 * const view: View; // ... acquired through previous usage of `mpSdk.View.views`
-		 * await view.setActive();
+		 * await view.setActive(true); // set the active view and return to the start location
 		 * ```
 		 */
-		setActive(): Promise<void>;
+		setActive(returnToStart?: boolean): Promise<void>;
 		/**
 		 * Add a Layer to this View
 		 *
@@ -4255,16 +4469,22 @@ export declare namespace View {
 		hasLayer(layer: Layer): boolean;
 	}
 	interface Layer extends IObservable<Layer> {
-		/** the unique id of the Layer */
-		id: string;
-		/** the human-readable name of the Layer */
-		name: string;
+		/** The unique id of the Layer */
+		readonly id: string;
+		/** The human-readable name of the Layer */
+		readonly name: string;
+		/** Whether this Layer toggled on or off. If toggled off, this Layer's objects are hidden. */
+		readonly toggled: boolean;
 		/**
 		 * Toggle this Layer's state to `active`.
 		 *
-		 * @param active Whether this Layer toggled on or off. If `active` is undefined, the state is flipped
+		 * @param active Whether this Layer toggled on or off. If `active` is undefined, the state is flipped.
 		 */
 		toggle(active?: boolean): Promise<void>;
+		/**
+		 * A subset of the Tag namespace's functionality to manipulate Tags on this layer.
+		 */
+		Tag: Partial<Tag>;
 	}
 }
 export interface View {
@@ -4516,11 +4736,11 @@ export declare namespace Scene {
 			 * Default `translate`
 			 */
 			mode?: "translate" | "rotate" | "scale";
-			/** The three.js object being controlled by this component.
+			/** The node being controlled by this component.
 			 *
-			 * Default `null`
+			 * Default `null` (hidden)
 			 */
-			selection?: THREE.Object3D | null;
+			selection?: Scene.INode | null;
 			/** X axis control visibility.
 			 *
 			 * Default `true`

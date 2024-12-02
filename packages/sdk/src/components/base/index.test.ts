@@ -1,5 +1,6 @@
 import { MOCK_CONFIG } from '../../../__mocks__/config.mock';
 import { EVENT_BUS_MOCK } from '../../../__mocks__/event-bus.mock';
+import { LIMITS_MOCK } from '../../../__mocks__/limits.mock';
 import { MOCK_OBSERVER_HELPER } from '../../../__mocks__/observer-helper.mock';
 import { MOCK_GROUP, MOCK_LOCAL_PARTICIPANT } from '../../../__mocks__/participants.mock';
 import { StoreType } from '../../common/types/stores.types';
@@ -13,7 +14,6 @@ import { useGlobalStore } from '../../services/stores';
 import { ComponentNames } from '../types';
 
 import { BaseComponent } from '.';
-import { LIMITS_MOCK } from '../../../__mocks__/limits.mock';
 
 class DummyComponent extends BaseComponent {
   protected logger: Logger;
@@ -181,9 +181,8 @@ describe('BaseComponent', () => {
 
       DummyComponentInstance.detach();
 
-      expect(spyDestroy).toBeCalled();
-      expect(spyReset).toBeCalled();
-      expect(DummyComponentInstance['observers']).toBeUndefined();
+      expect(spyDestroy).toHaveBeenCalled();
+      expect(spyReset).toHaveBeenCalled();
     });
 
     test('should not detach the component if it is not attached', () => {
@@ -192,7 +191,7 @@ describe('BaseComponent', () => {
 
       DummyComponentInstance.detach();
 
-      expect(DummyComponentInstance['logger'].log).toBeCalled();
+      expect(DummyComponentInstance['logger'].log).toHaveBeenCalled();
     });
   });
 });

@@ -59,7 +59,7 @@ export interface VideoCallbacks {
   onMeetingStateChange?: (state: MeetingState) => void;
   onSameAccountError?: () => void;
   onDevicesStateChange?: (state: DeviceEvent) => void;
-  onHostChange?: (participantId: string) => void;
+  onHostChange?: (participant: Participant) => void;
   onHostAvailable?: () => void;
   onNoHostAvailable?: () => void;
   onParticipantJoin?: (participant: Participant) => void;

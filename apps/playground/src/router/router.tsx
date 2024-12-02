@@ -19,6 +19,8 @@ import { YjsMonacoWio } from "../pages/yjs-monaco-wio.tsx";
 import { YjsQuillWio } from "../pages/yjs-quill-wio.tsx";
 import { YjsQuillReact } from "../pages/yjs-quill-react.tsx";
 import { ReactFlowWithReactSDK } from "../pages/react-flow-with-react-sdk.tsx";
+import { VideoWithReact } from "../pages/video-with-react.tsx";
+import { MatterportEmbed } from "../pages/matterport-embed.tsx";
 
 export const routeList: RouteObject[] = [
   {
@@ -33,8 +35,16 @@ export const routeList: RouteObject[] = [
         element: <Video />,
       },
       {
+        path: 'video-with-react', 
+        element: <VideoWithReact />
+      },
+      {
         path: "matterport",
         element: <Matterport />,
+      },
+      {
+        path: "matterport-embed",
+        element: <MatterportEmbed />,
       },
       {
         path: "matterport-with-video",
