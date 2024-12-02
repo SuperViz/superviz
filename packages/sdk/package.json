@@ -53,7 +53,7 @@
     "@types/jest": "^29.5.12",
     "@types/luxon": "^3.4.2",
     "@types/node": "^20.14.8",
-    "@web/dev-server-esbuild": "^0.4.3",
+    "@web/dev-server-esbuild": "^1.0.3",
     "@web/dev-server-import-maps": "^0.2.0",
     "@web/dev-server-legacy": "^2.0.3",
     "@web/test-runner": "^0.19.0",
