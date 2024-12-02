@@ -111,9 +111,12 @@ export class Presence3D {
 
     this.matterportSdk = matterportSdk;
 
-    this.matterportSdk.Scene.register('lerper', AvatarLerper);
-    this.matterportSdk.Scene.register('name', AvatarName);
-    this.matterportSdk.Scene.register('laser', LaserPointer);
+    // if it's using embed mode, that's no have Scene
+    if (this.matterportSdk.Scene) {
+      this.matterportSdk.Scene.register('lerper', AvatarLerper);
+      this.matterportSdk.Scene.register('name', AvatarName);
+      this.matterportSdk.Scene.register('laser', LaserPointer);
+    }
 
     // input control
     this.addInputComponent();
@@ -199,8 +202,8 @@ export class Presence3D {
     this.useStore = undefined;
 
     this.isAttached = false;
-    this.ambientLight.stop();
-    this.directionalLight.stop();
+    this.ambientLight?.stop();
+    this.directionalLight?.stop();
 
     this.participants.forEach((participant) => {
       this.removeParticipant(participant, true);
@@ -592,17 +595,17 @@ export class Presence3D {
     ) {
       return;
     }
-    const { mode } = this.positionInfos[participantId];
-    if (mode === Mode.INSIDE) {
-      const { sweep } = this.positionInfos[participantId];
-      if (sweep) {
-        const rotation: Rotation = this.positionInfos[participantId].rotation || {
-          x: 0,
-          y: 0,
-        };
-        this.moveToSweep(sweep, rotation);
-      }
+    const { mode, sweep } = this.positionInfos[participantId];
+
+    if (mode === Mode.INSIDE && sweep) {
+      const rotation: Rotation = this.positionInfos[participantId].rotation || {
+        x: 0,
+        y: 0,
+      };
+
+      this.moveToSweep(sweep, rotation);
     }
+
     if (mode === Mode.DOLLHOUSE || mode === Mode.FLOORPLAN) {
       const transition = this.matterportSdk.Mode.TransitionType.FLY;
       const { position, rotation, floor } = this.positionInfos[participantId];
@@ -614,6 +617,7 @@ export class Presence3D {
       }).then((nextMode) => {
         this.currentLocalMode = nextMode;
       });
+
       if (mode === Mode.FLOORPLAN && this.currentLocalFloorId !== floor) {
         if (floor === -1) {
           this.matterportSdk.Floor.showAll();
@@ -629,7 +633,7 @@ export class Presence3D {
   private async createAvatar(participant: ParticipantOn3D) {
     this.logger.log('matterport component @ createAvatar', participant);
 
-    if (!this.isAttached) return;
+    if (!this.isAttached || !this.matterportSdk.Scene) return;
 
     const scale: number = participant?.avatarConfig?.scale || 0.55;
     const height: number = participant?.avatarConfig?.height || 0.25;
@@ -708,7 +712,7 @@ export class Presence3D {
   private async createLaser(participant: ParticipantOn3D) {
     this.logger.log('matterport component @ createLaser', participant);
 
-    if (!this.isAttached) return;
+    if (!this.isAttached || !this.matterportSdk.Scene) return;
 
     let laserOrigin: Vector3 = new Vector3(0, -0.2, 0.07);
 
@@ -786,7 +790,6 @@ export class Presence3D {
 
     this.currentLocalPosition = this.adjustMyPositionToCircle(position);
     this.currentLocalRotation = rotation;
-    this.currentSweepId = sweep;
 
     if (this.isPrivate) return;
 
@@ -819,6 +822,8 @@ export class Presence3D {
   };
 
   private addInputComponent = async (): Promise<void> => {
+    if (!this.matterportSdk.Scene) return;
+
     const [mpInputObject] = await this.matterportSdk.Scene.createObjects(1);
     const mpInputNode = mpInputObject.addNode();
     this.mpInputComponent = mpInputNode.addComponent('mp.input', {
@@ -834,6 +839,8 @@ export class Presence3D {
   };
 
   private createDirectionLight = async (): Promise<Matterport.Scene.INode> => {
+    if (!this.matterportSdk.Scene) return;
+
     const [sceneObject] = await this.matterportSdk.Scene.createObjects(1);
     const dirLightNode: Matterport.Scene.INode = sceneObject.addNode();
     const initial = {
@@ -864,6 +871,8 @@ export class Presence3D {
   };
 
   private createAmbientLight = async (): Promise<Matterport.Scene.INode> => {
+    if (!this.matterportSdk.Scene) return;
+
     const [sceneObject] = await this.matterportSdk.Scene.createObjects(1);
     const ambLightNode: Matterport.Scene.INode = sceneObject.addNode();
     const initial = {
@@ -948,7 +957,14 @@ export class Presence3D {
     Object.values(participants).forEach((participant: ParticipantOn3D) => {
       if (participant.id === this.localParticipantId) return;
       const participantId = participant.id;
-      const { position, rotation, sweep, floor, mode, isPrivate } = participant;
+      const {
+        position,
+        rotation,
+        sweep,
+        floor,
+        mode,
+        isPrivate,
+      } = participant;
 
       this.positionInfos[participantId] = {
         position,
@@ -998,6 +1014,8 @@ export class Presence3D {
       transitionTime: SWEEP_DURATION,
       transition: this.matterportSdk.Sweep.Transition.FLY,
       rotation: rotation || this.currentLocalRotation,
+    }).catch((e) => {
+      console.log('[SuperViz] Error when trying to sweep', e);
     }).finally(() => {
       this.isSweeping = false;
       if (this.mpInputComponent) {
