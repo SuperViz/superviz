@@ -4,6 +4,7 @@ import { PresenceEvent } from '@superviz/socket-client';
 
 import { MOCK_CONFIG } from '../../../__mocks__/config.mock';
 import { EVENT_BUS_MOCK } from '../../../__mocks__/event-bus.mock';
+import { LIMITS_MOCK } from '../../../__mocks__/limits.mock';
 import { MOCK_OBSERVER_HELPER } from '../../../__mocks__/observer-helper.mock';
 import { MOCK_AVATAR, MOCK_LOCAL_PARTICIPANT } from '../../../__mocks__/participants.mock';
 import {
@@ -16,6 +17,7 @@ import {
   RealtimeEvent,
   TranscriptState,
 } from '../../common/types/events.types';
+import { MEETING_COLORS } from '../../common/types/meeting-colors.types';
 import {
   Participant,
   ParticipantType,
@@ -26,11 +28,10 @@ import { useStore } from '../../common/utils/use-store';
 import { IOC } from '../../services/io';
 import { Presence3DManager } from '../../services/presence-3d-manager';
 import { VideoFrameState } from '../../services/video-conference-manager/types';
+
 import { ParticipantToFrame } from './types';
 
 import { VideoConference } from '.';
-import { MEETING_COLORS } from '../../common/types/meeting-colors.types';
-import { LIMITS_MOCK } from '../../../__mocks__/limits.mock';
 
 Object.assign(global, { TextDecoder, TextEncoder });
 
@@ -141,7 +142,7 @@ describe('VideoConference', () => {
   });
 
   describe('host handler', () => {
-    test('should set as host the first participant that joins the room and type is host', () => {
+    test('should set as host the first participant that joins the room and type is host', async () => {
       const participant: Participant[] = [
         {
           timestamp: 0,
@@ -162,6 +163,24 @@ describe('VideoConference', () => {
 
       const fn = jest.fn();
 
+      // Mock room.presence.get to return our test participant
+      VideoConferenceInstance['room'] = {
+        ...VideoConferenceInstance['room'],
+        presence: {
+          get: jest.fn().mockImplementation((success) => {
+            success([{
+              id: MOCK_LOCAL_PARTICIPANT.id,
+              data: {
+                ...participant[0],
+                type: ParticipantType.HOST,
+                joinedMeeting: true,
+              },
+            }]);
+          }),
+          update: jest.fn(),
+        },
+      } as any;
+
       VideoConferenceInstance['useStore'] = jest.fn().mockReturnValue({
         participants: {
           value: {
@@ -175,16 +194,12 @@ describe('VideoConference', () => {
           value: '',
           publish: fn,
         },
+        destroy: jest.fn(),
       });
 
-      VideoConferenceInstance['roomState']['setHost'] = fn;
-      VideoConferenceInstance['onParticipantListUpdate']({
-        [MOCK_LOCAL_PARTICIPANT.id]: {
-          ...participant[0],
-        },
-      });
+      VideoConferenceInstance['roomState'].setHost = fn;
+      await VideoConferenceInstance['validateIfInTheRoomHasHost']();
 
-      expect(fn).toHaveBeenCalledWith(MOCK_LOCAL_PARTICIPANT.id);
       expect(fn).toHaveBeenCalledWith(MOCK_LOCAL_PARTICIPANT.id);
     });
 
@@ -274,22 +289,40 @@ describe('VideoConference', () => {
       expect(VideoConferenceInstance['roomState'].setHost).not.toBeCalled();
     });
 
-    test('should init the timer to kick participants if the host leaves', () => {
+    test('should init the timer to kick participants if the host leaves', async () => {
       VideoConferenceInstance['participantsTypes'] = {};
       VideoConferenceInstance['localParticipant'] = {
         ...MOCK_LOCAL_PARTICIPANT,
         type: ParticipantType.GUEST,
       };
       VideoConferenceInstance['kickParticipantsOnHostLeave'] = true;
+
+      // Mock room.presence.get to return empty list (no hosts)
+      VideoConferenceInstance['room'] = {
+        ...VideoConferenceInstance['room'],
+        presence: {
+          get: jest.fn().mockImplementation((success) => {
+            success([]);
+          }),
+          update: jest.fn(),
+          off: jest.fn(),
+        },
+      } as any;
+
       VideoConferenceInstance['useStore'] = jest.fn().mockReturnValue({
         participants: {
           value: {
             [MOCK_LOCAL_PARTICIPANT.id]: VideoConferenceInstance['localParticipant'],
           },
         },
+        hostId: {
+          value: '',
+          publish: jest.fn(),
+        },
         destroy: jest.fn(),
       });
-      VideoConferenceInstance['validateIfInTheRoomHasHost']();
+
+      await VideoConferenceInstance['validateIfInTheRoomHasHost']();
 
       jest.advanceTimersByTime(3000 * 60);
 
