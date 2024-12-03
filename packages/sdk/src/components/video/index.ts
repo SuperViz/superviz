@@ -12,6 +12,7 @@ import {
   RealtimeEvent,
   TranscriptState,
 } from '../../common/types/events.types';
+import { MEETING_COLORS } from '../../common/types/meeting-colors.types';
 import {
   VideoParticipant,
   ParticipantType,
@@ -22,6 +23,7 @@ import { Logger } from '../../common/utils';
 import { BrowserService } from '../../services/browser';
 import config from '../../services/config';
 import { ConnectionService } from '../../services/connection-status';
+import { coreBridge } from '../../services/core-bridge';
 import { RoomStateService } from '../../services/room-state';
 import VideoConferenceManager from '../../services/video-conference-manager';
 import {
@@ -37,8 +39,6 @@ import { BaseComponent } from '../base';
 import { ComponentNames } from '../types';
 
 import { ParticipantToFrame, VideoComponentOptions } from './types';
-import { MEETING_COLORS } from '../../common/types/meeting-colors.types';
-import { coreBridge } from '../../services/core-bridge';
 
 const KICK_PARTICIPANTS_TIME = 1000 * 60;
 let KICK_PARTICIPANTS_TIMEOUT: ReturnType<typeof setTimeout> | null = null;
@@ -497,8 +497,7 @@ export class VideoConference extends BaseComponent {
     const _ = {
       [RealtimeEvent.REALTIME_HOST_CHANGE]: (data: string) => this.roomState.setHost(data),
       [RealtimeEvent.REALTIME_GATHER]: (data: boolean) => this.roomState.setGather(data),
-      [RealtimeEvent.REALTIME_GRID_MODE_CHANGE]: (data: boolean) =>
-        this.roomState.setGridMode(data),
+      [RealtimeEvent.REALTIME_GRID_MODE_CHANGE]: (data: boolean) => this.roomState.setGridMode(data),
       [RealtimeEvent.REALTIME_DRAWING_CHANGE]: (data: DrawingData) => {
         this.roomState.setDrawing(data);
       },
@@ -798,13 +797,13 @@ export class VideoConference extends BaseComponent {
 
     const newHost = participant
       ? {
-          id: participant.id,
-          color: participant.slot?.color || MEETING_COLORS.gray,
-          avatar: participant.avatar,
-          type: participant.type,
-          name: participant.name,
-          isHost: participant.id === hostId,
-        }
+        id: participant.id,
+        color: participant.slot?.color || MEETING_COLORS.gray,
+        avatar: participant.avatar,
+        type: participant.type,
+        name: participant.name,
+        isHost: participant.id === hostId,
+      }
       : null;
 
     if (KICK_PARTICIPANTS_TIMEOUT && !!newHost) {
@@ -908,6 +907,16 @@ export class VideoConference extends BaseComponent {
         this.participantsOnMeeting.some((p) => p.id === participant.id)
       );
     });
+
+    this.logger.log(
+      'video conference @ validate if in the room has host - conditions to init kick all participants timeout',
+      {
+        participantsCanBeHost,
+        kickParticipantsOnHostLeave: this.kickParticipantsOnHostLeave,
+        localParticipantCanBeHost: this.localParticipant?.type === ParticipantType.HOST,
+        kickParticipantsTimeout: KICK_PARTICIPANTS_TIMEOUT,
+      },
+    );
 
     if (
       !participantsCanBeHost.length &&
