@@ -912,6 +912,8 @@ export class VideoConference extends BaseComponent {
       'video conference @ validate if in the room has host - conditions to init kick all participants timeout',
       {
         participantsCanBeHost,
+        participantListInTheStore: participantsList,
+        participantsOnMeeting: this.participantsOnMeeting,
         kickParticipantsOnHostLeave: this.kickParticipantsOnHostLeave,
         localParticipantCanBeHost: this.localParticipant?.type === ParticipantType.HOST,
         kickParticipantsTimeout: KICK_PARTICIPANTS_TIMEOUT,
