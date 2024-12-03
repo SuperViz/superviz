@@ -51,6 +51,6 @@
   "dependencies": {
     "debug": "^4.3.5",
     "lodash": "^4.17.21",
-    "three": "0.139.2"
+    "three": "0.171.0"
   }
 }

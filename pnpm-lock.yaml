@@ -81,11 +81,11 @@ importers:
         specifier: ^11.11.4
         version: 11.11.4(@types/react@18.3.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       three:
-        specifier: 0.167.1
-        version: 0.167.1
+        specifier: 0.171.0
+        version: 0.171.0
       three-mesh-bvh:
         specifier: ^0.7.8
-        version: 0.7.8(three@0.167.1)
+        version: 0.7.8(three@0.171.0)
       uuid:
         specifier: ^10.0.0
         version: 10.0.0
@@ -163,8 +163,8 @@ importers:
         specifier: ^4.17.21
         version: 4.17.21
       three:
-        specifier: 0.139.2
-        version: 0.139.2
+        specifier: 0.171.0
+        version: 0.171.0
     devDependencies:
       '@anolilab/semantic-release-pnpm':
         specifier: ^1.1.3
@@ -255,7 +255,7 @@ importers:
         version: 4.17.21
       three-spritetext:
         specifier: ^1.8.2
-        version: 1.8.2(three@0.167.1)
+        version: 1.8.2(three@0.171.0)
     devDependencies:
       '@anolilab/semantic-release-pnpm':
         specifier: ^1.1.3
@@ -300,8 +300,8 @@ importers:
         specifier: 24.0.0
         version: 24.0.0(typescript@5.6.2)
       three:
-        specifier: 0.167.1
-        version: 0.167.1
+        specifier: 0.171.0
+        version: 0.171.0
       tsc:
         specifier: ^2.0.4
         version: 2.0.4
@@ -721,14 +721,14 @@ importers:
         specifier: ^4.17.21
         version: 4.17.21
       three:
-        specifier: 0.167.1
-        version: 0.167.1
+        specifier: 0.171.0
+        version: 0.171.0
       three-mesh-bvh:
         specifier: 0.7.6
-        version: 0.7.6(three@0.167.1)
+        version: 0.7.6(three@0.171.0)
       three-spritetext:
         specifier: 1.8.2
-        version: 1.8.2(three@0.167.1)
+        version: 1.8.2(three@0.171.0)
     devDependencies:
       '@anolilab/semantic-release-pnpm':
         specifier: ^1.1.3
@@ -7189,11 +7189,8 @@ packages:
     peerDependencies:
       three: '>=0.86.0'
 
-  three@0.139.2:
-    resolution: {integrity: sha512-gV7q7QY8rogu7HLFZR9cWnOQAUedUhu2WXAnpr2kdXZP9YDKsG/0ychwQvWkZN5PlNw9mv5MoCTin6zNTXoONg==}
-
-  three@0.167.1:
-    resolution: {integrity: sha512-gYTLJA/UQip6J/tJvl91YYqlZF47+D/kxiWrbTon35ZHlXEN0VOo+Qke2walF1/x92v55H6enomymg4Dak52kw==}
+  three@0.171.0:
+    resolution: {integrity: sha512-Y/lAXPaKZPcEdkKjh0JOAHVv8OOnv/NDJqm0wjfCzyQmfKxV7zvkwsnBgPBKTzJHToSOhRGQAGbPJObT59B/PQ==}
 
   through2@2.0.5:
     resolution: {integrity: sha512-/mrRod8xqpA+IHSLyGCQ2s8SPHiCDEeQJSep1jqLYeEUClOFG2Qsh+4FU6G9VeqpZnGW/Su8LQGc4YKni5rYSQ==}
@@ -15583,21 +15580,19 @@ snapshots:
     dependencies:
       any-promise: 1.3.0
 
-  three-mesh-bvh@0.7.6(three@0.167.1):
+  three-mesh-bvh@0.7.6(three@0.171.0):
     dependencies:
-      three: 0.167.1
+      three: 0.171.0
 
-  three-mesh-bvh@0.7.8(three@0.167.1):
+  three-mesh-bvh@0.7.8(three@0.171.0):
     dependencies:
-      three: 0.167.1
+      three: 0.171.0
 
-  three-spritetext@1.8.2(three@0.167.1):
+  three-spritetext@1.8.2(three@0.171.0):
     dependencies:
-      three: 0.167.1
+      three: 0.171.0
 
-  three@0.139.2: {}
-
-  three@0.167.1: {}
+  three@0.171.0: {}
 
   through2@2.0.5:
     dependencies:

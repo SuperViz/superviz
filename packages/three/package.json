@@ -51,7 +51,7 @@
   "dependencies": {
     "debug": "^4.3.5",
     "lodash": "^4.17.21",
-    "three": "0.167.1",
+    "three": "0.171.0",
     "three-mesh-bvh": "0.7.6",
     "three-spritetext": "1.8.2"
   }
