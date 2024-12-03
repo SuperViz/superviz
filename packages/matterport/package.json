@@ -39,7 +39,7 @@
     "@types/debug": "^4.1.12",
     "@types/lodash": "^4.17.5",
     "concurrently": "^8.2.2",
-    "dotenv": "^16.4.5",
+    "dotenv": "^16.4.7",
     "esbuild": "^0.21.5",
     "eslint": "8.56.0",
     "husky": "^9.0.11",

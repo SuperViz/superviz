@@ -41,7 +41,7 @@
     "@types/forge-viewer": "^7.89.1",
     "@types/lodash": "^4.17.6",
     "concurrently": "^8.2.2",
-    "dotenv": "^16.4.5",
+    "dotenv": "^16.4.7",
     "esbuild": "^0.22.0",
     "eslint": "8.56.0",
     "semantic-release": "24.0.0",
