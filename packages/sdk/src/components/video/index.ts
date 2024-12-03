@@ -1,4 +1,5 @@
 import { PresenceEvent, PresenceEvents, Room } from '@superviz/socket-client';
+import type * as Socket from '@superviz/socket-client';
 
 import { ColorsVariables } from '../../common/types/colors.types';
 import {
@@ -12,6 +13,7 @@ import {
   RealtimeEvent,
   TranscriptState,
 } from '../../common/types/events.types';
+import { MEETING_COLORS } from '../../common/types/meeting-colors.types';
 import {
   VideoParticipant,
   ParticipantType,
@@ -22,6 +24,7 @@ import { Logger } from '../../common/utils';
 import { BrowserService } from '../../services/browser';
 import config from '../../services/config';
 import { ConnectionService } from '../../services/connection-status';
+import { coreBridge } from '../../services/core-bridge';
 import { RoomStateService } from '../../services/room-state';
 import VideoConferenceManager from '../../services/video-conference-manager';
 import {
@@ -37,8 +40,6 @@ import { BaseComponent } from '../base';
 import { ComponentNames } from '../types';
 
 import { ParticipantToFrame, VideoComponentOptions } from './types';
-import { MEETING_COLORS } from '../../common/types/meeting-colors.types';
-import { coreBridge } from '../../services/core-bridge';
 
 const KICK_PARTICIPANTS_TIME = 1000 * 60;
 let KICK_PARTICIPANTS_TIMEOUT: ReturnType<typeof setTimeout> | null = null;
@@ -497,8 +498,7 @@ export class VideoConference extends BaseComponent {
     const _ = {
       [RealtimeEvent.REALTIME_HOST_CHANGE]: (data: string) => this.roomState.setHost(data),
       [RealtimeEvent.REALTIME_GATHER]: (data: boolean) => this.roomState.setGather(data),
-      [RealtimeEvent.REALTIME_GRID_MODE_CHANGE]: (data: boolean) =>
-        this.roomState.setGridMode(data),
+      [RealtimeEvent.REALTIME_GRID_MODE_CHANGE]: (data: boolean) => this.roomState.setGridMode(data),
       [RealtimeEvent.REALTIME_DRAWING_CHANGE]: (data: DrawingData) => {
         this.roomState.setDrawing(data);
       },
@@ -798,13 +798,13 @@ export class VideoConference extends BaseComponent {
 
     const newHost = participant
       ? {
-          id: participant.id,
-          color: participant.slot?.color || MEETING_COLORS.gray,
-          avatar: participant.avatar,
-          type: participant.type,
-          name: participant.name,
-          isHost: participant.id === hostId,
-        }
+        id: participant.id,
+        color: participant.slot?.color || MEETING_COLORS.gray,
+        avatar: participant.avatar,
+        type: participant.type,
+        name: participant.name,
+        isHost: participant.id === hostId,
+      }
       : null;
 
     if (KICK_PARTICIPANTS_TIMEOUT && !!newHost) {
@@ -894,20 +894,43 @@ export class VideoConference extends BaseComponent {
    * @description checks if the room has a host
    * @returns {void}
    */
-  private validateIfInTheRoomHasHost = (): void => {
+  private validateIfInTheRoomHasHost = async (): Promise<void> => {
     if (!this.roomState) return;
 
     const { hostId } = this.useStore(StoreType.VIDEO);
-    const { participants } = this.useStore(StoreType.GLOBAL);
-    const participantsList = Object.values(participants.value);
 
-    // list with all participants that have the type host and are in the meeting
-    const participantsCanBeHost = participantsList.filter((participant) => {
-      return (
-        participant.type === ParticipantType.HOST &&
-        this.participantsOnMeeting.some((p) => p.id === participant.id)
+    const participantsList = await new Promise<Socket.PresenceEvent[]>((resolve, reject) => {
+      this.room.presence.get(
+        (data) => resolve(data),
+        (error) => {
+          const message = `[SuperViz] ${error.name} - ${error.message}`;
+          this.logger.log(error);
+          console.error(message);
+          reject(error);
+        },
       );
     });
+
+    // list with all participants that have the type host and are in the meeting
+    const participantsCanBeHost = participantsList.filter(
+      (participant: Socket.PresenceEvent<VideoParticipant>) => {
+        return (
+          participant.data.type === ParticipantType.HOST && participant.data.joinedMeeting
+        );
+      },
+    );
+
+    this.logger.log(
+      'video conference @ validate if in the room has host - conditions to init kick all participants timeout',
+      {
+        participantsCanBeHost,
+        participantListInTheStore: participantsList,
+        participantsOnMeeting: this.participantsOnMeeting,
+        kickParticipantsOnHostLeave: this.kickParticipantsOnHostLeave,
+        localParticipantCanBeHost: this.localParticipant?.type === ParticipantType.HOST,
+        kickParticipantsTimeout: KICK_PARTICIPANTS_TIMEOUT,
+      },
+    );
 
     if (
       !participantsCanBeHost.length &&
