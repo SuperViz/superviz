@@ -31,7 +31,7 @@
     "reactflow": "^11.11.4",
     "three": "0.167.1",
     "three-mesh-bvh": "^0.7.8",
-    "uuid": "^10.0.0",
+    "uuid": "^11.0.3",
     "y-monaco": "^0.1.6",
     "y-protocols": "^1.0.6",
     "y-quill": "^1.0.0",
