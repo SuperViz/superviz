@@ -1,7 +1,7 @@
 {
   "name": "@superviz/react-sdk",
   "private": false,
-  "version": "1.14.3-beta.1",
+  "version": "1.14.4-lab.3",
   "type": "module",
   "scripts": {
     "watch": "./node_modules/typescript/bin/tsc && vite build --watch",
@@ -50,7 +50,7 @@
   "devDependencies": {
     "@anolilab/semantic-release-pnpm": "^1.1.3",
     "@eslint/compat": "^1.1.1",
-    "@rollup/plugin-replace": "^5.0.7",
+    "@rollup/plugin-replace": "^6.0.1",
     "@semantic-release/release-notes-generator": "^14.0.1",
     "@types/forge-viewer": "^7.89.1",
     "@types/lodash": "^4.17.6",
@@ -59,7 +59,7 @@
     "@types/react-dom": "^18.3.0",
     "@types/three": "^0.166.0",
     "@typescript-eslint/eslint-plugin": "^7.14.1",
-    "@typescript-eslint/parser": "^7.14.1",
+    "@typescript-eslint/parser": "^8.17.0",
     "@vitejs/plugin-react": "^4.3.1",
     "@vitejs/plugin-react-swc": "^3.7.0",
     "eslint": "^9.6.0",

@@ -1,6 +1,6 @@
 {
   "name": "@superviz/sdk",
-  "version": "6.7.3-beta.1",
+  "version": "6.7.4-lab.3",
   "description": "SuperViz SDK",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -70,7 +70,7 @@
     "jest-canvas-mock": "^2.5.2",
     "jest-environment-jsdom": "^29.7.0",
     "jest-fetch-mock": "^3.0.3",
-    "playwright": "^1.48.1",
+    "playwright": "^1.49.0",
     "rimraf": "^5.0.7",
     "semantic-release": "^24.0.0",
     "ts-jest": "^29.1.5",
