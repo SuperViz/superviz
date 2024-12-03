@@ -1,4 +1,5 @@
 import { PresenceEvent, PresenceEvents, Room } from '@superviz/socket-client';
+import type * as Socket from '@superviz/socket-client';
 
 import { ColorsVariables } from '../../common/types/colors.types';
 import {
@@ -893,20 +894,31 @@ export class VideoConference extends BaseComponent {
    * @description checks if the room has a host
    * @returns {void}
    */
-  private validateIfInTheRoomHasHost = (): void => {
+  private validateIfInTheRoomHasHost = async (): Promise<void> => {
     if (!this.roomState) return;
 
     const { hostId } = this.useStore(StoreType.VIDEO);
-    const { participants } = this.useStore(StoreType.GLOBAL);
-    const participantsList = Object.values(participants.value);
 
-    // list with all participants that have the type host and are in the meeting
-    const participantsCanBeHost = participantsList.filter((participant) => {
-      return (
-        participant.type === ParticipantType.HOST &&
-        this.participantsOnMeeting.some((p) => p.id === participant.id)
+    const participantsList = await new Promise<Socket.PresenceEvent[]>((resolve, reject) => {
+      this.room.presence.get(
+        (data) => resolve(data),
+        (error) => {
+          const message = `[SuperViz] ${error.name} - ${error.message}`;
+          this.logger.log(error);
+          console.error(message);
+          reject(error);
+        },
       );
     });
+
+    // list with all participants that have the type host and are in the meeting
+    const participantsCanBeHost = participantsList.filter(
+      (participant: Socket.PresenceEvent<VideoParticipant>) => {
+        return (
+          participant.data.type === ParticipantType.HOST && participant.data.joinedMeeting
+        );
+      },
+    );
 
     this.logger.log(
       'video conference @ validate if in the room has host - conditions to init kick all participants timeout',
