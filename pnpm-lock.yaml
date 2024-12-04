@@ -197,8 +197,8 @@ importers:
         specifier: ^8.2.2
         version: 8.2.2
       dotenv:
-        specifier: ^16.4.5
-        version: 16.4.5
+        specifier: ^16.4.7
+        version: 16.4.7
       esbuild:
         specifier: ^0.22.0
         version: 0.22.0
@@ -285,8 +285,8 @@ importers:
         specifier: ^8.2.2
         version: 8.2.2
       dotenv:
-        specifier: ^16.4.5
-        version: 16.4.5
+        specifier: ^16.4.7
+        version: 16.4.7
       esbuild:
         specifier: ^0.21.5
         version: 0.21.5
@@ -603,8 +603,8 @@ importers:
         specifier: ^3.3.0
         version: 3.3.0(@types/node@20.16.5)(typescript@5.6.2)
       dotenv:
-        specifier: ^16.4.5
-        version: 16.4.5
+        specifier: ^16.4.7
+        version: 16.4.7
       esbuild:
         specifier: ^0.21.5
         version: 0.21.5
@@ -761,8 +761,8 @@ importers:
         specifier: ^8.2.2
         version: 8.2.2
       dotenv:
-        specifier: ^16.4.5
-        version: 16.4.5
+        specifier: ^16.4.7
+        version: 16.4.7
       esbuild:
         specifier: ^0.21.5
         version: 0.21.5
@@ -4167,8 +4167,8 @@ packages:
     resolution: {integrity: sha512-7GO6HghkA5fYG9TYnNxi14/7K9f5occMlp3zXAuSxn7CKCxt9xbNWG7yF8hTCSUchlfWSe3uLmlPfigevRItzQ==}
     engines: {node: '>=12'}
 
-  dotenv@16.4.5:
-    resolution: {integrity: sha512-ZmdL2rui+eB2YwhsWzjInR8LldtZHGDoQ1ugH85ppHKwpUHL7j7rN0Ti9NCnGiQbhaZ11FpR+7ao1dNsmduNUg==}
+  dotenv@16.4.7:
+    resolution: {integrity: sha512-47qPchRCykZC03FhkYAhrvwU4xDBFIj1QPqaarj6mdM/hgUzfPHcpkHJOn3mJAufFeeAxAzeGsr5X0M4k6fLZQ==}
     engines: {node: '>=12'}
 
   duplexer2@0.1.4:
@@ -11893,7 +11893,7 @@ snapshots:
 
   dotenv@16.0.3: {}
 
-  dotenv@16.4.5: {}
+  dotenv@16.4.7: {}
 
   duplexer2@0.1.4:
     dependencies:
