@@ -1,6 +1,6 @@
 {
   "name": "@superviz/matterport-plugin",
-  "version": "1.2.4-lab.1",
+  "version": "1.2.4",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
