@@ -10,3 +10,4 @@ export interface Simple2DPoint {
 }
 
 export type Coordinates = Simple2DPoint & { z: number }
+export type CirclePosition = Coordinates & { slot: number }

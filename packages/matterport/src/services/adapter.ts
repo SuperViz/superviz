@@ -8,7 +8,7 @@ import { isEqual } from 'lodash';
 import { Vector3, Quaternion } from 'three';
 
 import { Avatar, AvatarsConstants, Name } from '../common/types/avatars.types';
-import { Coordinates, DefaultCoordinates, Simple2DPoint } from '../common/types/coordinates.types';
+import { CirclePosition, Coordinates, DefaultCoordinates, Simple2DPoint } from '../common/types/coordinates.types';
 import { Laser } from '../common/types/lasers.types';
 import type { MpSdk as Matterport, Rotation } from '../common/types/matterport.types';
 import { Logger } from '../common/utils/logger';
@@ -64,7 +64,7 @@ export class Presence3D {
   private currentLocalFloorId: number;
   private currentLocalMode: Matterport.Mode.Mode;
   private currentLocalLaserDest: Coordinates = DefaultCoordinates;
-  private circlePositions: Coordinates[] = [];
+  private circlePositions: CirclePosition[] = [];
   private currentSweepId: string;
 
   private THREE;
@@ -475,6 +475,8 @@ export class Presence3D {
     if (unsubscribe) {
       this.presence3DManager?.unsubscribeFromUpdates(participant.id, this.onParticipantUpdated);
     }
+
+    this.createCircleOfPositions();
   };
 
   private addParticipant = async (participant): Promise<void> => {
@@ -506,6 +508,8 @@ export class Presence3D {
     this.config.isAvatarsEnabled && (await this.createAvatar(participantOn3D));
     this.config.isLaserEnabled && this.createLaser(participantOn3D);
     this.config.isNameEnabled && this.createName(participantOn3D, this.avatars[participant.id]);
+
+    this.createCircleOfPositions();
   };
 
   /**
@@ -889,58 +893,67 @@ export class Presence3D {
     if (!this.presence3DManager) {
       return position;
     }
+
     this.localSlot = this.localParticipant.slot?.index ?? -1;
+
     if (!this.THREE || this.localSlot === -1) {
       return position;
     }
+
     const calculatedPos = new this.THREE.Vector3(position?.x, position?.y, position?.z);
-    if (!this.circlePositions[this.localSlot]) {
+    const positionInTheCircle = this.circlePositions.find(
+      (position) => position.slot === this.localSlot,
+    );
+
+    if (!positionInTheCircle) {
       return position;
     }
+
     if (!this.currentCirclePosition?.isVector3) {
       this.currentCirclePosition = new this.THREE.Vector3(
-        this.circlePositions[this.localSlot].x,
+        positionInTheCircle.x,
         position.y,
-        this.circlePositions[this.localSlot].z,
+        positionInTheCircle.z,
       );
     }
+
     this.currentCirclePosition.set(
-      this.circlePositions[this.localSlot].x,
+      positionInTheCircle.x,
       position.y,
-      this.circlePositions[this.localSlot].z,
+      positionInTheCircle.z,
     );
+
     calculatedPos.add(
       this.currentCirclePosition.multiplyScalar(AvatarsConstants.DISTANCE_BETWEEN_AVATARS),
     );
+
     return { x: calculatedPos.x, y: position.y, z: calculatedPos.z };
   };
 
   private createCircleOfPositions(): void {
-    const amountOfPeople = 50;
-    let radiusOfCircle = amountOfPeople * 0.3;
+    this.circlePositions = [];
+    const participants = [
+      ...Object.values(this.participants),
+      this.localParticipant,
+    ].sort((a, b) => {
+      return (a.slot?.index || 0) - (b.slot?.index || 0);
+    });
 
-    let degrees = 0;
+    const participantCount = participants.length;
+    if (participantCount === 0) return;
 
-    // minimum radius
-    if (radiusOfCircle < 2) {
-      radiusOfCircle = 2;
+    const radius = Math.max(participantCount * 0.3, 2);
+    const angleStep = (2 * Math.PI) / participantCount;
+
+    for (let i = 0; i < participantCount; i++) {
+      const angle = i * angleStep;
+      const x = radius * Math.cos(angle);
+      const z = radius * Math.sin(angle);
+      this.circlePositions.push({ x, y: 0, z, slot: participants[i]?.slot?.index ?? -1 });
     }
 
-    for (let i = 0; i < amountOfPeople; i++) {
-      degrees = i * (360 / amountOfPeople);
-      const radian = degrees * (Math.PI / 180);
-      const x = radiusOfCircle * Math.cos(radian);
-      const y = 0;
-      const z = radiusOfCircle * Math.sin(radian);
-      if (i !== 0) {
-        const pos = { x, y, z };
-        if (i % 2 === 0) {
-          this.circlePositions.push(pos);
-        } else {
-          this.circlePositions.unshift(pos);
-        }
-      }
-    }
+    this.adjustMyPositionToCircle(this.currentLocalPosition);
+    this.logger.log('Updated circle positions:', this.circlePositions);
   }
 
   private onParticipantsUpdated = (participants) => {

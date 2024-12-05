@@ -5,31 +5,19 @@ on:
     types:
       - opened
       - synchronize
+
 jobs:
-  delete-comments:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: izhangzhihao/delete-comment@master
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          delete_user_name: SuperViz-Dev
-          issue_number: ${{ github.event.number }}
   build:
+    name: Build Packages
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [20]
     steps:
       - uses: actions/checkout@v4
       - name: Install pnpm
         uses: pnpm/action-setup@v4
         with:
           version: 9.10.0
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: 'pnpm'
+      - name: Verify pnpm Installation
+        run: pnpm --version
       - name: Cache pnpm store
         uses: actions/cache@v3
         with:
@@ -37,156 +25,68 @@ jobs:
           key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
             ${{ runner.os }}-pnpm-
-      - name: Cache node_modules
-        uses: actions/cache@v3
-        with:
-          path: '**/node_modules'
-          key: ${{ runner.os }}-modules-${{ hashFiles('**/pnpm-lock.yaml') }}
-      - name: Install dependencies
-        run: pnpm install --no-frozen-lockfile
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
         env:
           NPM_CONFIG_USERCONFIG: .npmrc.ci
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-      - name: Create a .version.js file
-        run: |
-          touch packages/sdk/.version.js && echo "echo \"export const version = 'test'\" > packages/sdk/.version.js" | bash -
       - name: Create a .remote-config.js file
         run: |
-          touch packages/realtime/.remote-config.js && echo "echo \"module.exports = { remoteConfig: { apiUrl: 'https://dev.nodeapi.superviz.com' }};\" > packages/realtime/.remote-config.js" | bash -
-          touch packages/sdk/.remote-config.js && echo "echo \"module.exports = { remoteConfig: { apiUrl: 'https://dev.nodeapi.superviz.com', conferenceLayerUrl: 'https://video-frame.superviz.com/lab/index.html'}};\" > .remote-config.js" | bash -
-      - name: Run builds
+            touch packages/sdk/.remote-config.js && echo "echo \"module.exports = { remoteConfig: { apiUrl: 'https://api.superviz.com', conferenceLayerUrl: 'https://video-frame.superviz.com/lab/index.html'}};\" > .remote-config.js" | bash -
+            touch packages/realtime/.remote-config.js && echo "echo \"module.exports = { remoteConfig: { apiUrl: 'https://api.superviz.com' }};\" > .remote-config.js" | bash -  
+      - name: Run Build
         run: pnpm run build
-  test-unit-realtime:
+
+  test:
+    name: Run Tests
     runs-on: ubuntu-latest
+    needs: build
     strategy:
       matrix:
-        node-version: [20]
+        package: [realtime, sdk, yjs]
     steps:
-      - uses: actions/checkout@v4
       - name: Install pnpm
         uses: pnpm/action-setup@v4
         with:
           version: 9.10.0
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: 'pnpm'
-      - name: Cache pnpm store
-        uses: actions/cache@v3
-        with:
-          path: ~/.pnpm-store
-          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-
-      - name: Cache node_modules
-        uses: actions/cache@v3
-        with:
-          path: '**/node_modules'
-          key: ${{ runner.os }}-modules-${{ hashFiles('**/pnpm-lock.yaml') }}
-      - name: Install dependencies
-        run: pnpm install --no-frozen-lockfile
+      - uses: actions/checkout@v4
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
         env:
           NPM_CONFIG_USERCONFIG: .npmrc.ci
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
       - name: Create a .remote-config.js file
         run: |
-          touch packages/realtime/.remote-config.js && echo "echo \"module.exports = { remoteConfig: { apiUrl: 'https://dev.nodeapi.superviz.com' }};\" > .remote-config.js" | bash -
-      - name: Run tests
-        run: pnpm run test:unit:ci --filter=@superviz/realtime
+            touch packages/sdk/.remote-config.js && echo "echo \"module.exports = { remoteConfig: { apiUrl: 'https://api.superviz.com', conferenceLayerUrl: 'https://video-frame.superviz.com/lab/index.html'}};\" > .remote-config.js" | bash -
+            touch packages/realtime/.remote-config.js && echo "echo \"module.exports = { remoteConfig: { apiUrl: 'https://api.superviz.com' }};\" > .remote-config.js" | bash -  
+      - name: Run Unit Tests
+        run: pnpm run test:unit:ci --filter=@superviz/${{ matrix.package }}
       - name: Post PR Comment
-        run: npx github-actions-ctrf packages/realtime/ctrf/ctrf-report.json --pr-comment --title=Realtime
+        run: npx github-actions-ctrf packages/${{ matrix.package }}/ctrf/ctrf-report.json --pr-comment --title=${{ matrix.package }}
         if: always()
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  test-unit-sdk:
+  test-web-components:
+    name: Run Test Web Components
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [20]
+    needs: build
     steps:
-      - uses: actions/checkout@v4
       - name: Install pnpm
         uses: pnpm/action-setup@v4
         with:
           version: 9.10.0
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: 'pnpm'
-      - name: Cache pnpm store
-        uses: actions/cache@v3
-        with:
-          path: ~/.pnpm-store
-          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-
-      - name: Cache node_modules
-        uses: actions/cache@v3
-        with:
-          path: '**/node_modules'
-          key: ${{ runner.os }}-modules-${{ hashFiles('**/pnpm-lock.yaml') }}
-      - name: Install dependencies
-        run: pnpm install --no-frozen-lockfile
+      - uses: actions/checkout@v4
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
         env:
           NPM_CONFIG_USERCONFIG: .npmrc.ci
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-      - name: Create a .version.js file
-        run: |
-          touch packages/sdk/.version.js && echo "echo \"export const version = 'test'\" > .version.js" | bash -
       - name: Create a .remote-config.js file
         run: |
-          touch packages/sdk/.remote-config.js && echo "echo \"module.exports = { remoteConfig: { apiUrl: 'https://dev.nodeapi.superviz.com', conferenceLayerUrl: 'https://video-frame.superviz.com/lab/index.html'}};\" > .remote-config.js" | bash -
-      - name: Run tests
-        run: pnpm run test:unit:ci --filter=@superviz/sdk
-      - name: Post PR Comment
-        run: npx github-actions-ctrf packages/sdk/ctrf/ctrf-report.json --pr-comment --title=SDK
-        if: always()
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  test-web-components-sdk:
-    permissions: write-all
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [20]
-    steps:
-      - uses: actions/checkout@v4
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9.10.0
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: 'pnpm'
-      - name: Cache pnpm store
-        uses: actions/cache@v3
-        with:
-          path: ~/.pnpm-store
-          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-
-      - name: Cache node_modules
-        uses: actions/cache@v3
-        with:
-          path: '**/node_modules'
-          key: ${{ runner.os }}-modules-${{ hashFiles('**/pnpm-lock.yaml') }}
-      - name: Install dependencies
-        run: pnpm install --no-frozen-lockfile
-        env:
-          NPM_CONFIG_USERCONFIG: .npmrc.ci
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+            touch packages/sdk/.remote-config.js && echo "echo \"module.exports = { remoteConfig: { apiUrl: 'https://api.superviz.com', conferenceLayerUrl: 'https://video-frame.superviz.com/lab/index.html'}};\" > .remote-config.js" | bash -
+            touch packages/realtime/.remote-config.js && echo "echo \"module.exports = { remoteConfig: { apiUrl: 'https://api.superviz.com' }};\" > .remote-config.js" | bash -  
       - name: Install Playwright browsers
         run: pnpm --filter=@superviz/sdk exec playwright install --with-deps
-      - name: Create a .version.js file
-        run: |
-          touch packages/sdk/.version.js && echo "echo \"export const version = 'test'\" > .version.js" | bash -
-      - name: Create a .remote-config.js file
-        run: |
-          touch packages/sdk/.remote-config.js && echo "echo \"module.exports = { remoteConfig: { apiUrl: 'https://dev.nodeapi.superviz.com', conferenceLayerUrl: 'https://video-frame.superviz.com/lab/index.html'}};\" > .remote-config.js" | bash -
       - name: Run tests
         run: pnpm run test:unit:web-components:coverage --filter=@superviz/sdk
       - name: Post PR Comment - Test web Components
@@ -197,50 +97,6 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           comment-title: SDK Web Components Test Coverage Report
           artifact-name: sdk-web-components-coverage-report
-  test-unit-yjs:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [20]
-    steps:
-      - uses: actions/checkout@v4
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9.10.0
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: 'pnpm'
-      - name: Cache pnpm store
-        uses: actions/cache@v3
-        with:
-          path: ~/.pnpm-store
-          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-
-      - name: Cache node_modules
-        uses: actions/cache@v3
-        with:
-          path: '**/node_modules'
-          key: ${{ runner.os }}-modules-${{ hashFiles('**/pnpm-lock.yaml') }}
-      - name: Install dependencies
-        run: pnpm install --no-frozen-lockfile
-        env:
-          NPM_CONFIG_USERCONFIG: .npmrc.ci
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-      - name: Create a .version.js file
-        run: |
-          touch packages/sdk/.version.js && echo "echo \"export const version = 'test'\" > packages/sdk/.version.js" | bash -
-      - name: Create a .remote-config.js file
-        run: |
-          touch packages/realtime/.remote-config.js && echo "echo \"module.exports = { remoteConfig: { apiUrl: 'https://dev.nodeapi.superviz.com' }};\" > packages/realtime/.remote-config.js" | bash -
-          touch packages/sdk/.remote-config.js && echo "echo \"module.exports = { remoteConfig: { apiUrl: 'https://dev.nodeapi.superviz.com', conferenceLayerUrl: 'https://video-frame.superviz.com/lab/index.html'}};\" > .remote-config.js" | bash -
-      - name: Run tests
-        run: pnpm run test:unit:ci --filter=@superviz/yjs
-      - name: Post PR Comment
-        run: npx github-actions-ctrf packages/yjs/ctrf/ctrf-report.json --pr-comment --title=YJS
         if: always()
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
