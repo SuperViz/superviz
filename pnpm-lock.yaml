@@ -636,8 +636,8 @@ importers:
         specifier: ^1.49.0
         version: 1.49.0
       rimraf:
-        specifier: ^5.0.7
-        version: 5.0.10
+        specifier: ^6.0.1
+        version: 6.0.1
       semantic-release:
         specifier: ^24.0.0
         version: 24.0.0(typescript@5.6.2)
@@ -6737,8 +6737,9 @@ packages:
     deprecated: Rimraf versions prior to v4 are no longer supported
     hasBin: true
 
-  rimraf@5.0.10:
-    resolution: {integrity: sha512-l0OE8wL34P4nJH/H2ffoaniAokM2qSmrtXHmlpvYr5AVVX8msAyW0l8NVJFDxlSK4u3Uh/f41cQheDVdnYijwQ==}
+  rimraf@6.0.1:
+    resolution: {integrity: sha512-9dkvaxAsk/xNXSJzMgFqqMCuFgt2+KsOFek3TMLfo8NCPfWpBmqwyNn5Y+NX56QUYfCtsyhF3ayiboEoUmJk/A==}
+    engines: {node: 20 || >=22}
     hasBin: true
 
   rollup@4.21.3:
@@ -14983,9 +14984,10 @@ snapshots:
     dependencies:
       glob: 7.2.3
 
-  rimraf@5.0.10:
+  rimraf@6.0.1:
     dependencies:
-      glob: 10.4.5
+      glob: 11.0.0
+      package-json-from-dist: 1.0.0
 
   rollup@4.21.3:
     dependencies:
