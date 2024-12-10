@@ -3,7 +3,7 @@ import { debug } from 'debug';
 import { ColorsVariables, ColorsVariablesNames } from '../common/types/colors.types';
 import { EnvironmentTypes, SuperVizSdkOptions } from '../common/types/sdk-options.types';
 import ApiService from '../services/api';
-import AuthService from '../services/auth-service';
+import auth from '../services/auth-service';
 import config from '../services/config';
 import RemoteConfigService from '../services/remote-config-service';
 
@@ -143,18 +143,17 @@ const init = async (apiKey: string, options: SuperVizSdkOptions): Promise<Launch
     RemoteConfigService.getFeatures(apiKey),
   ]);
 
-  const isValid = await AuthService(apiUrl, apiKey);
-
-  if (!isValid) {
-    throw new Error('Failed to validate API key');
-  }
-
-  const [waterMark, limits] = await Promise.all([
+  const [canAccess, waterMark, limits] = await Promise.all([
+    auth(apiUrl, apiKey),
     ApiService.fetchWaterMark(apiUrl, apiKey),
     ApiService.fetchLimits(apiUrl, apiKey),
   ]).catch(() => {
     throw new Error('[SuperViz] Failed to load configuration from server');
   });
+
+  if (!canAccess) {
+    throw new Error('Failed to validate API key');
+  }
 
   const { participant, roomId, customColors } = options;
 
