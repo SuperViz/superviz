@@ -43,7 +43,7 @@ jobs:
     needs: build
     strategy:
       matrix:
-        package: [realtime, sdk, yjs]
+        package: [realtime, sdk, yjs, 'room'] 
     steps:
       - name: Install pnpm
         uses: pnpm/action-setup@v4
