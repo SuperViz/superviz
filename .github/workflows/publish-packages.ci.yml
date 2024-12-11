@@ -7,6 +7,12 @@ on:
       - main
 jobs:
   package:
+    env: 
+      VITE_SUPERVIZ_ROOM_PREFIX: ${{ secrets.VITE_SUPERVIZ_ROOM_PREFIX }}
+      VITE_SUPERVIZ_DEVELOPER_TOKEN: ${{ secrets.VITE_SUPERVIZ_DEVELOPER_TOKEN }}
+      VITE_MATTERPORT_KEY: ${{ secrets.VITE_MATTERPORT_KEY }}
+      VITE_FORGE_CLIENT_SECRET: ${{ secrets.VITE_FORGE_CLIENT_SECRET }}
+      VITE_FORGE_CLIENT_ID: ${{ secrets.VITE_FORGE_CLIENT_SECRET }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
