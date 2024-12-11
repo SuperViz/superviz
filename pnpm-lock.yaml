@@ -577,7 +577,7 @@ importers:
         version: 3.3.0(@types/node@20.16.5)(typescript@5.6.2)
       dotenv:
         specifier: ^16.4.5
-        version: 16.4.5
+        version: 16.4.7
       esbuild:
         specifier: ^0.21.5
         version: 0.21.5
