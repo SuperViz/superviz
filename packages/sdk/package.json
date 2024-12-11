@@ -1,6 +1,6 @@
 {
   "name": "@superviz/sdk",
-  "version": "6.7.5-lab.2",
+  "version": "6.7.5",
   "description": "SuperViz SDK",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -60,7 +60,7 @@
     "@web/test-runner-playwright": "^0.11.0",
     "concurrently": "^8.2.2",
     "cz-conventional-changelog": "^3.3.0",
-    "dotenv": "^16.4.5",
+    "dotenv": "^16.4.7",
     "esbuild": "^0.21.5",
     "eslint": "8.56.0",
     "glob": "^11.0.0",

@@ -51,8 +51,8 @@ importers:
         specifier: ^0.167.1
         version: 0.167.2
       lib0:
-        specifier: ^0.2.97
-        version: 0.2.97
+        specifier: ^0.2.98
+        version: 0.2.98
       lodash:
         specifier: ^4.17.21
         version: 4.17.21
@@ -87,8 +87,8 @@ importers:
         specifier: ^0.7.8
         version: 0.7.8(three@0.167.1)
       uuid:
-        specifier: ^10.0.0
-        version: 10.0.0
+        specifier: ^11.0.3
+        version: 11.0.3
       y-monaco:
         specifier: ^0.1.6
         version: 0.1.6(monaco-editor@0.51.0)(yjs@13.6.20)
@@ -197,8 +197,8 @@ importers:
         specifier: ^8.2.2
         version: 8.2.2
       dotenv:
-        specifier: ^16.4.5
-        version: 16.4.5
+        specifier: ^16.4.7
+        version: 16.4.7
       esbuild:
         specifier: ^0.22.0
         version: 0.22.0
@@ -285,8 +285,8 @@ importers:
         specifier: ^8.2.2
         version: 8.2.2
       dotenv:
-        specifier: ^16.4.5
-        version: 16.4.5
+        specifier: ^16.4.7
+        version: 16.4.7
       esbuild:
         specifier: ^0.21.5
         version: 0.21.5
@@ -703,8 +703,8 @@ importers:
         specifier: ^3.3.0
         version: 3.3.0(@types/node@20.16.5)(typescript@5.6.2)
       dotenv:
-        specifier: ^16.4.5
-        version: 16.4.5
+        specifier: ^16.4.7
+        version: 16.4.7
       esbuild:
         specifier: ^0.21.5
         version: 0.21.5
@@ -861,8 +861,8 @@ importers:
         specifier: ^8.2.2
         version: 8.2.2
       dotenv:
-        specifier: ^16.4.5
-        version: 16.4.5
+        specifier: ^16.4.7
+        version: 16.4.7
       esbuild:
         specifier: ^0.21.5
         version: 0.21.5
@@ -893,8 +893,8 @@ importers:
         specifier: ^0.23.1
         version: 0.23.1
       lib0:
-        specifier: ^0.2.97
-        version: 0.2.97
+        specifier: ^0.2.98
+        version: 0.2.98
       rxjs:
         specifier: ^7.8.1
         version: 7.8.1
@@ -4267,8 +4267,8 @@ packages:
     resolution: {integrity: sha512-7GO6HghkA5fYG9TYnNxi14/7K9f5occMlp3zXAuSxn7CKCxt9xbNWG7yF8hTCSUchlfWSe3uLmlPfigevRItzQ==}
     engines: {node: '>=12'}
 
-  dotenv@16.4.5:
-    resolution: {integrity: sha512-ZmdL2rui+eB2YwhsWzjInR8LldtZHGDoQ1ugH85ppHKwpUHL7j7rN0Ti9NCnGiQbhaZ11FpR+7ao1dNsmduNUg==}
+  dotenv@16.4.7:
+    resolution: {integrity: sha512-47qPchRCykZC03FhkYAhrvwU4xDBFIj1QPqaarj6mdM/hgUzfPHcpkHJOn3mJAufFeeAxAzeGsr5X0M4k6fLZQ==}
     engines: {node: '>=12'}
 
   duplexer2@0.1.4:
@@ -5752,11 +5752,6 @@ packages:
   levn@0.4.1:
     resolution: {integrity: sha512-+bT2uH4E5LGE7h/n3evcS/sQlJXCpIp6ym8OWJ5eV6+67Dsql/LaaT7qJBAt2rzfoa/5QBGBhxDix1dMt2kQKQ==}
     engines: {node: '>= 0.8.0'}
-
-  lib0@0.2.97:
-    resolution: {integrity: sha512-Q4d1ekgvufi9FiHkkL46AhecfNjznSL9MRNoJRQ76gBHS9OqU2ArfQK0FvBpuxgWeJeNI0LVgAYMIpsGeX4gYg==}
-    engines: {node: '>=16'}
-    hasBin: true
 
   lib0@0.2.98:
     resolution: {integrity: sha512-XteTiNO0qEXqqweWx+b21p/fBnNHUA1NwAtJNJek1oPrewEZs2uiT4gWivHKr9GqCjDPAhchz0UQO8NwU3bBNA==}
@@ -7635,8 +7630,8 @@ packages:
   util-deprecate@1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
 
-  uuid@10.0.0:
-    resolution: {integrity: sha512-8XkAphELsDnEGrDxUOHB3RGvXz6TeuYSGEZBOjtTtPm2lwhGBjLgOzLHB63IUWfBpNucQjND6d3AOudO+H3RWQ==}
+  uuid@11.0.3:
+    resolution: {integrity: sha512-d0z310fCWv5dJwnX1Y/MncBAqGMKEzlBb1AOf7z9K8ALnd0utBX/msg/fA0+sbyN1ihbMsLhrBlnl1ak7Wa0rg==}
     hasBin: true
 
   v8-to-istanbul@9.3.0:
@@ -11993,7 +11988,7 @@ snapshots:
 
   dotenv@16.0.3: {}
 
-  dotenv@16.4.5: {}
+  dotenv@16.4.7: {}
 
   duplexer2@0.1.4:
     dependencies:
@@ -14089,10 +14084,6 @@ snapshots:
       prelude-ls: 1.2.1
       type-check: 0.4.0
 
-  lib0@0.2.97:
-    dependencies:
-      isomorphic.js: 0.2.5
-
   lib0@0.2.98:
     dependencies:
       isomorphic.js: 0.2.5
@@ -16012,7 +16003,7 @@ snapshots:
 
   util-deprecate@1.0.2: {}
 
-  uuid@10.0.0: {}
+  uuid@11.0.3: {}
 
   v8-to-istanbul@9.3.0:
     dependencies:
@@ -16238,18 +16229,18 @@ snapshots:
 
   y-monaco@0.1.6(monaco-editor@0.51.0)(yjs@13.6.20):
     dependencies:
-      lib0: 0.2.97
+      lib0: 0.2.98
       monaco-editor: 0.51.0
       yjs: 13.6.20
 
   y-protocols@1.0.6(yjs@13.6.20):
     dependencies:
-      lib0: 0.2.97
+      lib0: 0.2.98
       yjs: 13.6.20
 
   y-quill@1.0.0(quill-cursors@4.0.3)(quill@2.0.2)(yjs@13.6.20):
     dependencies:
-      lib0: 0.2.97
+      lib0: 0.2.98
       quill: 2.0.2
       quill-cursors: 4.0.3
       y-protocols: 1.0.6(yjs@13.6.20)
