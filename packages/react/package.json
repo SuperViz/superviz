@@ -49,7 +49,7 @@
   },
   "devDependencies": {
     "@anolilab/semantic-release-pnpm": "^1.1.3",
-    "@eslint/compat": "^1.1.1",
+    "@eslint/compat": "^1.2.4",
     "@rollup/plugin-replace": "^6.0.1",
     "@semantic-release/release-notes-generator": "^14.0.1",
     "@types/forge-viewer": "^7.89.1",
