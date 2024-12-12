@@ -1,3 +1,69 @@
-(() => {
-  console.log('[SuperViz] Hello from SuperViz Room package');
-})();
+import { z } from 'zod';
+
+import { Room } from './core';
+import { ApiService } from './services/api';
+import config from './services/config';
+import { InitializeRoomParams, InitializeRoomSchema } from './types';
+
+/**
+ * Sets up the environment for the SuperViz application.
+ *
+ * This function configures the API URL, API key, debug mode, room ID, and environment.
+ * It also validates the provided API key and fetches additional configuration data
+ * such as watermarks and limits from the server.
+ *
+ * @param developerKey - The API key provided by the developer.
+ * @param roomId - The ID of the room to be configured.
+ * @throws
+ *  Will throw an error if the configuration fails to load
+ *  from the server or if the API key is invalid.
+ */
+async function setUpEnvironment(developerKey: string, roomId: string) {
+  config.set('apiUrl', 'https://dev.nodeapi.superviz.com');
+  config.set('apiKey', developerKey);
+  config.set('debug', true);
+  config.set('roomId', roomId);
+  config.set('environment', 'dev');
+
+  const [canAccess, waterMark, limits] = await Promise.all([
+    ApiService.validateApiKey(developerKey),
+    ApiService.fetchWaterMark(developerKey),
+    ApiService.fetchLimits(developerKey),
+  ]).catch((error) => {
+    console.log(error);
+    throw new Error('[SuperViz] Failed to load configuration from server');
+  });
+
+  if (!canAccess) {
+    throw new Error('[SuperViz] Unable to validate your API key. Please check your key and try again.');
+  }
+
+  config.set('limits', limits);
+  config.set('waterMark', waterMark);
+}
+
+/**
+ * @description Creates a new room with the given parameters.
+ * @param {InitializeRoomParams} params - The parameters required to initialize the room.
+ * @returns A promise that resolves to the created Room instance.
+ * @throws
+ *  Will throw an error if the parameters are invalid or if
+ *  any other error occurs during room creation.
+ */
+export async function createRoom(params: InitializeRoomParams): Promise<Room> {
+  try {
+    const { developerKey, participant, roomId } = InitializeRoomSchema.parse(params);
+
+    await setUpEnvironment(developerKey, roomId);
+
+    return new Room();
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      const message = error.errors.map((err) => err.message).join('\n');
+      console.error(message);
+      throw new Error(message);
+    }
+
+    throw error;
+  }
+}

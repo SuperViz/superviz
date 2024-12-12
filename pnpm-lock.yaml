@@ -38,6 +38,9 @@ importers:
       '@superviz/realtime':
         specifier: workspace:*
         version: link:../../packages/realtime
+      '@superviz/room':
+        specifier: workspace:*
+        version: link:../../packages/room
       '@superviz/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk
