@@ -18,7 +18,7 @@ import { LauncherFacade as LauncherFacadeType } from './launcher/types';
  */
 function validateId(id: string): boolean {
   const lengthConstraint = /^.{2,64}$/;
-  const pattern = /^[-_&@+=,(){}\[\]\/«».:|'"#a-zA-Z0-9À-ÿ\s]*$/;
+  const pattern = /^[-_&@+=,(){}\[\]\/«».|'"#a-zA-Z0-9À-ÿ\s]*$/;
 
   if (!lengthConstraint.test(id)) {
     return false;
@@ -66,13 +66,13 @@ const validateOptions = ({
 
   if (!validateId(roomId)) {
     throw new Error(
-      '[SuperViz] Room id is invalid, it should be between 2 and 64 characters and only accept letters, numbers and special characters: -_&@+=,(){}[]/«».:|\'"',
+      '[SuperViz] Room id is invalid, it should be between 2 and 64 characters and only accept letters, numbers and special characters: -_&@+=,(){}[]/«».|\'"',
     );
   }
 
   if (!validateId(participant.id)) {
     throw new Error(
-      '[SuperViz] Participant id is invalid, it should be between 2 and 64 characters and only accept letters, numbers and special characters: -_&@+=,(){}[]/«».:|\'"',
+      '[SuperViz] Participant id is invalid, it should be between 2 and 64 characters and only accept letters, numbers and special characters: -_&@+=,(){}[]/«».|\'"',
     );
   }
 
