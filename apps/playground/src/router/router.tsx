@@ -21,6 +21,7 @@ import { YjsQuillReact } from "../pages/yjs-quill-react.tsx";
 import { ReactFlowWithReactSDK } from "../pages/react-flow-with-react-sdk.tsx";
 import { VideoWithReact } from "../pages/video-with-react.tsx";
 import { MatterportEmbed } from "../pages/matterport-embed.tsx";
+import { SuperVizRoom } from "../pages/superviz-room.tsx";
 
 export const routeList: RouteObject[] = [
   {
@@ -110,6 +111,10 @@ export const routeList: RouteObject[] = [
         path: "react-flow-with-react-sdk",
         element: <ReactFlowWithReactSDK />,
       },
+      { 
+        path: 'room', 
+        element: <SuperVizRoom />
+      }
     ],
   },
 ];
