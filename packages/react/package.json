@@ -79,6 +79,6 @@
     "vite": "^5.4.6",
     "vite-plugin-dts": "^3.9.1",
     "vite-plugin-linter": "^2.1.1",
-    "vite-tsconfig-paths": "^4.3.2"
+    "vite-tsconfig-paths": "^5.1.4"
   }
 }
