@@ -82,7 +82,7 @@
     "@superviz/socket-client": "workspace:*",
     "bowser": "^2.11.0",
     "bowser-jr": "^1.0.6",
-    "debug": "^4.3.4",
+    "debug": "^4.4.0",
     "lit": "^3.1.4",
     "lodash": "^4.17.21",
     "luxon": "^3.4.4",
