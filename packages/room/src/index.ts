@@ -1,5 +1,7 @@
+import debug from 'debug';
 import { z } from 'zod';
 
+import { Participant } from './common/types/participant.types';
 import { Room } from './core';
 import { ApiService } from './services/api';
 import config from './services/config';
@@ -25,17 +27,24 @@ async function setUpEnvironment(developerKey: string, roomId: string) {
   config.set('roomId', roomId);
   config.set('environment', 'dev');
 
+  if (config.get('debug')) {
+    console.log('[SuperViz | Room] Debug mode enabled');
+    debug.enable('@superviz/*');
+  } else {
+    debug.disable();
+  }
+
   const [canAccess, waterMark, limits] = await Promise.all([
     ApiService.validateApiKey(developerKey),
     ApiService.fetchWaterMark(developerKey),
     ApiService.fetchLimits(developerKey),
   ]).catch((error) => {
     console.log(error);
-    throw new Error('[SuperViz] Failed to load configuration from server');
+    throw new Error('[SuperViz | Room] Failed to load configuration from server');
   });
 
   if (!canAccess) {
-    throw new Error('[SuperViz] Unable to validate your API key. Please check your key and try again.');
+    throw new Error('[SuperViz | Room] Unable to validate your API key. Please check your key and try again.');
   }
 
   config.set('limits', limits);
@@ -56,7 +65,7 @@ export async function createRoom(params: InitializeRoomParams): Promise<Room> {
 
     await setUpEnvironment(developerKey, roomId);
 
-    return new Room();
+    return new Room({ participant: participant as Participant });
   } catch (error) {
     if (error instanceof z.ZodError) {
       const message = error.errors.map((err) => err.message).join('\n');
