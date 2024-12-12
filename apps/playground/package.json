@@ -19,7 +19,7 @@
     "@superviz/threejs-plugin": "workspace:*",
     "@superviz/yjs": "workspace:*",
     "@types/three": "^0.167.1",
-    "lib0": "^0.2.98",
+    "lib0": "^0.2.99",
     "lodash": "^4.17.21",
     "monaco-editor": "^0.51.0",
     "quill-cursors": "^4.0.3",
