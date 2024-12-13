@@ -1,6 +1,6 @@
 {
   "name": "@superviz/realtime",
-  "version": "1.3.0-lab.2",
+  "version": "1.3.0-lab.3",
   "description": "SuperViz Real-Time",
   "main": "./dist/node/index.cjs.js",
   "module": "./dist/browser/index.js",
