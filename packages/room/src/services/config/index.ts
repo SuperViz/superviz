@@ -12,7 +12,7 @@ export class ConfigurationService {
   public get<T>(key: Key, defaultValue?: T): T {
     if (!this.configuration) return defaultValue;
 
-    return get<Configuration, any, T>(this.configuration, key, defaultValue as T) as T;
+    return get<Partial<Configuration>, any, T>(this.configuration, key, defaultValue as T) as T;
   }
 }
 
