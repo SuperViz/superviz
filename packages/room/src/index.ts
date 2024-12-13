@@ -20,14 +20,19 @@ import { InitializeRoomParams, InitializeRoomSchema } from './types';
  *  Will throw an error if the configuration fails to load
  *  from the server or if the API key is invalid.
  */
-async function setUpEnvironment(developerKey: string, roomId: string) {
-  config.set('apiUrl', 'https://dev.nodeapi.superviz.com');
+async function setUpEnvironment({
+  developerKey,
+  roomId,
+  environment,
+  debug: enableDebug,
+}: InitializeRoomParams): Promise<void> {
   config.set('apiKey', developerKey);
-  config.set('debug', true);
+  config.set('debug', !!enableDebug);
   config.set('roomId', roomId);
-  config.set('environment', 'dev');
+  config.set('environment', environment ?? 'prod');
+  config.set('apiUrl', config.get('environment') === 'prod' ? 'https://api.superviz.com' : 'https://dev.nodeapi.superviz.com');
 
-  if (config.get('debug')) {
+  if (enableDebug) {
     console.log('[SuperViz | Room] Debug mode enabled');
     debug.enable('@superviz/*');
   } else {
@@ -63,7 +68,7 @@ export async function createRoom(params: InitializeRoomParams): Promise<Room> {
   try {
     const { developerKey, participant, roomId } = InitializeRoomSchema.parse(params);
 
-    await setUpEnvironment(developerKey, roomId);
+    await setUpEnvironment(params);
 
     return new Room({ participant: participant as Participant });
   } catch (error) {
