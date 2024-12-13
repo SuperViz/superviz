@@ -23,6 +23,8 @@ export function SuperVizRoom() {
         id: uuid,
       },
       roomId: `${SUPERVIZ_ROOM_PREFIX}-${componentName}`,
+      debug: true, 
+      environment: 'dev',
     });
 
     room.current = newRoom;

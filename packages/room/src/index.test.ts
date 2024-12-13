@@ -1,4 +1,5 @@
 import { Room } from './core';
+import config from './services/config';
 
 import { createRoom } from '.';
 
@@ -82,5 +83,70 @@ describe('createRoom', () => {
     // @ts-ignore
     const createRoomPromise2 = createRoom(params2);
     await expect(createRoomPromise2).rejects.toThrow('[SuperViz | Room] Developer Key is required');
+  });
+
+  test('sets up the environment correctly', async () => {
+    const params = {
+      developerKey: 'abc123',
+      roomId: 'abc123',
+      participant: {
+        id: 'abc123',
+        name: 'John Doe',
+      },
+    };
+
+    await createRoom(params);
+
+    expect(config.get('apiKey')).toBe('abc123');
+    expect(config.get('roomId')).toBe('abc123');
+    expect(config.get('environment')).toBe('prod');
+    expect(config.get('debug')).toBe(false);
+
+    const paramsWithOptionalFields = {
+      developerKey: 'abc123',
+      roomId: 'abc123',
+      participant: {
+        id: 'abc123',
+        name: 'John Doe',
+      },
+      debug: true,
+      environment: 'dev' as 'dev',
+    };
+
+    await createRoom(paramsWithOptionalFields);
+
+    expect(config.get('apiKey')).toBe('abc123');
+    expect(config.get('roomId')).toBe('abc123');
+    expect(config.get('environment')).toBe('dev');
+    expect(config.get('debug')).toBe(true);
+  });
+
+  test('set up the environment with the correct API URL', async () => {
+    const params = {
+      developerKey: 'abc123',
+      roomId: 'abc123',
+      participant: {
+        id: 'abc123',
+        name: 'John Doe',
+      },
+    };
+
+    await createRoom(params);
+
+    expect(config.get('apiUrl')).toBe('https://api.superviz.com');
+
+    const paramsWithProdEnvironment = {
+      developerKey: 'abc123',
+      roomId: 'abc123',
+      participant: {
+        id: 'abc123',
+        name: 'John Doe',
+      },
+      environment: 'dev' as 'dev',
+    };
+
+    await createRoom(paramsWithProdEnvironment);
+
+    expect(config.get('apiUrl')).toBe('https://dev.nodeapi.superviz.com');
   });
 });
