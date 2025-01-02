@@ -50,7 +50,7 @@
     "@superviz/eslint-config": "workspace:*",
     "@superviz/typescript-config": "workspace:*",
     "@types/debug": "^4.1.12",
-    "@types/jest": "^29.5.12",
+    "@types/jest": "^29.5.14",
     "@types/luxon": "^3.4.2",
     "@types/node": "^20.14.8",
     "@web/dev-server-esbuild": "^0.4.3",
