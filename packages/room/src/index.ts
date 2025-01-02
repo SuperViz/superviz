@@ -14,19 +14,19 @@ import { InitializeRoomParams, InitializeRoomSchema } from './types';
  * It also validates the provided API key and fetches additional configuration data
  * such as watermarks and limits from the server.
  *
- * @param developerKey - The API key provided by the developer.
- * @param roomId - The ID of the room to be configured.
  * @throws
  *  Will throw an error if the configuration fails to load
  *  from the server or if the API key is invalid.
  */
 async function setUpEnvironment({
-  developerKey,
+  developerToken,
   roomId,
   environment,
   debug: enableDebug,
+  group,
 }: InitializeRoomParams): Promise<void> {
-  config.set('apiKey', developerKey);
+  config.set('group', group);
+  config.set('apiKey', developerToken);
   config.set('debug', !!enableDebug);
   config.set('roomId', roomId);
   config.set('environment', environment ?? 'prod');
@@ -40,9 +40,9 @@ async function setUpEnvironment({
   }
 
   const [canAccess, waterMark, limits] = await Promise.all([
-    ApiService.validateApiKey(developerKey),
-    ApiService.fetchWaterMark(developerKey),
-    ApiService.fetchLimits(developerKey),
+    ApiService.validateApiKey(developerToken),
+    ApiService.fetchWaterMark(developerToken),
+    ApiService.fetchLimits(developerToken),
   ]).catch((error) => {
     console.log(error);
     throw new Error('[SuperViz | Room] Failed to load configuration from server');
@@ -66,7 +66,7 @@ async function setUpEnvironment({
  */
 export async function createRoom(params: InitializeRoomParams): Promise<Room> {
   try {
-    const { developerKey, participant, roomId } = InitializeRoomSchema.parse(params);
+    const { developerToken, participant, roomId } = InitializeRoomSchema.parse(params);
 
     await setUpEnvironment(params);
 

@@ -14,11 +14,15 @@ jest.mock('./services/api', () => ({
 describe('createRoom', () => {
   test('creates a room with valid params', async () => {
     const params = {
-      developerKey: 'abc123',
+      developerToken: 'abc123',
       roomId: 'abc123',
       participant: {
         id: 'abc123',
         name: 'John Doe',
+      },
+      group: {
+        id: 'abc123',
+        name: 'Group',
       },
     };
 
@@ -29,11 +33,15 @@ describe('createRoom', () => {
 
   test('throws an error if the room id is invalid', async () => {
     const params = {
-      developerKey: 'abc123',
+      developerToken: 'abc123',
       roomId: 'abc$',
       participant: {
         id: 'abc123',
         name: 'John Doe',
+      },
+      group: {
+        id: 'abc123',
+        name: 'Group',
       },
     };
 
@@ -45,11 +53,15 @@ describe('createRoom', () => {
 
   test('throws an error if the participant id is invalid', async () => {
     const params = {
-      developerKey: 'abc123',
+      developerToken: 'abc123',
       roomId: 'abc123:',
       participant: {
         id: 'abc$',
         name: 'John Doe',
+      },
+      group: {
+        id: 'abc123',
+        name: 'Group',
       },
     };
 
@@ -59,18 +71,42 @@ describe('createRoom', () => {
     );
   });
 
-  test('throws an error if the developer key is missing', async () => {
+  test('throws an error if the group id is invalid', async () => {
     const params = {
-      developerKey: '',
+      developerToken: 'abc123',
       roomId: 'abc123',
       participant: {
         id: 'abc123',
         name: 'John Doe',
       },
+      group: {
+        id: 'abc$',
+        name: 'Group',
+      },
     };
 
     const createRoomPromise = createRoom(params);
-    await expect(createRoomPromise).rejects.toThrow('[SuperViz | Room] Developer Key is required');
+    await expect(createRoomPromise).rejects.toThrow(
+      '[SuperViz | Room] Group id is invalid, it should be between 2 and 64 characters and only accept letters, numbers and special characters: -_&@+=,(){}[]/«».|\'"',
+    );
+  });
+
+  test('throws an error if the developer key is missing', async () => {
+    const params = {
+      developerToken: '',
+      roomId: 'abc123',
+      participant: {
+        id: 'abc123',
+        name: 'John Doe',
+      },
+      group: {
+        id: 'abc123',
+        name: 'Group',
+      },
+    };
+
+    const createRoomPromise = createRoom(params);
+    await expect(createRoomPromise).rejects.toThrow('[SuperViz | Room] Developer Token is required');
 
     const params2 = {
       roomId: 'abc123',
@@ -82,16 +118,20 @@ describe('createRoom', () => {
 
     // @ts-ignore
     const createRoomPromise2 = createRoom(params2);
-    await expect(createRoomPromise2).rejects.toThrow('[SuperViz | Room] Developer Key is required');
+    await expect(createRoomPromise2).rejects.toThrow('[SuperViz | Room] Developer Token is required');
   });
 
   test('sets up the environment correctly', async () => {
     const params = {
-      developerKey: 'abc123',
+      developerToken: 'abc123',
       roomId: 'abc123',
       participant: {
         id: 'abc123',
         name: 'John Doe',
+      },
+      group: {
+        id: 'abc123',
+        name: 'Group',
       },
     };
 
@@ -103,11 +143,15 @@ describe('createRoom', () => {
     expect(config.get('debug')).toBe(false);
 
     const paramsWithOptionalFields = {
-      developerKey: 'abc123',
+      developerToken: 'abc123',
       roomId: 'abc123',
       participant: {
         id: 'abc123',
         name: 'John Doe',
+      },
+      group: {
+        id: 'abc123',
+        name: 'Group',
       },
       debug: true,
       environment: 'dev' as 'dev',
@@ -123,11 +167,15 @@ describe('createRoom', () => {
 
   test('set up the environment with the correct API URL', async () => {
     const params = {
-      developerKey: 'abc123',
+      developerToken: 'abc123',
       roomId: 'abc123',
       participant: {
         id: 'abc123',
         name: 'John Doe',
+      },
+      group: {
+        id: 'abc123',
+        name: 'Group',
       },
     };
 
@@ -136,11 +184,15 @@ describe('createRoom', () => {
     expect(config.get('apiUrl')).toBe('https://api.superviz.com');
 
     const paramsWithProdEnvironment = {
-      developerKey: 'abc123',
+      developerToken: 'abc123',
       roomId: 'abc123',
       participant: {
         id: 'abc123',
         name: 'John Doe',
+      },
+      group: {
+        id: 'abc123',
+        name: 'Group',
       },
       environment: 'dev' as 'dev',
     };
