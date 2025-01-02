@@ -42,5 +42,13 @@ export function SuperVizRoom() {
     initializeSuperViz();
   }, []);
 
-  return <></>
+  const leaveRoom = () => {
+    room.current.leave();
+  }
+
+  return (
+    <div className='w-full h-full flex items-center justify-center'>
+      <button onClick={leaveRoom}> Leave </button>
+    </div>
+  )
 }
