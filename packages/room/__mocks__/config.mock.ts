@@ -6,6 +6,10 @@ export const MOCK_CONFIG: Configuration = {
   roomId: 'unit-test-room-id',
   debug: true,
   apiUrl: 'unit-test-api-url',
+  group: {
+    id: 'unit-test-group-id',
+    name: 'unit-test-group-name',
+  },
   limits: {
     videoConference: {
       canUse: true,

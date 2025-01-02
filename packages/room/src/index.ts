@@ -14,8 +14,6 @@ import { InitializeRoomParams, InitializeRoomSchema } from './types';
  * It also validates the provided API key and fetches additional configuration data
  * such as watermarks and limits from the server.
  *
- * @param developerKey - The API key provided by the developer.
- * @param roomId - The ID of the room to be configured.
  * @throws
  *  Will throw an error if the configuration fails to load
  *  from the server or if the API key is invalid.
@@ -25,7 +23,9 @@ async function setUpEnvironment({
   roomId,
   environment,
   debug: enableDebug,
+  group,
 }: InitializeRoomParams): Promise<void> {
+  config.set('group', group);
   config.set('apiKey', developerKey);
   config.set('debug', !!enableDebug);
   config.set('roomId', roomId);

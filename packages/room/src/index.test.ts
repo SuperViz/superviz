@@ -20,6 +20,10 @@ describe('createRoom', () => {
         id: 'abc123',
         name: 'John Doe',
       },
+      group: {
+        id: 'abc123',
+        name: 'Group',
+      },
     };
 
     const room = await createRoom(params);
@@ -34,6 +38,10 @@ describe('createRoom', () => {
       participant: {
         id: 'abc123',
         name: 'John Doe',
+      },
+      group: {
+        id: 'abc123',
+        name: 'Group',
       },
     };
 
@@ -51,11 +59,35 @@ describe('createRoom', () => {
         id: 'abc$',
         name: 'John Doe',
       },
+      group: {
+        id: 'abc123',
+        name: 'Group',
+      },
     };
 
     const createRoomPromise = createRoom(params);
     await expect(createRoomPromise).rejects.toThrow(
       '[SuperViz | Room] Participant id is invalid, it should be between 2 and 64 characters and only accept letters, numbers and special characters: -_&@+=,(){}[]/«».|\'"',
+    );
+  });
+
+  test('throws an error if the group id is invalid', async () => {
+    const params = {
+      developerKey: 'abc123',
+      roomId: 'abc123',
+      participant: {
+        id: 'abc123',
+        name: 'John Doe',
+      },
+      group: {
+        id: 'abc$',
+        name: 'Group',
+      },
+    };
+
+    const createRoomPromise = createRoom(params);
+    await expect(createRoomPromise).rejects.toThrow(
+      '[SuperViz | Room] Group id is invalid, it should be between 2 and 64 characters and only accept letters, numbers and special characters: -_&@+=,(){}[]/«».|\'"',
     );
   });
 
@@ -66,6 +98,10 @@ describe('createRoom', () => {
       participant: {
         id: 'abc123',
         name: 'John Doe',
+      },
+      group: {
+        id: 'abc123',
+        name: 'Group',
       },
     };
 
@@ -93,6 +129,10 @@ describe('createRoom', () => {
         id: 'abc123',
         name: 'John Doe',
       },
+      group: {
+        id: 'abc123',
+        name: 'Group',
+      },
     };
 
     await createRoom(params);
@@ -108,6 +148,10 @@ describe('createRoom', () => {
       participant: {
         id: 'abc123',
         name: 'John Doe',
+      },
+      group: {
+        id: 'abc123',
+        name: 'Group',
       },
       debug: true,
       environment: 'dev' as 'dev',
@@ -129,6 +173,10 @@ describe('createRoom', () => {
         id: 'abc123',
         name: 'John Doe',
       },
+      group: {
+        id: 'abc123',
+        name: 'Group',
+      },
     };
 
     await createRoom(params);
@@ -141,6 +189,10 @@ describe('createRoom', () => {
       participant: {
         id: 'abc123',
         name: 'John Doe',
+      },
+      group: {
+        id: 'abc123',
+        name: 'Group',
       },
       environment: 'dev' as 'dev',
     };

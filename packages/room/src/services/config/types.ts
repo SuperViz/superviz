@@ -1,3 +1,5 @@
+import { Group } from '../../common/types/group.types';
+
 export interface Configuration {
   roomId: string;
   environment: 'dev' | 'prod';
@@ -6,6 +8,7 @@ export interface Configuration {
   debug: boolean;
   limits: ComponentLimits;
   waterMark: boolean;
+  group: Group
 }
 
 type Paths<T> = T extends object
