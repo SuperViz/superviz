@@ -42,6 +42,9 @@ export function Video() {
 
     video.current = new VideoConference({
       userType: type,
+      collaborationMode: { 
+        enabled: false
+      }
     });
 
     room.current.addComponent(video.current);

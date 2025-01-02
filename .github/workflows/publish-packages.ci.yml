@@ -7,6 +7,12 @@ on:
       - main
 jobs:
   package:
+    env: 
+      VITE_SUPERVIZ_ROOM_PREFIX: ${{ secrets.VITE_SUPERVIZ_ROOM_PREFIX }}
+      VITE_SUPERVIZ_DEVELOPER_TOKEN: ${{ secrets.VITE_SUPERVIZ_DEVELOPER_TOKEN }}
+      VITE_MATTERPORT_KEY: ${{ secrets.VITE_MATTERPORT_KEY }}
+      VITE_FORGE_CLIENT_SECRET: ${{ secrets.VITE_FORGE_CLIENT_SECRET }}
+      VITE_FORGE_CLIENT_ID: ${{ secrets.VITE_FORGE_CLIENT_SECRET }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -16,7 +22,7 @@ jobs:
       - name: Install pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 9.10.0
+          version: 9.15.0
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
@@ -40,7 +46,7 @@ jobs:
       - name: Check for changes in packages/socket-client
         id: check_socket_client_changes
         run: |
-          git diff --quiet HEAD^ HEAD packages/socket-client || echo "socket_client_changed=true" >> $GITHUB_OUTPUT
+          git diff --quiet HEAD^ HEAD -- packages/socket-client ':(exclude)packages/socket-client/package.json' || echo "socket_client_changed=true" >> $GITHUB_OUTPUT
       - name: Publish Socket Client package
         if: steps.check_socket_client_changes.outputs.socket_client_changed == 'true'
         run: npm whoami && pnpm run semantic-release --filter=@superviz/socket-client
@@ -51,7 +57,7 @@ jobs:
       - name: Check for changes in packages/realtime
         id: check_realtime_changes
         run: |
-          git diff --quiet HEAD^ HEAD packages/realtime || echo "realtime_changed=true" >> $GITHUB_OUTPUT
+          git diff --quiet HEAD^ HEAD -- packages/realtime ':(exclude)packages/realtime/package.json' || echo "realtime_changed=true" >> $GITHUB_OUTPUT
       - name: Publish realtime package
         if: steps.check_realtime_changes.outputs.realtime_changed == 'true'
         run: npm whoami && pnpm run semantic-release --filter=@superviz/realtime
@@ -62,7 +68,7 @@ jobs:
       - name: Check for changes in packages/sdk
         id: check_sdk_changes
         run: |
-          git diff --quiet HEAD^ HEAD packages/sdk || echo "sdk_changed=true" >> $GITHUB_OUTPUT
+          git diff --quiet HEAD^ HEAD -- packages/sdk ':(exclude)packages/sdk/package.json' || echo "sdk_changed=true" >> $GITHUB_OUTPUT
       - name: Publish SDK package
         if: steps.check_sdk_changes.outputs.sdk_changed == 'true'
         run: npm whoami && pnpm run semantic-release --filter=@superviz/sdk
@@ -73,7 +79,7 @@ jobs:
       - name: Check for changes in packages/yjs
         id: check_yjs_changes
         run: |
-          git diff --quiet HEAD^ HEAD packages/yjs || echo "yjs_changed=true" >> $GITHUB_OUTPUT
+          git diff --quiet HEAD^ HEAD -- packages/yjs ':(exclude)packages/yjs/package.json' || echo "yjs_changed=true" >> $GITHUB_OUTPUT
       - name: Publish YJS package
         if: steps.check_yjs_changes.outputs.yjs_changed == 'true'
         run: npm whoami && pnpm run semantic-release --filter=@superviz/yjs
@@ -84,7 +90,7 @@ jobs:
       - name: Check for changes in packages/autodesk
         id: check_autodesk_changes
         run: |
-          git diff --quiet HEAD^ HEAD packages/autodesk || echo "autodesk_changed=true" >> $GITHUB_OUTPUT
+          git diff --quiet HEAD^ HEAD -- packages/autodesk ':(exclude)packages/autodesk/package.json' || echo "autodesk_changed=true" >> $GITHUB_OUTPUT
       - name: Publish Autodesk package
         if: steps.check_autodesk_changes.outputs.autodesk_changed == 'true'
         run: npm whoami && pnpm run semantic-release --filter=@superviz/autodesk-viewer-plugin
@@ -95,7 +101,7 @@ jobs:
       - name: Check for changes in packages/matterport
         id: check_matterport_changes
         run: |
-          git diff --quiet HEAD^ HEAD packages/matterport || echo "matterport_changed=true" >> $GITHUB_OUTPUT
+          git diff --quiet HEAD^ HEAD -- packages/matterport ':(exclude)packages/matterport/package.json' || echo "matterport_changed=true" >> $GITHUB_OUTPUT
       - name: Publish matterport package
         if: steps.check_matterport_changes.outputs.matterport_changed == 'true'
         run: npm whoami && pnpm run semantic-release --filter=@superviz/matterport-plugin
@@ -106,7 +112,7 @@ jobs:
       - name: Check for changes in packages/three
         id: check_three_changes
         run: |
-          git diff --quiet HEAD^ HEAD packages/three || echo "three_changed=true" >> $GITHUB_OUTPUT
+          git diff --quiet HEAD^ HEAD -- packages/three ':(exclude)packages/three/package.json' || echo "three_changed=true" >> $GITHUB_OUTPUT
       - name: Publish three package
         if: steps.check_three_changes.outputs.three_changed == 'true'
         run: npm whoami && pnpm run semantic-release --filter=@superviz/threejs-plugin
@@ -117,12 +123,12 @@ jobs:
       - name: Check for changes in React SDK and dependencies
         id: check_react_and_dependencies_changes
         run: |
-          git diff --quiet HEAD^ HEAD packages/react || echo "react_changed=true" >> $GITHUB_OUTPUT
-          git diff --quiet HEAD^ HEAD packages/sdk || echo "react_changed=true" >> $GITHUB_OUTPUT
-          git diff --quiet HEAD^ HEAD packages/autodesk || echo "react_changed=true" >> $GITHUB_OUTPUT
-          git diff --quiet HEAD^ HEAD packages/matterport || echo "react_changed=true" >> $GITHUB_OUTPUT
-          git diff --quiet HEAD^ HEAD packages/three || echo "react_changed=true" >> $GITHUB_OUTPUT
-          git diff --quiet HEAD^ HEAD packages/yjs || echo "react_changed=true" >> $GITHUB_OUTPUT
+          git diff --quiet HEAD^ HEAD -- packages/react ':(exclude)packages/react/package.json' || echo "react_changed=true" >> $GITHUB_OUTPUT
+          git diff --quiet HEAD^ HEAD -- packages/sdk ':(exclude)packages/sdk/package.json' || echo "react_changed=true" >> $GITHUB_OUTPUT
+          git diff --quiet HEAD^ HEAD -- packages/autodesk ':(exclude)packages/autodesk/package.json' || echo "react_changed=true" >> $GITHUB_OUTPUT
+          git diff --quiet HEAD^ HEAD -- packages/matterport ':(exclude)packages/matterport/package.json' || echo "react_changed=true" >> $GITHUB_OUTPUT
+          git diff --quiet HEAD^ HEAD -- packages/three ':(exclude)packages/three/package.json' || echo "react_changed=true" >> $GITHUB_OUTPUT
+          git diff --quiet HEAD^ HEAD -- packages/yjs ':(exclude)packages/yjs/package.json' || echo "react_changed=true" >> $GITHUB_OUTPUT
       - name: Publish react package
         if: steps.check_react_and_dependencies_changes.outputs.react_changed == 'true'
         run: npm whoami && pnpm run semantic-release --filter=@superviz/react-sdk
@@ -130,6 +136,16 @@ jobs:
           NPM_CONFIG_USERCONFIG: .npmrc.ci
           GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+      - name: Deploy Playground to S3
+        run: aws s3 sync apps/playground/dist/ s3://sdk-playground.superviz.com --delete
+      - name: Create Cloudfront invalidation
+        run: aws cloudfront create-invalidation --distribution-id ${{ secrets.PRODUCTION_DISTRIBUTION_ID }} --paths "/*"
       - name: Commit, push changes, and push tags
         run: |
           git add . ':!.npmrc' ':!packages/**/.npmrc'
@@ -138,16 +154,3 @@ jobs:
           git push --tags
         env:
           GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
-  slack:
-    needs: package
-    name: Slack Notification
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Slack Notification
-        uses: rtCamp/action-slack-notify@v2
-        env:
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
-          SLACK_ICON: https://avatars.slack-edge.com/2020-11-18/1496892993975_af721d1c045bea2d5a46_48.png
-          MSG_MINIMAL: true
-          SLACK_USERNAME: Deploy SuperViz - ${{ github.ref_name }}

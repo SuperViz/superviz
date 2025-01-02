@@ -1,18 +1,18 @@
-import { ComponentLifeCycleEvent } from '../types/events.types';
-import { Participant } from '../types/participant.types';
-import { Logger, Observable } from '../utils';
-import { Auth, ComponentNames, Params } from './types';
-import { Channel } from '../services/channel/channel';
 import { debug } from 'debug';
 
-import { RealtimeComponentEvent, RealtimeComponentState } from './types';
-import { IOC } from '../services/io';
-import config from '../services/config';
-import { EnvironmentTypes } from '../types/options.types';
 import { ApiService } from '../services/api';
-import { RemoteConfigService } from '../services/remote-config';
 import { isValidApiKey } from '../services/auth-service';
-import { isNode, isBoolean, isObject, isString, generateHash } from '../utils';
+import { Channel } from '../services/channel/channel';
+import config from '../services/config';
+import { IOC } from '../services/io';
+import { RemoteConfigService } from '../services/remote-config';
+import { ComponentLifeCycleEvent } from '../types/events.types';
+import { EnvironmentTypes } from '../types/options.types';
+import { Participant } from '../types/participant.types';
+import { Logger, Observable, isNode, isBoolean, isObject, isString, generateHash } from '../utils';
+import { validateId } from '../utils/validate-id';
+
+import { Auth, ComponentNames, Params, RealtimeComponentEvent, RealtimeComponentState } from './types';
 
 export class Realtime extends Observable {
   public name: ComponentNames.REALTIME;
@@ -97,6 +97,14 @@ export class Realtime extends Observable {
    * @returns {Promise<Channel>}
    */
   public connect(name: string): Promise<Channel> {
+    if (!validateId(name)) {
+      const message = '[SuperViz | Real-Time Data Engine] Participant id is invalid, it should be between 2 and 64 characters and only accept letters, numbers and special characters: -_&@+=,(){}[]/«».|\'"\'';
+
+      this.logger.log(message);
+      console.error(message);
+      throw new Error(message);
+    }
+
     let channel: Channel = this.channels.get(name);
     if (channel) return channel as unknown as Promise<Channel>;
 
@@ -179,7 +187,7 @@ export class Realtime extends Observable {
 
     if (realtime.canUse) return;
 
-    const message = `[SuperViz] You reached the limit usage of Real-Time Data Engine`;
+    const message = '[SuperViz] You reached the limit usage of Real-Time Data Engine';
 
     this.logger.log(message);
     console.error(message);
@@ -195,7 +203,7 @@ export class Realtime extends Observable {
     const apiKey = await ApiService.fetchApiKey();
 
     if (!apiKey) {
-      const message = `[SuperViz | Real-Time Data Engine] - Invalid Secret or ClientId`;
+      const message = '[SuperViz | Real-Time Data Engine] - Invalid Secret or ClientId';
 
       this.logger.log(message);
       console.error(message);
@@ -214,7 +222,7 @@ export class Realtime extends Observable {
     const apiKey = config.get<string>('apiKey');
 
     if (!apiKey) {
-      const message = `[SuperViz | Real-Time Data Engine] - API Key is required`;
+      const message = '[SuperViz | Real-Time Data Engine] - API Key is required';
 
       this.logger.log(message);
       console.error(message);
@@ -224,7 +232,7 @@ export class Realtime extends Observable {
     const isValid = await isValidApiKey();
 
     if (!isValid) {
-      const message = `[SuperViz | Real-Time Data Engine] - Invalid API Key`;
+      const message = '[SuperViz | Real-Time Data Engine] - Invalid API Key';
 
       this.logger.log(message);
       console.error(message);
@@ -238,7 +246,7 @@ export class Realtime extends Observable {
    */
   private validateParams(params: Params = {}) {
     if (!isObject(params)) {
-      const message = `[SuperViz | Real-Time Data Engine] - Options must be an object`;
+      const message = '[SuperViz | Real-Time Data Engine] - Options must be an object';
 
       this.logger.log(message);
       console.error(message);
@@ -249,7 +257,7 @@ export class Realtime extends Observable {
       params.environment &&
       !Object.values(EnvironmentTypes).includes(params.environment as EnvironmentTypes)
     ) {
-      const message = `[SuperViz | Real-Time Data Engine] - Invalid environment`;
+      const message = '[SuperViz | Real-Time Data Engine] - Invalid environment';
 
       this.logger.log(message);
       console.error(message);
@@ -257,7 +265,7 @@ export class Realtime extends Observable {
     }
 
     if (params.debug && !isBoolean(params['debug'])) {
-      const message = `[SuperViz | Real-Time Data Engine] - Debug param must be a boolean`;
+      const message = '[SuperViz | Real-Time Data Engine] - Debug param must be a boolean';
 
       this.logger.log(message);
       console.error(message);
@@ -267,7 +275,7 @@ export class Realtime extends Observable {
     if (!params['participant']) return;
 
     if (!isObject(params['participant'])) {
-      const message = `[SuperViz | Real-Time Data Engine] - Optional participant must be an object`;
+      const message = '[SuperViz | Real-Time Data Engine] - Optional participant must be an object';
 
       this.logger.log(message);
       console.error(message);
@@ -275,7 +283,7 @@ export class Realtime extends Observable {
     }
 
     if (!params.participant['id']) {
-      const message = `[SuperViz | Real-Time Data Engine] - Participant missing id`;
+      const message = '[SuperViz | Real-Time Data Engine] - Participant missing id';
 
       this.logger.log(message);
       console.error(message);
@@ -283,7 +291,15 @@ export class Realtime extends Observable {
     }
 
     if (!isString(params.participant['id'])) {
-      const message = `[SuperViz | Real-Time Data Engine] - Participant id must be a string`;
+      const message = '[SuperViz | Real-Time Data Engine] - Participant id must be a string';
+
+      this.logger.log(message);
+      console.error(message);
+      throw new Error(message);
+    }
+
+    if (!validateId(params.participant['id'])) {
+      const message = '[SuperViz | Real-Time Data Engine] Participant id is invalid, it should be between 2 and 64 characters and only accept letters, numbers and special characters: -_&@+=,(){}[]/«».|\'"\'';
 
       this.logger.log(message);
       console.error(message);
@@ -291,7 +307,7 @@ export class Realtime extends Observable {
     }
 
     if (params.participant.name && !isString(params.participant['name'])) {
-      const message = `[SuperViz | Real-Time Data Engine] - Optional participant name must be a string`;
+      const message = '[SuperViz | Real-Time Data Engine] - Optional participant name must be a string';
 
       this.logger.log(message);
       console.error(message);
@@ -308,7 +324,7 @@ export class Realtime extends Observable {
   private validateAuth(auth: Auth) {
     if (isString(auth)) {
       if (isNode()) {
-        const message = `[SuperViz | Real-Time Data Engine] - Secret and clientId are required when not using browser`;
+        const message = '[SuperViz | Real-Time Data Engine] - Secret and clientId are required when not using browser';
 
         this.logger.log(message);
         console.error(message);
@@ -316,7 +332,7 @@ export class Realtime extends Observable {
       }
     } else if (isObject(auth)) {
       if (!isNode()) {
-        const message = `[SuperViz | Real-Time Data Engine] - You can only authenticate using secret and clientId on the server`;
+        const message = '[SuperViz | Real-Time Data Engine] - You can only authenticate using secret and clientId on the server';
 
         this.logger.log(message);
         console.error(message);
@@ -324,14 +340,14 @@ export class Realtime extends Observable {
       }
 
       if (!auth.secret || !auth.clientId) {
-        const message = `[SuperViz | Real-Time Data Engine] - Secret and clientId are required`;
+        const message = '[SuperViz | Real-Time Data Engine] - Secret and clientId are required';
 
         this.logger.log(message);
         console.error(message);
         throw new Error(message);
       }
     } else {
-      const message = `[SuperViz | Real-Time Data Engine] - You must authenticate you session through either a string (api key) or an object (secret and clientId)`;
+      const message = '[SuperViz | Real-Time Data Engine] - You must authenticate you session through either a string (api key) or an object (secret and clientId)';
 
       this.logger.log(message);
       console.error(message);

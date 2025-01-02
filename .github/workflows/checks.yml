@@ -15,7 +15,7 @@ jobs:
       - name: Install pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 9.10.0
+          version: 9.15.0
       - name: Verify pnpm Installation
         run: pnpm --version
       - name: Cache pnpm store
@@ -43,12 +43,12 @@ jobs:
     needs: build
     strategy:
       matrix:
-        package: [realtime, sdk, yjs]
+        package: [realtime, sdk, yjs, 'room'] 
     steps:
       - name: Install pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 9.10.0
+          version: 9.15.0
       - uses: actions/checkout@v4
       - name: Install Dependencies
         run: pnpm install --frozen-lockfile
@@ -74,7 +74,7 @@ jobs:
       - name: Install pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 9.10.0
+          version: 9.15.0
       - uses: actions/checkout@v4
       - name: Install Dependencies
         run: pnpm install --frozen-lockfile

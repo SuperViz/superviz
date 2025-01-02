@@ -140,7 +140,7 @@ describe('initialization errors', () => {
         roomId: '<invalid-room-id>',
       }),
     ).rejects.toThrow(
-      '[SuperViz] Room id is invalid, it should be between 2 and 64 characters and only accept letters, numbers and special characters: -_&@+=,(){}[]/«».:|\'"',
+      '[SuperViz] Room id is invalid, it should be between 2 and 64 characters and only accept letters, numbers and special characters: -_&@+=,(){}[]/«».|\'"',
     );
 
     await expect(
@@ -149,7 +149,7 @@ describe('initialization errors', () => {
         roomId: '1',
       }),
     ).rejects.toThrow(
-      '[SuperViz] Room id is invalid, it should be between 2 and 64 characters and only accept letters, numbers and special characters: -_&@+=,(){}[]/«».:|\'"',
+      '[SuperViz] Room id is invalid, it should be between 2 and 64 characters and only accept letters, numbers and special characters: -_&@+=,(){}[]/«».|\'"',
     );
   });
 
@@ -160,7 +160,7 @@ describe('initialization errors', () => {
         participant: { ...SIMPLE_INITIALIZATION_MOCK.participant, id: '<invalid-participant-id>' },
       }),
     ).rejects.toThrow(
-      '[SuperViz] Participant id is invalid, it should be between 2 and 64 characters and only accept letters, numbers and special characters: -_&@+=,(){}[]/«».:|\'"',
+      '[SuperViz] Participant id is invalid, it should be between 2 and 64 characters and only accept letters, numbers and special characters: -_&@+=,(){}[]/«».|\'"',
     );
 
     await expect(
@@ -169,7 +169,7 @@ describe('initialization errors', () => {
         participant: { ...SIMPLE_INITIALIZATION_MOCK.participant, id: '1' },
       }),
     ).rejects.toThrow(
-      '[SuperViz] Participant id is invalid, it should be between 2 and 64 characters and only accept letters, numbers and special characters: -_&@+=,(){}[]/«».:|\'"',
+      '[SuperViz] Participant id is invalid, it should be between 2 and 64 characters and only accept letters, numbers and special characters: -_&@+=,(){}[]/«».|\'"',
     );
   });
 

@@ -3,7 +3,7 @@ import { debug } from 'debug';
 import { ColorsVariables, ColorsVariablesNames } from '../common/types/colors.types';
 import { EnvironmentTypes, SuperVizSdkOptions } from '../common/types/sdk-options.types';
 import ApiService from '../services/api';
-import AuthService from '../services/auth-service';
+import auth from '../services/auth-service';
 import config from '../services/config';
 import RemoteConfigService from '../services/remote-config-service';
 
@@ -18,7 +18,7 @@ import { LauncherFacade as LauncherFacadeType } from './launcher/types';
  */
 function validateId(id: string): boolean {
   const lengthConstraint = /^.{2,64}$/;
-  const pattern = /^[-_&@+=,(){}\[\]\/«».:|'"#a-zA-Z0-9À-ÿ\s]*$/;
+  const pattern = /^[-_&@+=,(){}\[\]\/«».|'"#a-zA-Z0-9À-ÿ\s]*$/;
 
   if (!lengthConstraint.test(id)) {
     return false;
@@ -66,13 +66,13 @@ const validateOptions = ({
 
   if (!validateId(roomId)) {
     throw new Error(
-      '[SuperViz] Room id is invalid, it should be between 2 and 64 characters and only accept letters, numbers and special characters: -_&@+=,(){}[]/«».:|\'"',
+      '[SuperViz] Room id is invalid, it should be between 2 and 64 characters and only accept letters, numbers and special characters: -_&@+=,(){}[]/«».|\'"',
     );
   }
 
   if (!validateId(participant.id)) {
     throw new Error(
-      '[SuperViz] Participant id is invalid, it should be between 2 and 64 characters and only accept letters, numbers and special characters: -_&@+=,(){}[]/«».:|\'"',
+      '[SuperViz] Participant id is invalid, it should be between 2 and 64 characters and only accept letters, numbers and special characters: -_&@+=,(){}[]/«».|\'"',
     );
   }
 
@@ -143,18 +143,17 @@ const init = async (apiKey: string, options: SuperVizSdkOptions): Promise<Launch
     RemoteConfigService.getFeatures(apiKey),
   ]);
 
-  const isValid = await AuthService(apiUrl, apiKey);
-
-  if (!isValid) {
-    throw new Error('Failed to validate API key');
-  }
-
-  const [waterMark, limits] = await Promise.all([
+  const [canAccess, waterMark, limits] = await Promise.all([
+    auth(apiUrl, apiKey),
     ApiService.fetchWaterMark(apiUrl, apiKey),
     ApiService.fetchLimits(apiUrl, apiKey),
   ]).catch(() => {
     throw new Error('[SuperViz] Failed to load configuration from server');
   });
+
+  if (!canAccess) {
+    throw new Error('Failed to validate API key');
+  }
 
   const { participant, roomId, customColors } = options;
 

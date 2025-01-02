@@ -15,6 +15,7 @@
     "@superviz/matterport-plugin": "workspace:*",
     "@superviz/react-sdk": "workspace:*",
     "@superviz/realtime": "workspace:*",
+    "@superviz/room": "workspace:*",
     "@superviz/sdk": "workspace:*",
     "@superviz/threejs-plugin": "workspace:*",
     "@superviz/yjs": "workspace:*",

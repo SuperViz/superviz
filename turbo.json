@@ -77,6 +77,21 @@
     "@superviz/sdk#test:unit:ci": {
       "dependsOn": ["@superviz/socket-client#build"]
     },
+    "@superviz/room#build": {
+      "dependsOn": ["@superviz/socket-client#build"]
+    },
+    "@superviz/room#test:unit": {
+      "dependsOn": ["@superviz/socket-client#build"]
+    },
+    "@superviz/room#test:unit:watch": {
+      "dependsOn": ["@superviz/socket-client#build"]
+    },
+    "@superviz/room#test:unit:coverage": {
+      "dependsOn": ["@superviz/socket-client#build"]
+    },
+    "@superviz/room#test:unit:ci": {
+      "dependsOn": ["@superviz/socket-client#build"]
+    },
     "@superviz/yjs#build": {
       "dependsOn": ["@superviz/sdk#build"]
     },
