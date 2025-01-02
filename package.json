@@ -5,7 +5,7 @@
     "build": "turbo build",
     "dev": "turbo dev",
     "lint": "turbo lint",
-    "watch": "turbo run watch",
+    "watch": "turbo run watch --concurrency=11",
     "semantic-release": "turbo run semantic-release",
     "test:unit": "turbo run test:unit",
     "test:unit:watch": "turbo run test:unit:watch",
@@ -22,7 +22,7 @@
     "turbo": "^2.3.3",
     "typescript": "^5.6.2"
   },
-  "packageManager": "pnpm@9.10.0",
+  "packageManager": "pnpm@9.15.0",
   "engines": {
     "node": ">=18"
   }

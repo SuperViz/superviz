@@ -168,6 +168,10 @@ describe('realtime component', () => {
   });
 
   describe('connect', () => {
+    test('should throw an error if passed channel name is not valid', () => {
+      expect(() => RealtimeComponentInstance.connect('<invalid-channel-name>')).toThrow();
+    });
+
     test('should return a promise when trying to create a channel before start', () => {
       RealtimeComponentInstance['changeState'](RealtimeComponentState.STOPPED);
 
@@ -246,26 +250,20 @@ describe('realtime component', () => {
     });
 
     test('should throw an error if environment has an invalid type', () => {
-      expect(() =>
-        RealtimeComponentInstance['validateParams']({
-          participant: { id: 'test', name: 'test' },
-          environment: 'test' as any,
-        }),
-      ).toThrow();
+      expect(() => RealtimeComponentInstance['validateParams']({
+        participant: { id: 'test', name: 'test' },
+        environment: 'test' as any,
+      })).toThrow();
     });
 
     test('should throw an error if participant fields are not strings', () => {
-      expect(() =>
-        RealtimeComponentInstance['validateParams']({
-          participant: { id: 1 as any, name: 'test' },
-        }),
-      ).toThrow();
+      expect(() => RealtimeComponentInstance['validateParams']({
+        participant: { id: 1 as any, name: 'test' },
+      })).toThrow();
 
-      expect(() =>
-        RealtimeComponentInstance['validateParams']({
-          participant: { id: 'test', name: 1 as any },
-        }),
-      ).toThrow();
+      expect(() => RealtimeComponentInstance['validateParams']({
+        participant: { id: 'test', name: 1 as any },
+      })).toThrow();
     });
 
     test('should not throw an error if participant is not passed', () => {
@@ -273,19 +271,23 @@ describe('realtime component', () => {
     });
 
     test('should throw an error if passed participant is not an object', () => {
-      expect(() =>
-        RealtimeComponentInstance['validateParams']({
-          participant: 'test' as any,
-        }),
-      ).toThrow();
+      expect(() => RealtimeComponentInstance['validateParams']({
+        participant: 'test' as any,
+      })).toThrow();
+    });
+
+    test('should throw an error if passed participant id is not valid', () => {
+      expect(() => RealtimeComponentInstance['validateParams']({
+        participant: {
+          id: '<invalid-participant-id>',
+        },
+      })).toThrow();
     });
 
     test('should throw an error if debug has an invalid type', () => {
-      expect(() =>
-        RealtimeComponentInstance['validateParams']({
-          debug: 'test' as any,
-        }),
-      ).toThrow();
+      expect(() => RealtimeComponentInstance['validateParams']({
+        debug: 'test' as any,
+      })).toThrow();
     });
   });
 
