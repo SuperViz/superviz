@@ -14,7 +14,7 @@ jest.mock('./services/api', () => ({
 describe('createRoom', () => {
   test('creates a room with valid params', async () => {
     const params = {
-      developerKey: 'abc123',
+      developerToken: 'abc123',
       roomId: 'abc123',
       participant: {
         id: 'abc123',
@@ -33,7 +33,7 @@ describe('createRoom', () => {
 
   test('throws an error if the room id is invalid', async () => {
     const params = {
-      developerKey: 'abc123',
+      developerToken: 'abc123',
       roomId: 'abc$',
       participant: {
         id: 'abc123',
@@ -53,7 +53,7 @@ describe('createRoom', () => {
 
   test('throws an error if the participant id is invalid', async () => {
     const params = {
-      developerKey: 'abc123',
+      developerToken: 'abc123',
       roomId: 'abc123:',
       participant: {
         id: 'abc$',
@@ -73,7 +73,7 @@ describe('createRoom', () => {
 
   test('throws an error if the group id is invalid', async () => {
     const params = {
-      developerKey: 'abc123',
+      developerToken: 'abc123',
       roomId: 'abc123',
       participant: {
         id: 'abc123',
@@ -93,7 +93,7 @@ describe('createRoom', () => {
 
   test('throws an error if the developer key is missing', async () => {
     const params = {
-      developerKey: '',
+      developerToken: '',
       roomId: 'abc123',
       participant: {
         id: 'abc123',
@@ -106,7 +106,7 @@ describe('createRoom', () => {
     };
 
     const createRoomPromise = createRoom(params);
-    await expect(createRoomPromise).rejects.toThrow('[SuperViz | Room] Developer Key is required');
+    await expect(createRoomPromise).rejects.toThrow('[SuperViz | Room] Developer Token is required');
 
     const params2 = {
       roomId: 'abc123',
@@ -118,12 +118,12 @@ describe('createRoom', () => {
 
     // @ts-ignore
     const createRoomPromise2 = createRoom(params2);
-    await expect(createRoomPromise2).rejects.toThrow('[SuperViz | Room] Developer Key is required');
+    await expect(createRoomPromise2).rejects.toThrow('[SuperViz | Room] Developer Token is required');
   });
 
   test('sets up the environment correctly', async () => {
     const params = {
-      developerKey: 'abc123',
+      developerToken: 'abc123',
       roomId: 'abc123',
       participant: {
         id: 'abc123',
@@ -143,7 +143,7 @@ describe('createRoom', () => {
     expect(config.get('debug')).toBe(false);
 
     const paramsWithOptionalFields = {
-      developerKey: 'abc123',
+      developerToken: 'abc123',
       roomId: 'abc123',
       participant: {
         id: 'abc123',
@@ -167,7 +167,7 @@ describe('createRoom', () => {
 
   test('set up the environment with the correct API URL', async () => {
     const params = {
-      developerKey: 'abc123',
+      developerToken: 'abc123',
       roomId: 'abc123',
       participant: {
         id: 'abc123',
@@ -184,7 +184,7 @@ describe('createRoom', () => {
     expect(config.get('apiUrl')).toBe('https://api.superviz.com');
 
     const paramsWithProdEnvironment = {
-      developerKey: 'abc123',
+      developerToken: 'abc123',
       roomId: 'abc123',
       participant: {
         id: 'abc123',

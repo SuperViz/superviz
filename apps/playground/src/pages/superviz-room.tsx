@@ -17,10 +17,14 @@ export function SuperVizRoom() {
     const uuid = generateId();
 
     const newRoom = await createRoom({
-      developerKey: SUPERVIZ_KEY,
+      developerToken: SUPERVIZ_KEY,
       participant: {
         name: "Participant Name",
         id: uuid,
+      },
+      group: {
+        name: SUPERVIZ_ROOM_PREFIX,
+        id: SUPERVIZ_ROOM_PREFIX,
       },
       roomId: `${SUPERVIZ_ROOM_PREFIX}-${componentName}`,
       debug: true, 
