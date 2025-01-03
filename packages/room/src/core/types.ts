@@ -1,4 +1,5 @@
 import { InitialParticipant, Participant } from '../common/types/participant.types';
+import { IOCState } from '../services/io/types';
 
 export interface RoomParams {
   participant: InitialParticipant;
@@ -7,6 +8,10 @@ export interface RoomParams {
 type RoomError = {
   code: string,
   message: string
+}
+
+type RoomUpdate = {
+  status: IOCState,
 }
 
 export enum ParticipantEvent {
@@ -19,7 +24,8 @@ export enum ParticipantEvent {
 }
 
 export enum RoomEvent {
-  ERROR = 'room.error'
+  ERROR = 'room.error',
+  UPDATE = 'room.update',
 }
 
 export interface RoomEventPayloads {
@@ -30,6 +36,7 @@ export interface RoomEventPayloads {
   [ParticipantEvent.PARTICIPANT_LEFT]: Participant;
   [ParticipantEvent.PARTICIPANT_UPDATED]: Participant;
   [RoomEvent.ERROR]: RoomError;
+  [RoomEvent.UPDATE]: RoomUpdate;
 }
 
 export type EventOptions<T extends ParticipantEvent | RoomEvent> = T | `${T}`

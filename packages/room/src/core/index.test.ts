@@ -2,6 +2,7 @@ import { Subject } from 'rxjs';
 
 import { Logger } from '../common/utils/logger';
 import { IOC } from '../services/io';
+import { IOCState } from '../services/io/types';
 
 import { ParticipantEvent, RoomParams } from './types';
 
@@ -138,12 +139,46 @@ describe('Room', () => {
     expect(emitSpy).toHaveBeenCalledWith(ParticipantEvent.MY_PARTICIPANT_UPDATED, data.data);
   });
 
-  it('should handle connection state change', () => {
-    const state = { connected: true } as any;
-    const logSpy = jest.spyOn(room['logger'], 'log');
+  it('should handle the same account error', () => {
+    const emitSpy = jest.spyOn(room as any, 'emit');
+    const leaveSpy = jest.spyOn(room, 'leave');
+
+    room['onConnectionStateChange'](IOCState.SAME_ACCOUNT_ERROR);
+
+    expect(leaveSpy).toHaveBeenCalled();
+    expect(emitSpy).toHaveBeenCalledWith(
+      'room.error',
+      {
+        code: 'same_account_error',
+        message: '[SuperViz] Room initialization failed: the user is already connected to the room. Please verify if the user is connected with the same account and try again.',
+      },
+    );
+  });
+
+  it('should handle the authentication error', () => {
+    const emitSpy = jest.spyOn(room as any, 'emit');
+    const leaveSpy = jest.spyOn(room, 'leave');
+
+    room['onConnectionStateChange'](IOCState.AUTH_ERROR);
+
+    expect(emitSpy).toHaveBeenCalledWith(
+      'room.error',
+      {
+        code: 'auth_error',
+        message: "[SuperViz] Room initialization failed: this website's domain is not whitelisted. If you are the developer, please add your domain in https://dashboard.superviz.com/developer",
+      },
+    );
+
+    expect(leaveSpy).toHaveBeenCalled();
+    expect(room['room'].disconnect).toHaveBeenCalled();
+  });
+
+  it('should update the room state', () => {
+    const state = IOCState.CONNECTED;
+    const emitSpy = jest.spyOn(room as any, 'emit');
 
     room['onConnectionStateChange'](state);
 
-    expect(logSpy).toHaveBeenCalledWith('connection state changed', state);
+    expect(emitSpy).toHaveBeenCalledWith('room.update', { status: state });
   });
 });

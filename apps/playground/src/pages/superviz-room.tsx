@@ -1,4 +1,4 @@
-import { createRoom, type Room, ParticipantEvent } from '@superviz/room'
+import { createRoom, type Room, ParticipantEvent, RoomEvent } from '@superviz/room'
 import { v4 as generateId } from "uuid";
 
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -33,6 +33,7 @@ export function SuperVizRoom() {
     });
 
     room.current = newRoom;
+    subscribeToEvents();
   }, []);
 
   useEffect(() => {
@@ -51,6 +52,12 @@ export function SuperVizRoom() {
       })
     });
 
+    Object.values(RoomEvent).forEach(event => { 
+      room.current?.subscribe(event, (data) => { 
+        console.log('New event from room, eventName:', event, 'data:', data);
+      })
+    });
+
     setSubscribed(true);
   }
 
@@ -59,6 +66,10 @@ export function SuperVizRoom() {
 
     Object.values(ParticipantEvent).forEach(event => { 
       room.current?.unsubscribe(event);
+    });
+
+    Object.values(RoomEvent).forEach(event => { 
+      room.current?.unsubscribe(event)
     });
 
     setSubscribed(false);

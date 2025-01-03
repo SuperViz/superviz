@@ -6,7 +6,7 @@ import { Logger } from '../common/utils/logger';
 import { IOC } from '../services/io';
 import { IOCState } from '../services/io/types';
 
-import { GeneralEvent, ParticipantEvent, RoomEventPayload, RoomParams, Callback, EventOptions } from './types';
+import { GeneralEvent, ParticipantEvent, RoomEventPayload, RoomParams, Callback, EventOptions, RoomEvent } from './types';
 
 export class Room {
   private participant: Participant;
@@ -34,6 +34,12 @@ export class Room {
   public leave() {
     this.unsubscribeFromRoomEvents();
 
+    this.emit(ParticipantEvent.PARTICIPANT_LEFT, this.participant);
+    this.emit(ParticipantEvent.MY_PARTICIPANT_LEFT, this.participant);
+
+    this.room.disconnect();
+    this.io.destroy();
+
     this.subscriptions.forEach((subscription) => {
       subscription.unsubscribe();
     });
@@ -44,9 +50,6 @@ export class Room {
 
     this.subscriptions.clear();
     this.observers.clear();
-
-    this.room.disconnect();
-    this.io.destroy();
   }
 
   /**
@@ -271,11 +274,66 @@ export class Room {
   };
 
   /**
+   * Handles authentication errors during room initialization.
+   *
+   * This method logs an error message indicating that the website's domain is not whitelisted.
+   * It emits an `ERROR` event with the error code 'auth_error' and the error message.
+   * Finally, it calls the `leave` method to exit the room.
+   *
+   * @fires RoomEvent.ERROR - Emitted when an authentication error occurs.
+   */
+  private onAuthError = () => {
+    const message = "[SuperViz] Room initialization failed: this website's domain is not whitelisted. If you are the developer, please add your domain in https://dashboard.superviz.com/developer";
+
+    this.logger.log(message);
+    console.error(message);
+
+    this.emit(RoomEvent.ERROR, { code: 'auth_error', message });
+    this.leave();
+  };
+
+  /**
+   * Handles the error when a user tries to connect to a room with the same account that is already
+   * connected.
+   * Logs the error message, emits an error event, and leaves the room.
+   *
+   * @fires RoomEvent.ERROR - Emitted when a user tries to connect to a room with the same account.
+   */
+  private onSameAccountError = () => {
+    const message = '[SuperViz] Room initialization failed: the user is already connected to the room. Please verify if the user is connected with the same account and try again.';
+
+    this.logger.log(message);
+    console.error(message);
+
+    this.emit(RoomEvent.ERROR, { code: 'same_account_error', message });
+    this.leave();
+  };
+
+  /**
    * @description Handles changes in the connection state.
    *
    * @param {IOCState} state - The current state of the connection.
    */
   private onConnectionStateChange = (state: IOCState): void => {
     this.logger.log('connection state changed', state);
+
+    const common = () => {
+      this.emit(RoomEvent.UPDATE, { status: state });
+    };
+
+    const map = {
+      [IOCState.CONNECTING]: () => common(),
+      [IOCState.CONNECTION_ERROR]: () => common(),
+      [IOCState.CONNECTED]: () => common(),
+      [IOCState.DISCONNECTED]: () => common(),
+      [IOCState.RECONNECTING]: () => common(),
+      [IOCState.RECONNECT_ERROR]: () => common(),
+
+      // error
+      [IOCState.AUTH_ERROR]: () => this.onAuthError(),
+      [IOCState.SAME_ACCOUNT_ERROR]: () => this.onSameAccountError(),
+    };
+
+    map[state]();
   };
 }
