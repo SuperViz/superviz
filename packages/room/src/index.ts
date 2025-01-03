@@ -67,7 +67,7 @@ async function setUpEnvironment({
  */
 export async function createRoom(params: InitializeRoomParams): Promise<Room> {
   try {
-    const { developerToken, participant, roomId } = InitializeRoomSchema.parse(params);
+    const { participant } = InitializeRoomSchema.parse(params);
 
     await setUpEnvironment(params);
 

@@ -10,9 +10,12 @@ import { GeneralEvent, ParticipantEvent, RoomEventPayload, RoomParams, Callback,
 
 export class Room {
   private participant: Participant;
+
   private io: IOC;
-  private logger: Logger;
   private room: SocketRoomType;
+
+  private logger: Logger;
+
   private subscriptions: Map<Callback<GeneralEvent>, Subscription> = new Map();
   private observers: Map<string, Subject<unknown>> = new Map();
 
@@ -30,6 +33,17 @@ export class Room {
    */
   public leave() {
     this.unsubscribeFromRoomEvents();
+
+    this.subscriptions.forEach((subscription) => {
+      subscription.unsubscribe();
+    });
+
+    this.observers.forEach((observer) => {
+      observer.complete();
+    });
+
+    this.subscriptions.clear();
+    this.observers.clear();
 
     this.room.disconnect();
     this.io.destroy();

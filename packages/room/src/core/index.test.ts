@@ -50,6 +50,14 @@ describe('Room', () => {
     expect(room['io'].destroy).toHaveBeenCalled();
   });
 
+  it('should remove all subscriptions and observers from the room when it\'s destroyed', () => {
+    room.subscribe('my-participant.joined', () => {});
+
+    room.leave();
+
+    expect(room['subscriptions'].size).toBe(0);
+  });
+
   it('should subscribe to an event', () => {
     const callback = jest.fn();
     const event = 'participant.joined';
