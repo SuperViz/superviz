@@ -1,7 +1,7 @@
-import { Participant } from '../common/types/participant.types';
+import { InitialParticipant, Participant } from '../common/types/participant.types';
 
 export interface RoomParams {
-  participant: Participant;
+  participant: InitialParticipant;
 }
 
 type RoomError = {

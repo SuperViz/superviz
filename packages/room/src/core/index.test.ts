@@ -82,30 +82,34 @@ describe('Room', () => {
   it('should handle participant joined room event', () => {
     const data = { id: '123' } as any;
     const emitSpy = jest.spyOn(room as any, 'emit');
+    const expected = room['transfromSocketMesssageToParticipant'](data);
 
     room['onParticipantJoinedRoom'](data);
 
-    expect(emitSpy).toHaveBeenCalledWith(ParticipantEvent.PARTICIPANT_JOINED, data);
+    expect(emitSpy).toHaveBeenCalledWith(ParticipantEvent.PARTICIPANT_JOINED, expected);
   });
 
   it('should handle local participant joined room event', () => {
     const data = { id: '123' } as any;
     const emitSpy = jest.spyOn(room as any, 'emit');
     const updateSpy = jest.spyOn(room['room'].presence, 'update');
+    const emitExpected = room['transfromSocketMesssageToParticipant'](data);
+    const updateExpcted = room['createParticipant'](params.participant);
 
     room['onLocalParticipantJoinedRoom'](data);
 
-    expect(updateSpy).toHaveBeenCalledWith(params.participant);
-    expect(emitSpy).toHaveBeenCalledWith(ParticipantEvent.MY_PARTICIPANT_JOINED, data);
+    expect(updateSpy).toHaveBeenCalledWith(updateExpcted);
+    expect(emitSpy).toHaveBeenCalledWith(ParticipantEvent.MY_PARTICIPANT_JOINED, emitExpected);
   });
 
   it('should handle participant leaves room event', () => {
     const data = { id: '123' } as any;
     const emitSpy = jest.spyOn(room as any, 'emit');
+    const expected = room['transfromSocketMesssageToParticipant'](data);
 
     room['onParticipantLeavesRoom'](data);
 
-    expect(emitSpy).toHaveBeenCalledWith(ParticipantEvent.PARTICIPANT_LEFT, data);
+    expect(emitSpy).toHaveBeenCalledWith(ParticipantEvent.PARTICIPANT_LEFT, expected);
   });
 
   it('should handle participant updates event', () => {

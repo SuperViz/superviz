@@ -1,7 +1,7 @@
 import type { PresenceEvent, Room as SocketRoomType } from '@superviz/socket-client';
-import { Subject, Subscription } from 'rxjs';
+import { Subject, Subscription, timestamp } from 'rxjs';
 
-import { Participant } from '../common/types/participant.types';
+import { InitialParticipant, Participant } from '../common/types/participant.types';
 import { Logger } from '../common/utils/logger';
 import { IOC } from '../services/io';
 import { IOCState } from '../services/io/types';
@@ -9,7 +9,7 @@ import { IOCState } from '../services/io/types';
 import { GeneralEvent, ParticipantEvent, RoomEventPayload, RoomParams, Callback, EventOptions } from './types';
 
 export class Room {
-  private participant: RoomParams['participant'];
+  private participant: Participant;
   private io: IOC;
   private logger: Logger;
   private room: SocketRoomType;
@@ -18,7 +18,7 @@ export class Room {
 
   constructor(params: RoomParams) {
     this.io = new IOC(params.participant);
-    this.participant = params.participant;
+    this.participant = this.createParticipant(params.participant);
     this.logger = new Logger('@superviz/room/room');
 
     this.logger.log('room created', this.participant);
@@ -86,6 +86,51 @@ export class Room {
     this.room = this.io.createRoom('room', 'unlimited');
 
     this.subscribeToRoomEvents();
+  }
+
+  /**
+   * Transforms a socket message into a Participant object.
+   *
+   * @param message - The presence event containing the participant data.
+   * @returns The transformed Participant object.
+   */
+  private transfromSocketMesssageToParticipant(
+    message: PresenceEvent<Participant | {}>,
+  ): Participant {
+    const participant = message.data as Participant;
+
+    return {
+      id: message.id,
+      name: participant?.name ? participant.name : message.name,
+      activeComponents: participant?.activeComponents ?? [],
+      slot: participant?.slot ?? {
+        index: null,
+        color: '#878291',
+        textColor: '#fff',
+        colorName: 'gray',
+        timestamp: Date.now(),
+      },
+    };
+  }
+
+  /**
+   * Creates a new participant with the given initial data and assigns default slot properties.
+   *
+   * @param initialData - The initial data for the participant.
+   * @returns A new participant object with the provided initial data and default slot properties.
+   */
+  private createParticipant(initialData: InitialParticipant): Participant {
+    return {
+      ...initialData,
+      activeComponents: [],
+      slot: {
+        index: null,
+        color: '#878291',
+        textColor: '#fff',
+        colorName: 'gray',
+        timestamp: Date.now(),
+      },
+    };
   }
 
   /**
@@ -157,7 +202,7 @@ export class Room {
       this.onLocalParticipantJoinedRoom(data);
     }
 
-    this.emit(ParticipantEvent.PARTICIPANT_JOINED, data);
+    this.emit(ParticipantEvent.PARTICIPANT_JOINED, this.transfromSocketMesssageToParticipant(data));
   };
 
   /**
@@ -170,7 +215,10 @@ export class Room {
   private onLocalParticipantJoinedRoom = (data: PresenceEvent<{}>) => {
     this.room.presence.update(this.participant);
 
-    this.emit(ParticipantEvent.MY_PARTICIPANT_JOINED, data);
+    this.emit(
+      ParticipantEvent.MY_PARTICIPANT_JOINED,
+      this.transfromSocketMesssageToParticipant(data),
+    );
   };
 
   /**
@@ -180,7 +228,7 @@ export class Room {
    * @fires ParticipantEvent.PARTICIPANT_LEFT - Emitted when a participant leaves the room.
    */
   private onParticipantLeavesRoom = (data: PresenceEvent<Participant>) => {
-    this.emit(ParticipantEvent.PARTICIPANT_LEFT, data);
+    this.emit(ParticipantEvent.PARTICIPANT_LEFT, this.transfromSocketMesssageToParticipant(data));
   };
 
   /**
