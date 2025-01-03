@@ -3,6 +3,7 @@ import { z } from 'zod';
 
 import { Participant } from './common/types/participant.types';
 import { Room } from './core';
+import { Callback, ParticipantEvent, RoomEvent } from './core/types';
 import { ApiService } from './services/api';
 import config from './services/config';
 import { InitializeRoomParams, InitializeRoomSchema } from './types';
@@ -66,7 +67,7 @@ async function setUpEnvironment({
  */
 export async function createRoom(params: InitializeRoomParams): Promise<Room> {
   try {
-    const { developerToken, participant, roomId } = InitializeRoomSchema.parse(params);
+    const { participant } = InitializeRoomSchema.parse(params);
 
     await setUpEnvironment(params);
 
@@ -81,3 +82,14 @@ export async function createRoom(params: InitializeRoomParams): Promise<Room> {
     throw error;
   }
 }
+
+export type {
+  Room,
+  Participant,
+};
+
+export {
+  RoomEvent,
+  ParticipantEvent,
+  Callback,
+};

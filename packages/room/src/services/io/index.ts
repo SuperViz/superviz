@@ -1,7 +1,7 @@
 import * as Socket from '@superviz/socket-client';
 import { Subject } from 'rxjs';
 
-import { Participant } from '../../common/types/participant.types';
+import { InitialParticipant, Participant } from '../../common/types/participant.types';
 import config from '../config/index';
 
 import { IOCState } from './types';
@@ -12,7 +12,7 @@ export class IOC {
 
   public stateSubject: Subject<IOCState> = new Subject();
 
-  constructor(private participant: Participant) {
+  constructor(private participant: InitialParticipant) {
     this.createClient();
   }
 
