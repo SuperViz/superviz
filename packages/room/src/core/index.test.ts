@@ -98,7 +98,13 @@ describe('Room', () => {
 
     room['onParticipantJoinedRoom'](data);
 
-    expect(emitSpy).toHaveBeenCalledWith(ParticipantEvent.PARTICIPANT_JOINED, expected);
+    expect(emitSpy).toHaveBeenCalledWith(ParticipantEvent.PARTICIPANT_JOINED, {
+      ...expected,
+      slot: {
+        ...expected.slot,
+        timestamp: expect.any(Number),
+      },
+    });
   });
 
   it('should handle local participant joined room event', () => {
@@ -110,8 +116,20 @@ describe('Room', () => {
 
     room['onLocalParticipantJoinedRoom'](data);
 
-    expect(updateSpy).toHaveBeenCalledWith(updateExpected);
-    expect(emitSpy).toHaveBeenCalledWith(ParticipantEvent.MY_PARTICIPANT_JOINED, emitExpected);
+    expect(updateSpy).toHaveBeenCalledWith({
+      ...updateExpected,
+      slot: {
+        ...updateExpected.slot,
+        timestamp: expect.any(Number),
+      },
+    });
+    expect(emitSpy).toHaveBeenCalledWith(ParticipantEvent.MY_PARTICIPANT_JOINED, {
+      ...emitExpected,
+      slot: {
+        ...emitExpected.slot,
+        timestamp: expect.any(Number),
+      },
+    });
   });
 
   it('should handle participant leaves room event', () => {
@@ -121,7 +139,13 @@ describe('Room', () => {
 
     room['onParticipantLeavesRoom'](data);
 
-    expect(emitSpy).toHaveBeenCalledWith(ParticipantEvent.PARTICIPANT_LEFT, expected);
+    expect(emitSpy).toHaveBeenCalledWith(ParticipantEvent.PARTICIPANT_LEFT, {
+      ...expected,
+      slot: {
+        ...expected.slot,
+        timestamp: expect.any(Number),
+      },
+    });
   });
 
   it('should handle participant updates event', () => {
