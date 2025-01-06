@@ -5,6 +5,7 @@ import { InitialParticipant, Participant } from '../common/types/participant.typ
 import { Logger } from '../common/utils/logger';
 import { IOC } from '../services/io';
 import { IOCState } from '../services/io/types';
+import { SlotService } from '../services/slot';
 
 import { GeneralEvent, ParticipantEvent, RoomEventPayload, RoomParams, Callback, EventOptions, RoomEvent } from './types';
 
@@ -13,6 +14,8 @@ export class Room {
 
   private io: IOC;
   private room: SocketRoomType;
+
+  private slotService: SlotService;
 
   private participants: Map<string, Participant> = new Map();
   private state: IOCState = IOCState.DISCONNECTED;
@@ -54,6 +57,7 @@ export class Room {
     this.subscriptions.clear();
     this.observers.clear();
     this.participants.clear();
+    this.slotService;
 
     if (typeof window !== 'undefined') {
       delete window.SUPERVIZ_ROOM;
@@ -138,6 +142,7 @@ export class Room {
   private init() {
     this.io.stateSubject.subscribe(this.onConnectionStateChange);
     this.room = this.io.createRoom('room', 'unlimited');
+    this.slotService = new SlotService(this.room, this.participant);
 
     this.subscribeToRoomEvents();
   }
@@ -158,13 +163,7 @@ export class Room {
       name: participant?.name ? participant.name : message.name,
       activeComponents: participant?.activeComponents ?? [],
       email: participant?.email ?? null,
-      slot: participant?.slot ?? {
-        index: null,
-        color: '#878291',
-        textColor: '#fff',
-        colorName: 'gray',
-        timestamp: Date.now(),
-      },
+      slot: participant?.slot ?? SlotService.getDefaultSlot(),
     };
   }
 
@@ -180,13 +179,7 @@ export class Room {
       name: initialData.name,
       email: initialData.email ?? null,
       activeComponents: [],
-      slot: {
-        index: null,
-        color: '#878291',
-        textColor: '#fff',
-        colorName: 'gray',
-        timestamp: Date.now(),
-      },
+      slot: SlotService.getDefaultSlot(),
     };
   }
 
