@@ -179,6 +179,7 @@ describe('Room', () => {
 
     room['onConnectionStateChange'](state);
 
+    expect(room['state']).toBe(state);
     expect(emitSpy).toHaveBeenCalledWith('room.update', { status: state });
   });
 });

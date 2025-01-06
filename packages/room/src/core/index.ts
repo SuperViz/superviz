@@ -14,6 +14,7 @@ export class Room {
   private io: IOC;
   private room: SocketRoomType;
 
+  private state: IOCState = IOCState.DISCONNECTED;
   private logger: Logger;
 
   private subscriptions: Map<Callback<GeneralEvent>, Subscription> = new Map();
@@ -32,6 +33,7 @@ export class Room {
    * @description leave the room, destroy the socket connnection and all attached components
    */
   public leave() {
+    this.state = IOCState.DISCONNECTED;
     this.unsubscribeFromRoomEvents();
 
     this.emit(ParticipantEvent.PARTICIPANT_LEFT, this.participant);
@@ -319,6 +321,7 @@ export class Room {
 
     const common = () => {
       this.emit(RoomEvent.UPDATE, { status: state });
+      this.state = state;
     };
 
     const map = {
@@ -334,6 +337,6 @@ export class Room {
       [IOCState.SAME_ACCOUNT_ERROR]: () => this.onSameAccountError(),
     };
 
-    map[state]();
+    map[state]?.();
   };
 }
