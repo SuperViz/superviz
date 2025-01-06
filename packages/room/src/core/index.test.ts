@@ -220,7 +220,9 @@ describe('Room', () => {
       {
         id: '1',
         name: 'Participant 1',
-        data: [],
+        data: {
+          email: null,
+        },
         connectionId: 'conn-1',
         timestamp: date,
       },
@@ -232,6 +234,7 @@ describe('Room', () => {
     expect(participants).toEqual([{
       id: '1',
       name: 'Participant 1',
+      email: null,
       slot: {
         index: null,
         color: '#878291',
