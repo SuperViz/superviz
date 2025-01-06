@@ -157,6 +157,7 @@ export class Room {
       id: message.id,
       name: participant?.name ? participant.name : message.name,
       activeComponents: participant?.activeComponents ?? [],
+      email: participant?.email ?? null,
       slot: participant?.slot ?? {
         index: null,
         color: '#878291',
@@ -175,7 +176,9 @@ export class Room {
    */
   private createParticipant(initialData: InitialParticipant): Participant {
     return {
-      ...initialData,
+      id: initialData.id,
+      name: initialData.name,
+      email: initialData.email ?? null,
       activeComponents: [],
       slot: {
         index: null,
