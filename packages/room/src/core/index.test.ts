@@ -1,3 +1,4 @@
+import { PresenceEvent } from '@superviz/socket-client';
 import { Subject } from 'rxjs';
 
 import { Logger } from '../common/utils/logger';
@@ -15,6 +16,7 @@ jest.mock('../services/io', () => ({
     createRoom: jest.fn(() => ({
       disconnect: jest.fn(),
       presence: {
+        get: jest.fn(),
         off: jest.fn(),
         on: jest.fn(),
         update: jest.fn(),
@@ -57,6 +59,7 @@ describe('Room', () => {
     room.leave();
 
     expect(room['subscriptions'].size).toBe(0);
+    expect(room['observers'].size).toBe(0);
   });
 
   it('should subscribe to an event', () => {
@@ -103,11 +106,11 @@ describe('Room', () => {
     const emitSpy = jest.spyOn(room as any, 'emit');
     const updateSpy = jest.spyOn(room['room'].presence, 'update');
     const emitExpected = room['transfromSocketMesssageToParticipant'](data);
-    const updateExpcted = room['createParticipant'](params.participant);
+    const updateExpected = room['createParticipant'](params.participant);
 
     room['onLocalParticipantJoinedRoom'](data);
 
-    expect(updateSpy).toHaveBeenCalledWith(updateExpcted);
+    expect(updateSpy).toHaveBeenCalledWith(updateExpected);
     expect(emitSpy).toHaveBeenCalledWith(ParticipantEvent.MY_PARTICIPANT_JOINED, emitExpected);
   });
 
@@ -181,5 +184,46 @@ describe('Room', () => {
 
     expect(room['state']).toBe(state);
     expect(emitSpy).toHaveBeenCalledWith('room.update', { status: state });
+  });
+
+  it('should get participants when room is connected', async () => {
+    room['state'] = IOCState.CONNECTED;
+
+    const date = Date.now();
+
+    const mockParticipants: PresenceEvent[] = [
+      {
+        id: '1',
+        name: 'Participant 1',
+        data: [],
+        connectionId: 'conn-1',
+        timestamp: date,
+      },
+    ];
+    room['room'].presence.get = jest.fn((callback) => callback(mockParticipants));
+
+    const participants = await room.getParticipants();
+
+    expect(participants).toEqual([{
+      id: '1',
+      name: 'Participant 1',
+      slot: {
+        index: null,
+        color: '#878291',
+        textColor: '#fff',
+        colorName: 'gray',
+        timestamp: expect.any(Number),
+      },
+      activeComponents: [],
+    }]);
+    expect(room['participants'].size).toBe(mockParticipants.length);
+  });
+
+  it('should return empty array when room is not connected', async () => {
+    room['state'] = IOCState.DISCONNECTED;
+
+    const participants = await room.getParticipants();
+
+    expect(participants).toEqual([]);
   });
 });

@@ -79,11 +79,18 @@ export function SuperVizRoom() {
     room.current?.leave();
   }
 
+  const getParticipants = () => {
+    room.current?.getParticipants().then((participants) => {
+      console.log('Participants:', participants);
+    });
+  }
+
   return (
-    <div className='w-full h-full flex items-center justify-center gap-2'>
+    <div className='w-full h-full flex items-center justify-center gap-2 flex-col'>
       <button onClick={leaveRoom}> Leave </button>
       <button onClick={subscribeToEvents} disabled={subscribed}> Subscribe to Events </button>
       <button onClick={unsubscribeFromEvents} disabled={!subscribed}> Unsubscribe from Events </button>
+      <button onClick={getParticipants}> Get Participants </button>
     </div>
   )
 }
