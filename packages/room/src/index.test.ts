@@ -1,4 +1,5 @@
 import { Room } from './core';
+import { ApiService } from './services/api';
 import config from './services/config';
 
 import { createRoom } from '.';
@@ -8,6 +9,8 @@ jest.mock('./services/api', () => ({
     validateApiKey: jest.fn(() => Promise.resolve(true)),
     fetchWaterMark: jest.fn(() => Promise.resolve({})),
     fetchLimits: jest.fn(() => Promise.resolve({})),
+    createParticipant: jest.fn(() => Promise.resolve()),
+    fetchParticipant: jest.fn(() => Promise.resolve(null)),
   },
 }));
 
@@ -253,5 +256,77 @@ describe('createRoom', () => {
     const newRoom = await createRoom(params);
 
     expect(newRoom).not.toBe(room);
+  });
+
+  test('should throw an error if the participant name is missing and the participant does not exist in the API', async () => {
+    const params = {
+      developerToken: 'abc123',
+      roomId: 'abc123',
+      participant: {
+        id: 'abc123',
+      },
+      group: {
+        id: 'abc123',
+        name: 'Group',
+      },
+      environment: 'dev' as 'dev',
+    };
+
+    const createRoomPromise = createRoom(params);
+
+    await expect(createRoomPromise).rejects.toThrow(
+      '[SuperViz | Room] - Participant does not exist, create the user in the API or add the name in the initialization to initialize the SuperViz room.',
+    );
+  });
+
+  test('should ignore the participant name if the participant exists in the API', async () => {
+    const params = {
+      developerToken: 'abc123',
+      roomId: 'abc123',
+      participant: {
+        id: 'abc123',
+      },
+      group: {
+        id: 'abc123',
+        name: 'Group',
+      },
+      environment: 'dev' as 'dev',
+    };
+
+    jest.spyOn(ApiService, 'fetchParticipant').mockResolvedValueOnce({
+      id: 'abc123',
+      name: 'John Doe',
+      email: 'john@superviz.com',
+    });
+
+    room = await createRoom(params);
+
+    expect(room).toBeInstanceOf(Room);
+  });
+
+  test('should create the participant if the participant does not exist in the API', async () => {
+    const params = {
+      developerToken: 'abc123',
+      roomId: 'abc123',
+      participant: {
+        id: 'abc123',
+        name: 'John Doe',
+      },
+      group: {
+        id: 'abc123',
+        name: 'Group',
+      },
+      environment: 'dev' as 'dev',
+    };
+
+    jest.spyOn(ApiService, 'fetchParticipant').mockResolvedValueOnce(null);
+
+    room = await createRoom(params);
+
+    expect(ApiService.createParticipant).toHaveBeenCalledWith({
+      participantId: 'abc123',
+      name: 'John Doe',
+      email: undefined,
+    });
   });
 });

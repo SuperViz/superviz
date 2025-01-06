@@ -1,6 +1,7 @@
 export type InitialParticipant = {
   id: string
   name: string
+  email?: string
  }
 
 export type Participant = InitialParticipant & {
