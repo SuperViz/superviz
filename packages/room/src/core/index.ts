@@ -14,6 +14,8 @@ export class Room {
   private io: IOC;
   private room: SocketRoomType;
 
+  private participants: Map<string, Participant> = new Map();
+  private state: IOCState = IOCState.DISCONNECTED;
   private logger: Logger;
 
   private subscriptions: Map<Callback<GeneralEvent>, Subscription> = new Map();
@@ -32,6 +34,7 @@ export class Room {
    * @description leave the room, destroy the socket connnection and all attached components
    */
   public leave() {
+    this.state = IOCState.DISCONNECTED;
     this.unsubscribeFromRoomEvents();
 
     this.emit(ParticipantEvent.PARTICIPANT_LEFT, this.participant);
@@ -50,6 +53,7 @@ export class Room {
 
     this.subscriptions.clear();
     this.observers.clear();
+    this.participants.clear();
   }
 
   /**
@@ -93,6 +97,35 @@ export class Room {
 
     this.subscriptions.get(callback)?.unsubscribe();
     this.subscriptions.delete(callback);
+  }
+
+  /**
+   * Retrieves the list of participants in the room.
+   *
+   * @returns {Promise<Participant[]>} A promise that resolves to an array of participants.
+   *
+   * @remarks
+   * - If the room is not connected or the state is not `IOCState.CONNECTED`,
+      an empty array is returned.
+   */
+  public async getParticipants(): Promise<Participant[]> {
+    if (!this.room || this.state !== IOCState.CONNECTED) {
+      return [];
+    }
+
+    const participants = await new Promise<Participant[]>((resolve) => {
+      this.room.presence.get((presences) => {
+        const mapped = presences.map((presence) => {
+          return this.transfromSocketMesssageToParticipant(presence);
+        });
+
+        this.participants = new Map(mapped.map((participant) => [participant.id, participant]));
+
+        resolve(mapped);
+      });
+    });
+
+    return participants;
   }
 
   /**
@@ -217,6 +250,9 @@ export class Room {
   private onParticipantJoinedRoom = (data: PresenceEvent<{}>) => {
     if (this.participant.id === data.id) {
       this.onLocalParticipantJoinedRoom(data);
+    } else {
+      this.participants.set(data.id, this.transfromSocketMesssageToParticipant(data));
+      this.logger.log('participant joined room @ update participants', this.participants);
     }
 
     this.emit(ParticipantEvent.PARTICIPANT_JOINED, this.transfromSocketMesssageToParticipant(data));
@@ -229,13 +265,16 @@ export class Room {
    * @fires ParticipantEvent.MY_PARTICIPANT_JOINED - Emitted when the local participant joins
    * the room.
    */
-  private onLocalParticipantJoinedRoom = (data: PresenceEvent<{}>) => {
+  private onLocalParticipantJoinedRoom = async (data: PresenceEvent<{}>) => {
     this.room.presence.update(this.participant);
 
     this.emit(
       ParticipantEvent.MY_PARTICIPANT_JOINED,
       this.transfromSocketMesssageToParticipant(data),
     );
+
+    await this.getParticipants();
+    this.logger.log('local participant joined room @ update participants', this.participants);
   };
 
   /**
@@ -245,7 +284,10 @@ export class Room {
    * @fires ParticipantEvent.PARTICIPANT_LEFT - Emitted when a participant leaves the room.
    */
   private onParticipantLeavesRoom = (data: PresenceEvent<Participant>) => {
+    this.participants.delete(data.id);
+
     this.emit(ParticipantEvent.PARTICIPANT_LEFT, this.transfromSocketMesssageToParticipant(data));
+    this.logger.log('participant leaves room @ update participants', this.participants);
   };
 
   /**
@@ -258,6 +300,9 @@ export class Room {
     if (this.participant.id === data.data.id) {
       this.onLocalParticipantUpdates(data);
     }
+
+    this.participants.set(data.data.id, data.data);
+    this.logger.log('participant updates @ update participants', this.participants);
 
     this.emit(ParticipantEvent.PARTICIPANT_UPDATED, data.data);
   };
@@ -319,6 +364,7 @@ export class Room {
 
     const common = () => {
       this.emit(RoomEvent.UPDATE, { status: state });
+      this.state = state;
     };
 
     const map = {
@@ -334,6 +380,6 @@ export class Room {
       [IOCState.SAME_ACCOUNT_ERROR]: () => this.onSameAccountError(),
     };
 
-    map[state]();
+    map[state]?.();
   };
 }
