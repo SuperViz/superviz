@@ -1,6 +1,8 @@
 import config from '../config';
 import { ComponentLimits } from '../config/types';
 
+import { CreateParticipantParams } from './types';
+
 export class ApiService {
   static async doRequest(url: string, method: string, body: any, customHeaders = {}) {
     const response = await fetch(url, {
@@ -50,5 +52,19 @@ export class ApiService {
     const url = this.createUrl(path);
     const { message } = await this.doRequest(url, 'POST', { apiKey });
     return message;
+  }
+
+  static async createParticipant(
+    participant: CreateParticipantParams,
+  ): Promise<void> {
+    const path = '/participants';
+    const url = this.createUrl(path);
+    return this.doRequest(url, 'POST', { ...participant }, { apikey: config.get<string>('apiKey') });
+  }
+
+  static async fetchParticipant(id: string) {
+    const path = `/participants/${id}`;
+    const url = this.createUrl(path);
+    return this.doRequest(url, 'GET', undefined, { apikey: config.get<string>('apiKey') });
   }
 }
