@@ -39,6 +39,7 @@ describe('Room', () => {
 
   afterEach(() => {
     jest.clearAllMocks();
+    room.leave();
   });
 
   it('should create a room and initialize it', () => {

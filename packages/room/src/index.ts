@@ -71,7 +71,27 @@ export async function createRoom(params: InitializeRoomParams): Promise<Room> {
 
     await setUpEnvironment(params);
 
-    return new Room({ participant: participant as Participant });
+    if (typeof window !== 'undefined' && window.SUPERVIZ_ROOM) {
+      console.warn(`[SuperViz | Room] An existing room instance was found in the window object.
+      To prevent conflicts, please call the 'leave' method on the existing room before creating a new one.
+      Returning the previously created room instance.
+      `);
+
+      return window.SUPERVIZ_ROOM;
+    }
+
+    const room = new Room({
+      participant: {
+        id: participant.id,
+        name: participant.name,
+      },
+    });
+
+    if (typeof window !== 'undefined') {
+      window.SUPERVIZ_ROOM = room;
+    }
+
+    return room;
   } catch (error) {
     if (error instanceof z.ZodError) {
       const message = error.errors.map((err) => err.message).join('\n');
@@ -83,6 +103,8 @@ export async function createRoom(params: InitializeRoomParams): Promise<Room> {
   }
 }
 
+// Exports
+
 export type {
   Room,
   Participant,
@@ -93,3 +115,11 @@ export {
   ParticipantEvent,
   Callback,
 };
+
+if (typeof window !== 'undefined') {
+  window.SuperVizRoom = {
+    createRoom,
+    RoomEvent,
+    ParticipantEvent,
+  };
+}

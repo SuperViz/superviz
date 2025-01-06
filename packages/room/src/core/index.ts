@@ -44,7 +44,7 @@ export class Room {
     this.io.destroy();
 
     this.subscriptions.forEach((subscription) => {
-      subscription.unsubscribe();
+      subscription?.unsubscribe();
     });
 
     this.observers.forEach((observer) => {
@@ -54,6 +54,10 @@ export class Room {
     this.subscriptions.clear();
     this.observers.clear();
     this.participants.clear();
+
+    if (typeof window !== 'undefined') {
+      delete window.SUPERVIZ_ROOM;
+    }
   }
 
   /**

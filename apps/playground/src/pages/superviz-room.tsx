@@ -1,7 +1,7 @@
 import { createRoom, type Room, ParticipantEvent, RoomEvent, Participant } from '@superviz/room'
 import { v4 as generateId } from "uuid";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { getConfig } from "../config";
 
 const SUPERVIZ_KEY = getConfig<string>("keys.superviz");
@@ -11,7 +11,6 @@ const componentName = "new-room";
 
 export function SuperVizRoom() {
   const room = useRef<Room | null>(null);
-  const loaded = useRef<boolean>(false);
   const [subscribed, setSubscribed] = useState<boolean>(false);
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [roomState, setRoomState] = useState<string>("Not connected");
@@ -40,13 +39,6 @@ export function SuperVizRoom() {
     setRoomState("Connected");
     subscribeToEvents();
   }, []);
-
-  useEffect(() => {
-    if (loaded.current) return;
-    loaded.current = true;
-
-    initializeSuperViz();
-  }, [initializeSuperViz]);
 
   const subscribeToEvents = () => {
     if (!room.current) return;
@@ -95,7 +87,7 @@ export function SuperVizRoom() {
       setParticipants(participants);
       console.log('Participants:', participants);
     });
-  }
+  }  
 
   return (
     <div className='w-full h-full flex justify-between gap-2 p-10 overflow-hidden'>
@@ -105,10 +97,16 @@ export function SuperVizRoom() {
           <h2>Observer State: {observerState}</h2>
         </div>
         <button 
+          className='px-4 py-2 bg-green-500 text-white rounded hover:bg-green-700' 
+          onClick={initializeSuperViz}
+        >
+          Initialize Room
+        </button>
+        <button 
           onClick={leaveRoom} 
           className='px-4 py-2 bg-red-500 text-white rounded hover:bg-red-700'
         > 
-          Leave 
+          Leave Room
         </button>
         <button 
           onClick={subscribeToEvents} 

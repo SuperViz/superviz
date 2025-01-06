@@ -11,6 +11,15 @@ jest.mock('./services/api', () => ({
   },
 }));
 
+let room: Room | null = null;
+
+afterEach(() => {
+  if (room) {
+    room.leave();
+    room = null;
+  }
+});
+
 describe('createRoom', () => {
   test('creates a room with valid params', async () => {
     const params = {
@@ -26,7 +35,7 @@ describe('createRoom', () => {
       },
     };
 
-    const room = await createRoom(params);
+    room = await createRoom(params);
 
     expect(room).toBeInstanceOf(Room);
   });
@@ -135,7 +144,7 @@ describe('createRoom', () => {
       },
     };
 
-    await createRoom(params);
+    room = await createRoom(params);
 
     expect(config.get('apiKey')).toBe('abc123');
     expect(config.get('roomId')).toBe('abc123');
@@ -157,7 +166,7 @@ describe('createRoom', () => {
       environment: 'dev' as 'dev',
     };
 
-    await createRoom(paramsWithOptionalFields);
+    room = await createRoom(paramsWithOptionalFields);
 
     expect(config.get('apiKey')).toBe('abc123');
     expect(config.get('roomId')).toBe('abc123');
@@ -179,11 +188,11 @@ describe('createRoom', () => {
       },
     };
 
-    await createRoom(params);
+    room = await createRoom(params);
 
     expect(config.get('apiUrl')).toBe('https://api.superviz.com');
 
-    const paramsWithProdEnvironment = {
+    const paramsWithDevEnvironment = {
       developerToken: 'abc123',
       roomId: 'abc123',
       participant: {
@@ -197,8 +206,52 @@ describe('createRoom', () => {
       environment: 'dev' as 'dev',
     };
 
-    await createRoom(paramsWithProdEnvironment);
+    room = await createRoom(paramsWithDevEnvironment);
 
     expect(config.get('apiUrl')).toBe('https://dev.nodeapi.superviz.com');
+  });
+
+  test('warn if a room already exists in the window object', async () => {
+    const params = {
+      developerToken: 'abc123',
+      roomId: 'abc123',
+      participant: {
+        id: 'abc123',
+        name: 'John Doe',
+      },
+      group: {
+        id: 'abc123',
+        name: 'Group',
+      },
+      environment: 'dev' as 'dev',
+    };
+
+    room = await createRoom(params);
+    const roomPromise = createRoom(params);
+
+    await expect(roomPromise).resolves.toBe(room);
+  });
+
+  test('should return a new room instance if leave and initialize again', async () => {
+    const params = {
+      developerToken: 'abc123',
+      roomId: 'abc123',
+      participant: {
+        id: 'abc123',
+        name: 'John Doe',
+      },
+      group: {
+        id: 'abc123',
+        name: 'Group',
+      },
+      environment: 'dev' as 'dev',
+    };
+
+    room = await createRoom(params);
+    room.leave();
+
+    const newRoom = await createRoom(params);
+
+    expect(newRoom).not.toBe(room);
   });
 });
