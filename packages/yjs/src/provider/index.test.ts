@@ -73,7 +73,6 @@ describe('provider', () => {
 
       provider.attach({
         useStore: () => ({
-          isDomainWhitelisted: { value: true },
           hasJoinedRoom: { value: true },
           localParticipant: { value: { id: 'local-participant-id' } },
         }),
@@ -83,27 +82,12 @@ describe('provider', () => {
       expect(provider['connect']).toHaveBeenCalled();
     });
 
-    test('should not connect if domain is not whitelisted', () => {
-      const provider = createProvider();
-      provider['connect'] = jest.fn();
-
-      provider.attach({
-        useStore: () => ({
-          isDomainWhitelisted: { value: false },
-          hasJoinedRoom: { value: true },
-        }),
-      } as any);
-
-      expect(provider['connect']).not.toHaveBeenCalled();
-    });
-
     test('should not connect if user has not joined room', () => {
       const provider = createProvider();
       provider['connect'] = jest.fn();
 
       provider.attach({
         useStore: () => ({
-          isDomainWhitelisted: { value: true },
           hasJoinedRoom: { value: false, subscribe: jest.fn() },
         }),
       } as any);
