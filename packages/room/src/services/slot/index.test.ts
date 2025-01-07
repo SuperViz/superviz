@@ -62,8 +62,13 @@ describe('SlotService', () => {
   it('should set default slot', () => {
     slotService['setDefaultSlot']();
 
-    expect(slotService.slot).toEqual(SlotService.getDefaultSlot());
-    expect(room.presence.update).toHaveBeenCalledWith({ slot: SlotService.getDefaultSlot() });
+    const expected = {
+      ...SlotService.getDefaultSlot(),
+      timestamp: expect.any(Number),
+    };
+
+    expect(slotService.slot).toEqual(expected);
+    expect(room.presence.update).toHaveBeenCalledWith({ slot: expected });
   });
 
   it('should validate and assign slot type', async () => {
