@@ -10,7 +10,7 @@ export type Participant = InitialParticipant & {
 }
 
 export type Slot = {
-  index: number;
+  index: number | null;
   color: string;
   textColor: string;
   colorName: string;
