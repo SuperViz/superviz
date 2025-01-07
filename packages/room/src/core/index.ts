@@ -6,6 +6,8 @@ import { Logger } from '../common/utils/logger';
 import { IOC } from '../services/io';
 import { IOCState } from '../services/io/types';
 import { SlotService } from '../services/slot';
+import { StoreType } from '../stores/common/types';
+import { useStore } from '../stores/common/use-store';
 
 import { GeneralEvent, ParticipantEvent, RoomEventPayload, RoomParams, Callback, EventOptions, RoomEvent } from './types';
 
@@ -16,8 +18,8 @@ export class Room {
   private room: SocketRoomType;
 
   private slotService: SlotService;
-
-  private participants: Map<string, Participant> = new Map();
+  private useStore = useStore.bind(this) as typeof useStore;
+  private participants: Record<string, Participant>;
   private state: IOCState = IOCState.DISCONNECTED;
   private logger: Logger;
 
@@ -56,8 +58,12 @@ export class Room {
 
     this.subscriptions.clear();
     this.observers.clear();
-    this.participants.clear();
-    this.slotService;
+    this.participants = {};
+
+    const { destroy: destroyStore, hasJoinedRoom } = this.useStore(StoreType.GLOBAL);
+
+    hasJoinedRoom.publish(false);
+    destroyStore();
 
     if (typeof window !== 'undefined') {
       delete window.SUPERVIZ_ROOM;
@@ -127,8 +133,14 @@ export class Room {
           return this.transfromSocketMesssageToParticipant(presence);
         });
 
-        this.participants = new Map(mapped.map((participant) => [participant.id, participant]));
+        const { participants } = this.useStore(StoreType.GLOBAL);
+        const newParticipants: Record<string, Participant> = {};
 
+        mapped.forEach((participant) => {
+          newParticipants[participant.id] = participant;
+        });
+
+        participants.publish(newParticipants);
         resolve(mapped);
       });
     });
@@ -140,6 +152,10 @@ export class Room {
    * @description Initializes the room features
    */
   private init() {
+    const { participants } = this.useStore(StoreType.GLOBAL);
+
+    participants.subscribe();
+
     this.io.stateSubject.subscribe(this.onConnectionStateChange);
     this.room = this.io.createRoom('room', 'unlimited');
     this.slotService = new SlotService(this.room, this.participant);
@@ -251,7 +267,10 @@ export class Room {
     if (this.participant.id === data.id) {
       this.onLocalParticipantJoinedRoom(data);
     } else {
-      this.participants.set(data.id, this.transfromSocketMesssageToParticipant(data));
+      const { participants } = this.useStore(StoreType.GLOBAL);
+      const newParticipants = { ...this.participants };
+      newParticipants[data.id] = this.transfromSocketMesssageToParticipant(data);
+      participants.publish(newParticipants);
       this.logger.log('participant joined room @ update participants', this.participants);
     }
 
@@ -268,12 +287,15 @@ export class Room {
   private onLocalParticipantJoinedRoom = async (data: PresenceEvent<{}>) => {
     this.room.presence.update(this.participant);
 
+    await this.getParticipants();
+
+    const { hasJoinedRoom } = this.useStore(StoreType.GLOBAL);
+
+    hasJoinedRoom.publish(true);
     this.emit(
       ParticipantEvent.MY_PARTICIPANT_JOINED,
       this.transfromSocketMesssageToParticipant(data),
     );
-
-    await this.getParticipants();
     this.logger.log('local participant joined room @ update participants', this.participants);
   };
 
@@ -284,7 +306,11 @@ export class Room {
    * @fires ParticipantEvent.PARTICIPANT_LEFT - Emitted when a participant leaves the room.
    */
   private onParticipantLeavesRoom = (data: PresenceEvent<Participant>) => {
-    this.participants.delete(data.id);
+    const { participants } = this.useStore(StoreType.GLOBAL);
+
+    const newParticipants = { ...this.participants };
+    delete newParticipants[data.id];
+    participants.publish(newParticipants);
 
     this.emit(ParticipantEvent.PARTICIPANT_LEFT, this.transfromSocketMesssageToParticipant(data));
     this.logger.log('participant leaves room @ update participants', this.participants);
@@ -301,7 +327,11 @@ export class Room {
       this.onLocalParticipantUpdates(data);
     }
 
-    this.participants.set(data.data.id, data.data);
+    const { participants } = this.useStore(StoreType.GLOBAL);
+    const newParticipants = { ...this.participants };
+    newParticipants[data.data.id] = data.data;
+    participants.publish(newParticipants);
+
     this.logger.log('participant updates @ update participants', this.participants);
 
     this.emit(ParticipantEvent.PARTICIPANT_UPDATED, data.data);
@@ -315,6 +345,10 @@ export class Room {
    * is updated.
    */
   private onLocalParticipantUpdates = (data: PresenceEvent<Participant>) => {
+    const { localParticipant } = this.useStore(StoreType.GLOBAL);
+
+    localParticipant.publish(data.data);
+    this.participant = data.data;
     this.emit(ParticipantEvent.MY_PARTICIPANT_UPDATED, data.data);
   };
 

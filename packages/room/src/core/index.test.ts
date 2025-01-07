@@ -108,14 +108,14 @@ describe('Room', () => {
     });
   });
 
-  it('should handle local participant joined room event', () => {
+  it('should handle local participant joined room event', async () => {
     const data = { id: '123' } as any;
     const emitSpy = jest.spyOn(room as any, 'emit');
     const updateSpy = jest.spyOn(room['room'].presence, 'update');
     const emitExpected = room['transfromSocketMesssageToParticipant'](data);
     const updateExpected = room['createParticipant'](params.participant);
 
-    room['onLocalParticipantJoinedRoom'](data);
+    await room['onLocalParticipantJoinedRoom'](data);
 
     expect(updateSpy).toHaveBeenCalledWith({
       ...updateExpected,
@@ -244,7 +244,8 @@ describe('Room', () => {
       },
       activeComponents: [],
     }]);
-    expect(room['participants'].size).toBe(mockParticipants.length);
+
+    expect(Object.keys(room['participants']).length).toBe(mockParticipants.length);
   });
 
   it('should return empty array when room is not connected', async () => {
