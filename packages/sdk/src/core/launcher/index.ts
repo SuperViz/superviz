@@ -1,7 +1,7 @@
 import * as Socket from '@superviz/socket-client';
 import { isEqual } from 'lodash';
 
-import { ParticipantEvent } from '../../common/types/events.types';
+import { EventBusEvent, ParticipantEvent } from '../../common/types/events.types';
 import { Participant } from '../../common/types/participant.types';
 import { StoreType } from '../../common/types/stores.types';
 import { Observable } from '../../common/utils';
@@ -45,13 +45,9 @@ export class Launcher extends Observable implements DefaultLauncher {
       localParticipant: globalParticipant,
       group,
     } = this.useStore(StoreType.GLOBAL);
-    const { localParticipant, participants } = this.useStore(StoreType.CORE);
 
     globalParticipant.publish({ ...participant });
     globalParticipant.subscribe(this.onLocalParticipantUpdateOnStore);
-
-    localParticipant.subscribe(this.onLocalParticipantUpdateOnCore);
-    participants.subscribe(this.onParticipantsListUpdateOnCore);
 
     group.publish(participantGroup);
     this.ioc = new IOC(globalParticipant.value);
@@ -69,6 +65,11 @@ export class Launcher extends Observable implements DefaultLauncher {
 
     // internal events without realtime
     this.eventBus = new EventBus();
+    this.eventBus.subscribe(EventBusEvent.UPDATE_PARTICIPANT, this.onLocalParticipantUpdateOnCore);
+    this.eventBus.subscribe(
+      EventBusEvent.UPDATE_PARTICIPANT_LIST,
+      this.onParticipantsListUpdateOnCore,
+    );
 
     this.logger.log('launcher created');
 
@@ -282,6 +283,10 @@ export class Launcher extends Observable implements DefaultLauncher {
 
   private onLocalParticipantUpdateOnCore = (participant: Participant): void => {
     if (!this.room) return;
+
+    const { localParticipant } = useStore(StoreType.GLOBAL);
+
+    localParticipant.publish(participant);
     this.room.presence.update(participant);
   };
 
@@ -311,10 +316,10 @@ export class Launcher extends Observable implements DefaultLauncher {
     this.room.presence.get((presences) => {
       const participantsMap: Record<string, Participant> = {};
 
-      presences.forEach((presence) => {
+      presences.forEach((presence: Socket.PresenceEvent<Participant>) => {
         participantsMap[presence.id] = {
-          ...(presence.data as Participant),
-          name: presence.name,
+          ...(presence.data),
+          name: presence.data.name ?? presence.name,
           id: presence.id,
           timestamp: presence.timestamp,
         };
@@ -426,7 +431,7 @@ export class Launcher extends Observable implements DefaultLauncher {
     const { participants } = useStore(StoreType.GLOBAL);
     const participant: Participant = {
       id: presence.id,
-      name: presence.name,
+      name: presence.data.name,
       timestamp: presence.timestamp,
       ...presence.data,
     };

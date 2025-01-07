@@ -5,6 +5,7 @@ import { ColorsVariables } from '../../common/types/colors.types';
 import {
   DeviceEvent,
   Dimensions,
+  EventBusEvent,
   FrameEvent,
   MeetingConnectionStatus,
   MeetingControlsEvent,
@@ -24,7 +25,6 @@ import { Logger } from '../../common/utils';
 import { BrowserService } from '../../services/browser';
 import config from '../../services/config';
 import { ConnectionService } from '../../services/connection-status';
-import { coreBridge } from '../../services/core-bridge';
 import { RoomStateService } from '../../services/room-state';
 import VideoConferenceManager from '../../services/video-conference-manager';
 import {
@@ -539,37 +539,37 @@ export class VideoConference extends BaseComponent {
     if (this.videoConfig.canUseDefaultAvatars) {
       this.roomState.updateMyProperties({
         avatar: participant.avatar,
-        name: participant.name,
+        name: newParticipantName,
         type: participant.type,
         joinedMeeting: true,
       });
 
-      coreBridge.updateLocalParticipant({
+      this.eventBus.publish(EventBusEvent.UPDATE_PARTICIPANT, {
         ...localParticipant.value,
         avatar: participant.avatar,
-        name: participant.name,
+        name: newParticipantName,
         type: this.params.userType,
       });
 
-      coreBridge.updateParticipantsList({
+      this.eventBus.publish(EventBusEvent.UPDATE_PARTICIPANT_LIST, {
         ...participants.value,
         [participant.id]: {
           ...participants.value[participant.id],
           avatar: participant.avatar,
-          name: participant.name,
+          name: newParticipantName,
         },
       });
 
       return;
     }
 
-    coreBridge.updateLocalParticipant({
+    this.eventBus.publish(EventBusEvent.UPDATE_PARTICIPANT, {
       ...localParticipant.value,
       name: newParticipantName,
       type: this.params.userType,
     });
 
-    coreBridge.updateParticipantsList({
+    this.eventBus.publish(EventBusEvent.UPDATE_PARTICIPANT_LIST, {
       ...participants.value,
       [participant.id]: {
         ...participants.value[participant.id],

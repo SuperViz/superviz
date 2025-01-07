@@ -1,5 +1,4 @@
 import { useGlobalStore } from '../../services/stores';
-import { useCoreStore } from '../../services/stores/core';
 import { usePresence3DStore } from '../../services/stores/presence3D';
 import { useVideoStore } from '../../services/stores/video';
 import { useWhoIsOnlineStore } from '../../services/stores/who-is-online/index';
@@ -32,7 +31,6 @@ type GlobalStore = StoreType.GLOBAL | `${StoreType.GLOBAL}`;
 type WhoIsOnlineStore = StoreType.WHO_IS_ONLINE | 'who-is-online-store';
 type VideoStore = StoreType.VIDEO | 'video-store';
 type Presence3DStore = StoreType.PRESENCE_3D | 'presence-3d-store';
-type CoreStore = StoreType.CORE | 'core-store';
 
 export type Store<T> = T extends GlobalStore
   ? StoreApi<typeof useGlobalStore>
@@ -42,7 +40,5 @@ export type Store<T> = T extends GlobalStore
   ? StoreApi<typeof useVideoStore>
   : T extends Presence3DStore
   ? StoreApi<typeof usePresence3DStore>
-  : T extends CoreStore
-  ? StoreApi<typeof useCoreStore>
   : never;
 export type StoresTypes = typeof StoreType;
