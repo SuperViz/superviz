@@ -149,3 +149,8 @@ export enum WhoIsOnlineEvent {
   START_FOLLOW_ME = 'who-is-online.start-follow-me',
   STOP_FOLLOW_ME = 'who-is-online.stop-follow-me',
 }
+
+export enum EventBusEvent {
+  UPDATE_PARTICIPANT_LIST = 'update-participant-list',
+  UPDATE_PARTICIPANT = 'update-participant',
+}

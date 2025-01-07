@@ -1,5 +1,4 @@
 import { PublicSubject } from '../../services/stores/common/types';
-import { useCoreStore } from '../../services/stores/core';
 import { useGlobalStore } from '../../services/stores/global';
 import { usePresence3DStore } from '../../services/stores/presence3D';
 import { useVideoStore } from '../../services/stores/video';
@@ -11,7 +10,6 @@ const stores = {
   [StoreType.WHO_IS_ONLINE]: useWhoIsOnlineStore,
   [StoreType.VIDEO]: useVideoStore,
   [StoreType.PRESENCE_3D]: usePresence3DStore,
-  [StoreType.CORE]: useCoreStore,
 };
 
 /**

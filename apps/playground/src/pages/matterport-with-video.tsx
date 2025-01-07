@@ -60,9 +60,7 @@ export function MatterportWithVideo() {
 
     room.current.addComponent(videoConference);
 
-    videoConference.subscribe('meeting.state-update', (state: number) => {
-      if (state !== 3) return;
-
+    videoConference.subscribe('my-participant.joined', () => {
       const matterport = new MatterportPresence3D(mpSdk.current!);
       room.current!.addComponent(matterport);
     });
