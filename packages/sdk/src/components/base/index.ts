@@ -39,13 +39,7 @@ export abstract class BaseComponent extends Observable {
     }
 
     const { config: globalConfig, eventBus, ioc } = params;
-    const { isDomainWhitelisted, hasJoinedRoom } = this.useStore(StoreType.GLOBAL);
-
-    if (!isDomainWhitelisted.value) {
-      const message = `Component ${this.name} can't be used because this website's domain is not whitelisted. Please add your domain in https://dashboard.superviz.com/developer`;
-      this.logger.log(message);
-      return;
-    }
+    const { hasJoinedRoom } = this.useStore(StoreType.GLOBAL);
 
     config.setConfig(globalConfig);
 

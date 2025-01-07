@@ -44,12 +44,10 @@ export class Launcher extends Observable implements DefaultLauncher {
     const {
       localParticipant: globalParticipant,
       group,
-      isDomainWhitelisted,
     } = this.useStore(StoreType.GLOBAL);
     const { localParticipant, participants } = this.useStore(StoreType.CORE);
 
     globalParticipant.publish({ ...participant });
-    isDomainWhitelisted.subscribe(this.onAuthentication);
     globalParticipant.subscribe(this.onLocalParticipantUpdateOnStore);
 
     localParticipant.subscribe(this.onLocalParticipantUpdateOnCore);
