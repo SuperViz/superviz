@@ -55,8 +55,4 @@ export type GeneralEvent = ParticipantEvent | RoomEvent;
 export type RoomEventPayload<T extends GeneralEvent> =
   T extends keyof RoomEventPayloads ? RoomEventPayloads[T] : never;
 
-export type RoomEventPair = {
-    [K in keyof RoomEventPayloads]: { event: K; payload: RoomEventPayloads[K] };
-  }[keyof RoomEventPayloads];
-
 export type Callback<T extends GeneralEvent> = (event: RoomEventPayload<T>) => void;
