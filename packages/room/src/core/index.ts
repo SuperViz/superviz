@@ -3,6 +3,7 @@ import { Subject, Subscription, timestamp } from 'rxjs';
 
 import { InitialParticipant, Participant } from '../common/types/participant.types';
 import { Logger } from '../common/utils/logger';
+import { EventBus } from '../services/event-bus';
 import { IOC } from '../services/io';
 import { IOCState } from '../services/io/types';
 import { SlotService } from '../services/slot';
@@ -26,10 +27,13 @@ export class Room {
   private subscriptions: Map<Callback<GeneralEvent>, Subscription> = new Map();
   private observers: Map<string, Subject<unknown>> = new Map();
 
+  private eventBus: EventBus;
+
   constructor(params: RoomParams) {
     this.io = new IOC(params.participant);
     this.participant = this.createParticipant(params.participant);
     this.logger = new Logger('@superviz/room/room');
+    this.eventBus = new EventBus();
 
     this.logger.log('room created', this.participant);
     this.init();
@@ -64,6 +68,8 @@ export class Room {
 
     hasJoinedRoom.publish(false);
     destroyStore();
+
+    this.eventBus?.destroy();
 
     if (typeof window !== 'undefined') {
       delete window.SUPERVIZ_ROOM;
