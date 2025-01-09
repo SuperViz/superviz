@@ -70,7 +70,6 @@ describe('BaseComponent', () => {
         ioc: new IOC(MOCK_LOCAL_PARTICIPANT),
         config: MOCK_CONFIG,
         eventBus: EVENT_BUS_MOCK,
-        Presence3DManagerService: Presence3DManager,
         connectionLimit: LIMITS_MOCK.videoConference.maxParticipants,
         useStore,
       });
@@ -88,7 +87,6 @@ describe('BaseComponent', () => {
 
     test('should not start if domain is not whitelisted', () => {
       DummyComponentInstance.attach({
-        Presence3DManagerService: Presence3DManager,
         ioc: new IOC(MOCK_LOCAL_PARTICIPANT),
         config: MOCK_CONFIG,
         eventBus: EVENT_BUS_MOCK,
@@ -108,7 +106,6 @@ describe('BaseComponent', () => {
       expect(DummyComponentInstance.attach).toBeDefined();
 
       DummyComponentInstance.attach({
-        Presence3DManagerService: Presence3DManager,
         ioc: new IOC(MOCK_LOCAL_PARTICIPANT),
         config: MOCK_CONFIG,
         eventBus: EVENT_BUS_MOCK,
@@ -126,7 +123,6 @@ describe('BaseComponent', () => {
       expect(() => {
         DummyComponentInstance.attach({
           ioc: null as unknown as IOC,
-          Presence3DManagerService: Presence3DManager,
           config: null as unknown as Configuration,
           eventBus: null as unknown as EventBus,
           useStore: null as unknown as typeof useStore,
@@ -142,7 +138,6 @@ describe('BaseComponent', () => {
       expect(DummyComponentInstance.detach).toBeDefined();
 
       DummyComponentInstance.attach({
-        Presence3DManagerService: Presence3DManager,
         ioc: new IOC(MOCK_LOCAL_PARTICIPANT),
         config: MOCK_CONFIG,
         eventBus: EVENT_BUS_MOCK,
@@ -164,7 +159,6 @@ describe('BaseComponent', () => {
       DummyComponentInstance['destroy'] = jest.fn();
 
       DummyComponentInstance.attach({
-        Presence3DManagerService: Presence3DManager,
         ioc: new IOC(MOCK_LOCAL_PARTICIPANT),
         config: MOCK_CONFIG,
         eventBus: EVENT_BUS_MOCK,

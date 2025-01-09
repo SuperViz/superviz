@@ -1,5 +1,6 @@
 import { MOCK_CONFIG } from '../../../__mocks__/config.mock';
 import { EVENT_BUS_MOCK } from '../../../__mocks__/event-bus.mock';
+import { LIMITS_MOCK } from '../../../__mocks__/limits.mock';
 import { MOCK_LOCAL_PARTICIPANT } from '../../../__mocks__/participants.mock';
 import { StoreType } from '../../common/types/stores.types';
 import { useStore } from '../../common/utils/use-store';
@@ -10,7 +11,6 @@ import { ComponentNames } from '../types';
 import { FieldEvents } from './types';
 
 import { FormElements } from '.';
-import { LIMITS_MOCK } from '../../../__mocks__/limits.mock';
 
 describe('form elements', () => {
   let instance: any;
@@ -32,7 +32,6 @@ describe('form elements', () => {
       ioc: new IOC(MOCK_LOCAL_PARTICIPANT),
       config: MOCK_CONFIG,
       eventBus: EVENT_BUS_MOCK,
-      Presence3DManagerService: Presence3DManager,
       connectionLimit: LIMITS_MOCK.presence.maxParticipants,
       useStore,
     });

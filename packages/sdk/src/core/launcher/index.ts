@@ -15,7 +15,6 @@ import { EventBus } from '../../services/event-bus';
 import { IOC } from '../../services/io';
 import { IOCState } from '../../services/io/types';
 import LimitsService from '../../services/limits';
-import { Presence3DManager } from '../../services/presence-3d-manager';
 import { SlotService } from '../../services/slot';
 import { useGlobalStore } from '../../services/stores';
 
@@ -100,7 +99,6 @@ export class Launcher extends Observable implements DefaultLauncher {
       config: config.configuration,
       eventBus: this.eventBus,
       useStore,
-      Presence3DManagerService: Presence3DManager,
       connectionLimit: limit.maxParticipants,
     });
 

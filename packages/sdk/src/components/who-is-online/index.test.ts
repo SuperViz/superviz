@@ -63,7 +63,6 @@ describe('Who Is Online', () => {
       ioc: new IOC(MOCK_LOCAL_PARTICIPANT),
       config: MOCK_CONFIG,
       eventBus: EVENT_BUS_MOCK,
-      Presence3DManagerService: Presence3DManager,
       connectionLimit: LIMITS_MOCK.presence.maxParticipants,
       useStore,
     });

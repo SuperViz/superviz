@@ -1,4 +1,4 @@
-import type { Participant, Presence3DManager, StoreType } from '@superviz/sdk';
+import { Participant, Presence3DManager, StoreType } from '@superviz/sdk';
 import type { useStore } from '@superviz/sdk/dist/common/utils/use-store';
 import type { DefaultAttachComponentOptions } from '@superviz/sdk/dist/components/base/types';
 import type { EventBus } from '@superviz/sdk/dist/services/event-bus';
@@ -147,7 +147,7 @@ class Presence3D {
 
     this.logger.log('attached');
 
-    const { eventBus, useStore, ioc, Presence3DManagerService } = params;
+    const { eventBus, useStore, ioc } = params;
 
     this.isAttached = true;
     this.eventBus = eventBus;
@@ -155,7 +155,7 @@ class Presence3D {
     this.useStore = useStore.bind(this);
     this.room = ioc.createRoom(this.name);
 
-    this.presence3DManager = new Presence3DManagerService(this.room, this.useStore);
+    this.presence3DManager = new Presence3DManager(this.room, this.useStore);
 
     const { hasJoined3D, participants } = this.useStore(storeType.PRESENCE_3D);
     hasJoined3D.subscribe();
@@ -364,8 +364,7 @@ class Presence3D {
       return;
     }
 
-    if (!this.participants || this.participants.length === 0 || !participant || !participant.id)
-      return;
+    if (!this.participants || this.participants.length === 0 || !participant || !participant.id) return;
 
     const participantToBeUpdated = this.participants.find(
       (oldParticipant) => oldParticipant.id === participant.id,
@@ -497,8 +496,7 @@ class Presence3D {
       this.localParticipantId &&
       participant.id === this.localParticipantId &&
       !this.config.renderLocalAvatar
-    )
-      return;
+    ) return;
 
     this.create3dPresence(participantOn3D);
   };
