@@ -1,6 +1,7 @@
 import { MOCK_ANNOTATION } from '../../../__mocks__/comments.mock';
 import { MOCK_CONFIG } from '../../../__mocks__/config.mock';
 import { EVENT_BUS_MOCK } from '../../../__mocks__/event-bus.mock';
+import { LIMITS_MOCK } from '../../../__mocks__/limits.mock';
 import { MOCK_OBSERVER_HELPER } from '../../../__mocks__/observer-helper.mock';
 import { MOCK_GROUP, MOCK_LOCAL_PARTICIPANT } from '../../../__mocks__/participants.mock';
 import { CommentEvent } from '../../common/types/events.types';
@@ -17,7 +18,6 @@ import { ComponentNames } from '../types';
 import { PinAdapter, CommentsSide, Annotation, PinCoordinates } from './types';
 
 import { Comments } from './index';
-import { LIMITS_MOCK } from '../../../__mocks__/limits.mock';
 
 const MOCK_PARTICIPANTS: ParticipantByGroupApi[] = [
   {
@@ -83,7 +83,6 @@ describe('Comments', () => {
       ioc: new IOC(MOCK_LOCAL_PARTICIPANT),
       config: MOCK_CONFIG,
       eventBus: EVENT_BUS_MOCK,
-      Presence3DManagerService: Presence3DManager,
       connectionLimit: LIMITS_MOCK.presence.maxParticipants,
       useStore,
     });
@@ -139,7 +138,7 @@ describe('Comments', () => {
     const spy = jest.spyOn(ApiService, 'fetchAnnotation');
 
     expect(spy).toHaveBeenCalledWith(MOCK_CONFIG.apiUrl, MOCK_CONFIG.apiKey, {
-      roomId: MOCK_CONFIG.roomId
+      roomId: MOCK_CONFIG.roomId,
     });
   });
 
@@ -336,7 +335,6 @@ describe('Comments', () => {
       ioc: new IOC(MOCK_LOCAL_PARTICIPANT),
       config: MOCK_CONFIG,
       eventBus: EVENT_BUS_MOCK,
-      Presence3DManagerService: Presence3DManager,
       connectionLimit: LIMITS_MOCK.presence.maxParticipants,
       useStore,
     });
@@ -356,7 +354,6 @@ describe('Comments', () => {
       ioc: new IOC(MOCK_LOCAL_PARTICIPANT),
       config: MOCK_CONFIG,
       eventBus: EVENT_BUS_MOCK,
-      Presence3DManagerService: Presence3DManager,
       connectionLimit: LIMITS_MOCK.presence.maxParticipants,
       useStore,
     });

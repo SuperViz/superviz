@@ -159,6 +159,9 @@ importers:
 
   packages/autodesk:
     dependencies:
+      '@superviz/sdk':
+        specifier: workspace:*
+        version: link:../sdk
       debug:
         specifier: ^4.3.5
         version: 4.3.7
@@ -178,9 +181,6 @@ importers:
       '@superviz/eslint-config':
         specifier: workspace:*
         version: link:../eslint-config
-      '@superviz/sdk':
-        specifier: workspace:*
-        version: link:../sdk
       '@superviz/socket-client':
         specifier: workspace:*
         version: link:../socket-client
@@ -250,6 +250,9 @@ importers:
 
   packages/matterport:
     dependencies:
+      '@superviz/sdk':
+        specifier: workspace:*
+        version: link:../sdk
       debug:
         specifier: ^4.3.5
         version: 4.3.7
@@ -269,9 +272,6 @@ importers:
       '@superviz/eslint-config':
         specifier: workspace:*
         version: link:../eslint-config
-      '@superviz/sdk':
-        specifier: workspace:*
-        version: link:../sdk
       '@superviz/socket-client':
         specifier: workspace:*
         version: link:../socket-client
@@ -817,6 +817,9 @@ importers:
 
   packages/three:
     dependencies:
+      '@superviz/sdk':
+        specifier: workspace:*
+        version: link:../sdk
       debug:
         specifier: ^4.3.5
         version: 4.3.7
@@ -842,9 +845,6 @@ importers:
       '@superviz/eslint-config':
         specifier: workspace:*
         version: link:../eslint-config
-      '@superviz/sdk':
-        specifier: workspace:*
-        version: link:../sdk
       '@superviz/socket-client':
         specifier: workspace:*
         version: link:../socket-client

@@ -1,6 +1,8 @@
 import { MOCK_CONFIG } from '../../../__mocks__/config.mock';
 import { EVENT_BUS_MOCK } from '../../../__mocks__/event-bus.mock';
+import { LIMITS_MOCK } from '../../../__mocks__/limits.mock';
 import { MOCK_LOCAL_PARTICIPANT } from '../../../__mocks__/participants.mock';
+import { StoreType } from '../../common/types/stores.types';
 import { useStore } from '../../common/utils/use-store';
 import { IOC } from '../../services/io';
 import { Presence3DManager } from '../../services/presence-3d-manager';
@@ -8,8 +10,6 @@ import { Presence3DManager } from '../../services/presence-3d-manager';
 import { RealtimeComponentState } from './types';
 
 import { Realtime } from '.';
-import { LIMITS_MOCK } from '../../../__mocks__/limits.mock';
-import { StoreType } from '../../common/types/stores.types';
 
 jest.mock('lodash/throttle', () => jest.fn((fn) => fn));
 jest.useFakeTimers();
@@ -31,7 +31,6 @@ describe('realtime component', () => {
       ioc: new IOC(MOCK_LOCAL_PARTICIPANT),
       config: MOCK_CONFIG,
       eventBus: EVENT_BUS_MOCK,
-      Presence3DManagerService: Presence3DManager,
       connectionLimit: LIMITS_MOCK.realtime.maxParticipants,
       useStore,
     });

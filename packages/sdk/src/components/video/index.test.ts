@@ -99,7 +99,6 @@ describe('VideoConference', () => {
       ioc: new IOC(MOCK_LOCAL_PARTICIPANT),
       config: MOCK_CONFIG,
       eventBus: EVENT_BUS_MOCK,
-      Presence3DManagerService: Presence3DManager,
       connectionLimit: LIMITS_MOCK.videoConference.maxParticipants,
       useStore,
     });
@@ -122,7 +121,6 @@ describe('VideoConference', () => {
 
     VideoConferenceInstance.attach({
       ioc: new IOC(MOCK_LOCAL_PARTICIPANT),
-      Presence3DManagerService: Presence3DManager,
       config: MOCK_CONFIG,
       eventBus: EVENT_BUS_MOCK,
       connectionLimit: LIMITS_MOCK.videoConference.maxParticipants,
