@@ -9,7 +9,7 @@ import { SlotService } from '../services/slot';
 import { StoreType } from '../stores/common/types';
 import { useStore } from '../stores/common/use-store';
 
-import { GeneralEvent, ParticipantEvent, RoomEventPayload, RoomParams, Callback, EventOptions, RoomEvent } from './types';
+import { GeneralEvent, ParticipantEvent, RoomEventPayload, RoomParams, Callback, EventOptions, RoomEvent, RoomState } from './types';
 
 export class Room {
   private participant: Participant;
@@ -20,7 +20,7 @@ export class Room {
   private slotService: SlotService;
   private useStore = useStore.bind(this) as typeof useStore;
   private participants: Record<string, Participant>;
-  private state: IOCState = IOCState.DISCONNECTED;
+  private state: RoomState = RoomState.DISCONNECTED;
   private logger: Logger;
 
   private subscriptions: Map<Callback<GeneralEvent>, Subscription> = new Map();
@@ -39,7 +39,7 @@ export class Room {
    * @description leave the room, destroy the socket connnection and all attached components
    */
   public leave() {
-    this.state = IOCState.DISCONNECTED;
+    this.state = RoomState.DISCONNECTED;
     this.unsubscribeFromRoomEvents();
 
     this.emit(ParticipantEvent.PARTICIPANT_LEFT, this.participant);
@@ -123,7 +123,7 @@ export class Room {
       an empty array is returned.
    */
   public async getParticipants(): Promise<Participant[]> {
-    if (!this.room || this.state !== IOCState.CONNECTED) {
+    if (!this.room || this.state !== RoomState.CONNECTED) {
       return [];
     }
 
@@ -396,18 +396,18 @@ export class Room {
   private onConnectionStateChange = (state: IOCState): void => {
     this.logger.log('connection state changed', state);
 
-    const common = () => {
+    const common = (state: RoomState) => {
       this.emit(RoomEvent.UPDATE, { status: state });
       this.state = state;
     };
 
     const map = {
-      [IOCState.CONNECTING]: () => common(),
-      [IOCState.CONNECTION_ERROR]: () => common(),
-      [IOCState.CONNECTED]: () => common(),
-      [IOCState.DISCONNECTED]: () => common(),
-      [IOCState.RECONNECTING]: () => common(),
-      [IOCState.RECONNECT_ERROR]: () => common(),
+      [IOCState.CONNECTING]: () => common(RoomState.CONNECTING),
+      [IOCState.CONNECTION_ERROR]: () => common(RoomState.CONNECTION_ERROR),
+      [IOCState.CONNECTED]: () => common(RoomState.CONNECTED),
+      [IOCState.DISCONNECTED]: () => common(RoomState.DISCONNECTED),
+      [IOCState.RECONNECTING]: () => common(RoomState.RECONNECTING),
+      [IOCState.RECONNECT_ERROR]: () => common(RoomState.RECONNECT_ERROR),
 
       // error
       [IOCState.AUTH_ERROR]: () => this.onAuthError(),

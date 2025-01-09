@@ -11,7 +11,16 @@ type RoomError = {
 }
 
 type RoomUpdate = {
-  status: IOCState,
+  status: RoomState | `${RoomState}`
+}
+
+export enum RoomState {
+  CONNECTED = 'CONNECTED',
+  CONNECTING = 'CONNECTING',
+  DISCONNECTED = 'DISCONNECTED',
+  CONNECTION_ERROR = 'CONNECTION_ERROR',
+  RECONNECTING = 'RECONNECTING',
+  RECONNECT_ERROR = 'RECONNECT_ERROR',
 }
 
 export enum ParticipantEvent {
