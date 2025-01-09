@@ -11,6 +11,18 @@ jest.mock('./services/api', () => ({
     fetchLimits: jest.fn(() => Promise.resolve({})),
     createParticipant: jest.fn(() => Promise.resolve()),
     fetchParticipant: jest.fn(() => Promise.resolve(null)),
+    getFeatures: jest.fn(() => Promise.resolve({
+      realtime: true,
+      presence: true,
+      videoConference: true,
+      comments: true,
+      whoIsOnline: true,
+      presence3dMatterport: true,
+      presence3dAutodesk: true,
+      presence3dThreejs: true,
+      formElements: true,
+      transcriptLangs: ['en-US'],
+    })),
   },
 }));
 

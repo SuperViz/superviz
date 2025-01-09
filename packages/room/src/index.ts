@@ -40,10 +40,11 @@ async function setUpEnvironment({
     debug.disable();
   }
 
-  const [canAccess, waterMark, limits] = await Promise.all([
+  const [canAccess, waterMark, limits, features] = await Promise.all([
     ApiService.validateApiKey(developerToken),
     ApiService.fetchWaterMark(developerToken),
     ApiService.fetchLimits(developerToken),
+    ApiService.getFeatures(developerToken),
   ]).catch((error) => {
     console.log(error);
     throw new Error('[SuperViz | Room] Failed to load configuration from server');
@@ -55,6 +56,7 @@ async function setUpEnvironment({
 
   config.set('limits', limits);
   config.set('waterMark', waterMark);
+  config.set('features', features);
 }
 
 /**

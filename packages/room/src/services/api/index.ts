@@ -1,3 +1,4 @@
+import { FeatureFlags } from '../../common/types/feature-flag.types';
 import config from '../config';
 import { ComponentLimits } from '../config/types';
 
@@ -66,5 +67,13 @@ export class ApiService {
     const path = `/participants/${id}`;
     const url = this.createUrl(path);
     return this.doRequest(url, 'GET', undefined, { apikey: config.get<string>('apiKey') });
+  }
+
+  static async getFeatures(apiKey: string): Promise<FeatureFlags> {
+    return this.doRequest(
+      `https://remote-config.superviz.com/features/${apiKey}`,
+      'GET',
+      undefined,
+    ) as Promise<FeatureFlags>;
   }
 }
