@@ -2,7 +2,7 @@ import { Room } from './core';
 
 declare global {
   interface Window {
-    SuperVizRoom: {};
+    SuperVizRoom: Record<string, unknown>;
     SUPERVIZ_ROOM: Room;
   }
 }

@@ -3,7 +3,7 @@ import { z } from 'zod';
 
 import { InitialParticipant, Participant } from './common/types/participant.types';
 import { Room } from './core';
-import { Callback, ParticipantEvent, RoomEvent } from './core/types';
+import { Callback, ParticipantEvent, RoomEvent, RoomState } from './core/types';
 import { ApiService } from './services/api';
 import config from './services/config';
 import { InitializeRoomParams, InitializeRoomSchema } from './types';
@@ -147,6 +147,7 @@ export {
   RoomEvent,
   ParticipantEvent,
   Callback,
+  RoomState,
 };
 
 if (typeof window !== 'undefined') {
@@ -154,5 +155,6 @@ if (typeof window !== 'undefined') {
     createRoom,
     RoomEvent,
     ParticipantEvent,
+    RoomState,
   };
 }

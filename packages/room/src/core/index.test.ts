@@ -5,7 +5,7 @@ import { Logger } from '../common/utils/logger';
 import { IOC } from '../services/io';
 import { IOCState } from '../services/io/types';
 
-import { ParticipantEvent, RoomParams } from './types';
+import { ParticipantEvent, RoomParams, RoomState } from './types';
 
 import { Room } from './index';
 
@@ -212,7 +212,7 @@ describe('Room', () => {
   });
 
   it('should get participants when room is connected', async () => {
-    room['state'] = IOCState.CONNECTED;
+    room['state'] = RoomState.CONNECTED;
 
     const date = Date.now();
 
@@ -249,7 +249,7 @@ describe('Room', () => {
   });
 
   it('should return empty array when room is not connected', async () => {
-    room['state'] = IOCState.DISCONNECTED;
+    room['state'] = RoomState.DISCONNECTED;
 
     const participants = await room.getParticipants();
 
