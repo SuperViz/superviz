@@ -3,6 +3,7 @@ import { Subject, Subscription, timestamp } from 'rxjs';
 
 import { InitialParticipant, Participant } from '../common/types/participant.types';
 import { Logger } from '../common/utils/logger';
+import config from '../services/config';
 import { EventBus } from '../services/event-bus';
 import { IOC } from '../services/io';
 import { IOCState } from '../services/io/types';
@@ -154,6 +155,20 @@ export class Room {
     return participants;
   }
 
+  public async addComponent(component) {
+    component.attach({
+      ioc: this.io,
+      config: config.configuration,
+      eventBus: this.eventBus,
+      useStore,
+      connectionLimit: 50,
+    });
+  }
+
+  public async removeComponent(component) {
+    component.detach();
+  }
+
   /**
    * @description Initializes the room features
    */
@@ -196,13 +211,18 @@ export class Room {
    * @returns A new participant object with the provided initial data and default slot properties.
    */
   private createParticipant(initialData: InitialParticipant): Participant {
-    return {
+    const participant = {
       id: initialData.id,
       name: initialData.name,
       email: initialData.email ?? null,
       activeComponents: [],
       slot: SlotService.getDefaultSlot(),
     };
+
+    const { localParticipant } = this.useStore(StoreType.GLOBAL);
+    localParticipant.publish(participant);
+
+    return participant;
   }
 
   /**
