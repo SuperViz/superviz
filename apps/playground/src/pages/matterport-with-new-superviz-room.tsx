@@ -21,8 +21,9 @@ export function MatterportWithNewRoom() {
   const modelId = "Zh14WDtkjdC";
   const room = useRef<Room | null>(null);
   const mpSdk = useRef<any | null>(null);
+  const matterportPresence = useRef<Presence3D | null>(null);
 
-  const initializeSuperViz = useCallback(async (matterportInstance: never) => {
+  const initializeSuperViz = useCallback(async () => {
     const uuid = generateId();
 
     room.current = await createRoom({
@@ -40,17 +41,7 @@ export function MatterportWithNewRoom() {
       environment: 'dev',
     });
 
-    room.current.subscribe('my-participant.joined', () => { 
-      console.log('my-participant.joined');
-
-      const matterportPresence = new Presence3D(matterportInstance, {
-        isAvatarsEnabled: true,
-        isLaserEnabled: true,
-        isNameEnabled: true,
-      });
-  
-      room.current?.addComponent(matterportPresence);
-    })
+    addMatterport();
   }, []);
 
   const initializeMatterport = useCallback(async () => {
@@ -66,7 +57,7 @@ export function MatterportWithNewRoom() {
         MATTERPORT_KEY
       );
 
-      initializeSuperViz(mpSdk.current as never);
+      initializeSuperViz();
     };
   }, [initializeSuperViz]);
 
@@ -79,11 +70,46 @@ export function MatterportWithNewRoom() {
     };
   }, []);
 
+  const addMatterport = () => {
+    if (!room.current || !mpSdk.current || matterportPresence.current) return;
+
+    matterportPresence.current = new Presence3D(mpSdk.current, {
+      isAvatarsEnabled: true,
+      isLaserEnabled: true,
+      isNameEnabled: true,
+    });
+
+    room.current?.addComponent(matterportPresence.current);
+  }
+
+  const removeMatterport = () => {
+    if (!room.current || !mpSdk.current || !matterportPresence.current) return;
+
+    room.current?.removeComponent(matterportPresence.current);
+    matterportPresence.current = null;
+  }
+
   return (
-    <iframe
-      className="matterport-iframe"
-      id={containerId}
-      src={`/mp-bundle/showcase.html?&brand=0&mls=2&mt=0&search=0&kb=0&play=1&qs=1&applicationKey=${MATTERPORT_KEY}&m=${modelId}`}
-    />
+    <div className="w-full h-full flex">
+      <div>
+        <button 
+          // disabled={!room.current || !mpSdk.current || !!matterportPresence.current}
+          onClick={addMatterport}
+        >
+          Add Matterport
+        </button>
+        <button 
+          // disabled={!room.current || !mpSdk.current || !matterportPresence.current}
+          onClick={removeMatterport}
+        >
+          Remove Matterport
+        </button>
+      </div>
+      <iframe
+        className="matterport-iframe"
+        id={containerId}
+        src={`/mp-bundle/showcase.html?&brand=0&mls=2&mt=0&search=0&kb=0&play=1&qs=1&applicationKey=${MATTERPORT_KEY}&m=${modelId}`}
+      />
+    </div>
   );
 }

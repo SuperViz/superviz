@@ -198,7 +198,6 @@ export class Presence3D {
 
     this.presence3DManager = undefined;
 
-    this.useStore(storeType.PRESENCE_3D).destroy();
     this.useStore = undefined;
 
     this.isAttached = false;
