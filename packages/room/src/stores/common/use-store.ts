@@ -1,9 +1,11 @@
 import { useGlobalStore } from '../global';
+import { usePresence3DStore } from '../presence-3D';
 
 import { PublicSubject, Store, StoreType } from './types';
 
 const stores = {
   [StoreType.GLOBAL]: useGlobalStore,
+  [StoreType.PRESENCE_3D]: usePresence3DStore,
 };
 
 /**

@@ -1,5 +1,4 @@
 import { InitialParticipant, Participant } from '../common/types/participant.types';
-import { IOCState } from '../services/io/types';
 
 export interface RoomParams {
   participant: InitialParticipant;

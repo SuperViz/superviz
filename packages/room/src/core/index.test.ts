@@ -2,8 +2,11 @@ import { PresenceEvent } from '@superviz/socket-client';
 import { Subject } from 'rxjs';
 
 import { Logger } from '../common/utils/logger';
+import config from '../services/config';
 import { IOC } from '../services/io';
 import { IOCState } from '../services/io/types';
+import { StoreType } from '../stores/common/types';
+import { useStore } from '../stores/common/use-store';
 
 import { ParticipantEvent, RoomParams, RoomState } from './types';
 
@@ -24,6 +27,13 @@ jest.mock('../services/io', () => ({
     })),
   })),
 }));
+
+jest.mock('../services/api', () => ({
+  ApiService: {
+    sendActivity: jest.fn(() => Promise.resolve()),
+  },
+}));
+
 jest.mock('../common/utils/logger');
 
 describe('Room', () => {
@@ -254,5 +264,140 @@ describe('Room', () => {
     const participants = await room.getParticipants();
 
     expect(participants).toEqual([]);
+  });
+
+  it('should handle local participant joined room event and attach components after join', async () => {
+    const data = { id: '123' } as any;
+    const emitSpy = jest.spyOn(room as any, 'emit');
+    const updateSpy = jest.spyOn(room['room'].presence, 'update');
+    const addComponentSpy = jest.spyOn(room as any, 'addComponent');
+    const emitExpected = room['transfromSocketMesssageToParticipant'](data);
+    const updateExpected = room['createParticipant'](params.participant);
+
+    const mockComponent = { name: 'mockComponent', attach: jest.fn() } as any;
+    room['componentsToAttachAfterJoin'].add(mockComponent);
+
+    await room['onLocalParticipantJoinedRoom'](data);
+
+    expect(updateSpy).toHaveBeenCalledWith({
+      ...updateExpected,
+      slot: {
+        ...updateExpected.slot,
+        timestamp: expect.any(Number),
+      },
+    });
+    expect(emitSpy).toHaveBeenCalledWith(ParticipantEvent.MY_PARTICIPANT_JOINED, {
+      ...emitExpected,
+      slot: {
+        ...emitExpected.slot,
+        timestamp: expect.any(Number),
+      },
+    });
+    expect(addComponentSpy).toHaveBeenCalledWith(mockComponent);
+  });
+
+  it('should handle local participant joined room event and not attach components if none are pending', async () => {
+    const data = { id: '123' } as any;
+    const emitSpy = jest.spyOn(room as any, 'emit');
+    const updateSpy = jest.spyOn(room['room'].presence, 'update');
+    const addComponentSpy = jest.spyOn(room as any, 'addComponent');
+    const emitExpected = room['transfromSocketMesssageToParticipant'](data);
+    const updateExpected = room['createParticipant'](params.participant);
+
+    await room['onLocalParticipantJoinedRoom'](data);
+
+    expect(updateSpy).toHaveBeenCalledWith({
+      ...updateExpected,
+      slot: {
+        ...updateExpected.slot,
+        timestamp: expect.any(Number),
+      },
+    });
+    expect(emitSpy).toHaveBeenCalledWith(ParticipantEvent.MY_PARTICIPANT_JOINED, {
+      ...emitExpected,
+      slot: {
+        ...emitExpected.slot,
+        timestamp: expect.any(Number),
+      },
+    });
+    expect(addComponentSpy).not.toHaveBeenCalled();
+  });
+
+  it('should add a component when the room is connected', async () => {
+    room['state'] = RoomState.CONNECTED;
+    const mockComponent = { name: 'mockComponent', attach: jest.fn() } as any;
+    const canAddComponentSpy = jest.spyOn(room as any, 'canAddComponent').mockReturnValue(true);
+    const updateParticipantSpy = jest.spyOn(room as any, 'updateParticipant');
+    const { hasJoinedRoom } = useStore(StoreType.GLOBAL);
+    hasJoinedRoom.publish(true);
+
+    await room.addComponent(mockComponent);
+
+    expect(canAddComponentSpy).toHaveBeenCalledWith(mockComponent);
+    expect(mockComponent.attach).toHaveBeenCalled();
+    expect(room['activeComponents'].has(mockComponent.name)).toBe(true);
+    expect(room['componentInstances'].get(mockComponent.name)).toBe(mockComponent);
+    expect(updateParticipantSpy).toHaveBeenCalledWith({ activeComponents: [mockComponent.name] });
+  });
+
+  it('should not add a component when the room is not connected', async () => {
+    room['state'] = RoomState.DISCONNECTED;
+    const mockComponent = { name: 'mockComponent', attach: jest.fn() } as any;
+    const canAddComponentSpy = jest.spyOn(room as any, 'canAddComponent').mockReturnValue(false);
+
+    await room.addComponent(mockComponent);
+
+    expect(canAddComponentSpy).toHaveBeenCalledWith(mockComponent);
+    expect(mockComponent.attach).not.toHaveBeenCalled();
+    expect(room['activeComponents'].has(mockComponent.name)).toBe(false);
+    expect(room['componentInstances'].get(mockComponent.name)).toBeUndefined();
+  });
+
+  it('should remove a component when it is active', async () => {
+    const mockComponent = { name: 'mockComponent', detach: jest.fn() } as any;
+    room['activeComponents'].add(mockComponent.name);
+    room['componentInstances'].set(mockComponent.name, mockComponent);
+    const updateParticipantSpy = jest.spyOn(room as any, 'updateParticipant');
+
+    await room.removeComponent(mockComponent);
+
+    expect(mockComponent.detach).toHaveBeenCalled();
+    expect(room['activeComponents'].has(mockComponent.name)).toBe(false);
+    expect(room['componentInstances'].get(mockComponent.name)).toBeUndefined();
+    expect(updateParticipantSpy).toHaveBeenCalledWith({ activeComponents: [] });
+  });
+
+  it('should not remove a component when it is not active', async () => {
+    const mockComponent = { name: 'mockComponent', detach: jest.fn() } as any;
+
+    await room.removeComponent(mockComponent);
+
+    expect(mockComponent.detach).not.toHaveBeenCalled();
+    expect(room['activeComponents'].has(mockComponent.name)).toBe(false);
+    expect(room['componentInstances'].get(mockComponent.name)).toBeUndefined();
+  });
+
+  it('should return true when a component can be added', () => {
+    const mockComponent = { name: 'mockComponent' } as any;
+    jest.spyOn(config, 'get').mockReturnValue(true);
+    jest.spyOn(room as any, 'checkComponentLimit').mockReturnValue({ canUse: true, maxParticipants: 50 });
+    room['isDestroyed'] = false;
+    room['activeComponents'].clear();
+
+    const result = room['canAddComponent'](mockComponent);
+
+    expect(result).toBe(true);
+  });
+
+  it('should return false when a component cannot be added', () => {
+    const mockComponent = { name: 'mockComponent' } as any;
+    jest.spyOn(config, 'get').mockReturnValue(false);
+    jest.spyOn(room as any, 'checkComponentLimit').mockReturnValue({ canUse: false, maxParticipants: 50 });
+    room['isDestroyed'] = true;
+    room['activeComponents'].add(mockComponent.name);
+
+    const result = room['canAddComponent'](mockComponent);
+
+    expect(result).toBe(false);
   });
 });

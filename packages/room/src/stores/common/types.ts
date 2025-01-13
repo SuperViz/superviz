@@ -1,4 +1,5 @@
 import { useGlobalStore } from '../global';
+import { usePresence3DStore } from '../presence-3D';
 
 type Callback<T, K = undefined> = (a: T, b?: K) => void;
 
@@ -23,6 +24,7 @@ export type PublicSubject<T> = {
 
 export enum StoreType {
   GLOBAL = 'global-store',
+  PRESENCE_3D = 'presence-3d-store',
 }
 
 type Subject<T extends (...args: any[]) => any, K extends keyof ReturnType<T>> = ReturnType<T>[K];
@@ -41,8 +43,11 @@ type StoreApi<T extends (...args: any[]) => any> = IncompleteStoreApi<T> & {
 };
 
 type GlobalStore = StoreType.GLOBAL | `${StoreType.GLOBAL}`;
+type Presence3DStore = StoreType.PRESENCE_3D | 'presence-3d-store';
 
 export type Store<T> = T extends GlobalStore
   ? StoreApi<typeof useGlobalStore>
+  : T extends Presence3DStore
+  ? StoreApi<typeof usePresence3DStore>
   : never;
 export type StoresTypes = typeof StoreType;

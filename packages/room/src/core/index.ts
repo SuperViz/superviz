@@ -1,8 +1,13 @@
 import type { PresenceEvent, Room as SocketRoomType } from '@superviz/socket-client';
 import { Subject, Subscription, timestamp } from 'rxjs';
 
+import { Component, ComponentNames, PresenceMap } from '../common/types/component.types';
+import { Group } from '../common/types/group.types';
 import { InitialParticipant, Participant } from '../common/types/participant.types';
 import { Logger } from '../common/utils/logger';
+import { ApiService } from '../services/api';
+import config from '../services/config';
+import { ComponentLimits, Limit } from '../services/config/types';
 import { EventBus } from '../services/event-bus';
 import { IOC } from '../services/io';
 import { IOCState } from '../services/io/types';
@@ -19,15 +24,22 @@ export class Room {
   private room: SocketRoomType;
 
   private slotService: SlotService;
-  private useStore = useStore.bind(this) as typeof useStore;
-  private participants: Record<string, Participant>;
-  private state: RoomState = RoomState.DISCONNECTED;
+  private eventBus: EventBus;
   private logger: Logger;
+
+  private useStore = useStore.bind(this) as typeof useStore;
+
+  private participants: Record<string, Participant>;
+  private group: Group;
+  private state: RoomState = RoomState.DISCONNECTED;
+  private isDestroyed = false;
 
   private subscriptions: Map<Callback<GeneralEvent>, Subscription> = new Map();
   private observers: Map<string, Subject<unknown>> = new Map();
 
-  private eventBus: EventBus;
+  private activeComponents: Set<ComponentNames | string> = new Set();
+  private componentInstances: Map<ComponentNames | string, Component> = new Map();
+  private componentsToAttachAfterJoin: Set<Component> = new Set();
 
   constructor(params: RoomParams) {
     this.io = new IOC(params.participant);
@@ -43,6 +55,9 @@ export class Room {
    * @description leave the room, destroy the socket connnection and all attached components
    */
   public leave() {
+    if (this.isDestroyed) return;
+
+    this.isDestroyed = true;
     this.state = RoomState.DISCONNECTED;
     this.unsubscribeFromRoomEvents();
 
@@ -155,18 +170,148 @@ export class Room {
   }
 
   /**
+   * Adds a component to the room. If the component can be added and the user has joined the room,
+   * the component will be attached and initialized with the necessary dependencies. If the user
+   * has not joined the room yet, the component will be queued to be attached after joining.
+   *
+   * @param component - A partial component object to be added to the room.
+   * @returns A promise that resolves when the component has been added or queued.
+   */
+  public async addComponent(component: Partial<Component>) {
+    if (!this.canAddComponent(component)) return;
+
+    const { hasJoinedRoom } = this.useStore(StoreType.GLOBAL);
+
+    this.logger.log('room @ addComponent', component.name);
+
+    if (!hasJoinedRoom.value) {
+      this.logger.log('room @ addComponent - not joined yet');
+      this.componentsToAttachAfterJoin.add(component as Component);
+      return;
+    }
+
+    const componentLimit = this.checkComponentLimit(component.name);
+
+    component.attach({
+      ioc: this.io,
+      config: config.configuration,
+      eventBus: this.eventBus,
+      useStore,
+      connectionLimit: componentLimit.maxParticipants,
+    });
+
+    this.activeComponents.add(component.name);
+    this.componentInstances.set(component.name, component as Component);
+    this.updateParticipant({ activeComponents: Array.from(this.activeComponents) });
+
+    await ApiService.sendActivity(this.participant.id, component.name);
+  }
+
+  /**
+   * Removes a component from the active components list
+    and updates the participant's active components.
+   *
+   * @param component - A partial component object that
+    contains at least the name of the component to be removed.
+   *
+   * @remarks
+   * If the component is not initialized
+    (i.e., not present in the active components list),
+    a log message will be generated and the removal process will be aborted.
+   *
+   * @returns A promise that resolves when the component has been successfully removed.
+   */
+  public async removeComponent(component: Partial<Component>) {
+    if (!this.activeComponents.has(component.name)) {
+      const message = `[SuperViz] Component ${component.name} is not initialized yet.`;
+      this.logger.log(message);
+      console.error(message);
+      return;
+    }
+
+    component?.detach();
+
+    this.activeComponents.delete(component.name);
+    this.componentInstances.delete(component.name);
+
+    this.updateParticipant({ activeComponents: Array.from(this.activeComponents) });
+  }
+
+  /**
    * @description Initializes the room features
    */
   private init() {
-    const { participants } = this.useStore(StoreType.GLOBAL);
+    const { participants, group, localParticipant } = this.useStore(StoreType.GLOBAL);
 
+    group.publish(config.get('group'));
     participants.subscribe();
+    group.subscribe();
 
     this.io.stateSubject.subscribe(this.onConnectionStateChange);
     this.room = this.io.createRoom('room', 'unlimited');
     this.slotService = new SlotService(this.room, this.participant);
 
     this.subscribeToRoomEvents();
+  }
+
+  private canAddComponent(component: Partial<Component>): boolean {
+    const isProvidedFeature = config.get<boolean>(`features.${component.name}`);
+    const componentLimit = this.checkComponentLimit(component.name);
+
+    const isComponentActive = this.activeComponents.has(component.name);
+
+    const verifications = [
+      {
+        isValid: isProvidedFeature,
+        message: `[SuperViz] The component "${component.name}" is not enabled in the room.`,
+      },
+      {
+        isValid: !this.isDestroyed,
+        message:
+        '[SuperViz] The component cannot be added because the room is not connected. Please initialize a new room to add and use components.',
+      },
+      {
+        isValid: !isComponentActive,
+        message: `[SuperViz] The component "${component.name}" is already active. Please remove it first.`,
+      },
+      {
+        isValid: componentLimit.canUse,
+        message: `[SuperViz] You have reached the usage limit for the component "${component.name}".`,
+      },
+    ];
+
+    const verification = verifications.find((v) => !v.isValid);
+
+    if (verification) {
+      this.logger.log(verification.message);
+      console.error(verification.message);
+      return false;
+    }
+
+    return true;
+  }
+
+  private checkComponentLimit(name: ComponentNames | string): Limit {
+    const limits = config.get<ComponentLimits>('limits');
+    const componentName = PresenceMap[name] ?? name;
+
+    const componentLimit = limits?.[componentName] ?? { canUse: false, maxParticipants: 50 };
+
+    return componentLimit;
+  }
+
+  /**
+   * Updates the participant information with the provided data.
+   *
+   * @param data - Partial data to update the participant with.
+   *               Only the fields provided in the data will be updated.
+   */
+  private updateParticipant(data: Partial<Participant>): void {
+    const participant = { ...this.participant, ...data };
+
+    this.logger.log('room @ updateParticipant', participant);
+
+    this.room.presence.update(participant);
   }
 
   /**
@@ -196,13 +341,18 @@ export class Room {
    * @returns A new participant object with the provided initial data and default slot properties.
    */
   private createParticipant(initialData: InitialParticipant): Participant {
-    return {
+    const participant = {
       id: initialData.id,
       name: initialData.name,
       email: initialData.email ?? null,
       activeComponents: [],
       slot: SlotService.getDefaultSlot(),
     };
+
+    const { localParticipant } = this.useStore(StoreType.GLOBAL);
+    localParticipant.publish(participant);
+
+    return participant;
   }
 
   /**
@@ -291,7 +441,7 @@ export class Room {
    * the room.
    */
   private onLocalParticipantJoinedRoom = async (data: PresenceEvent<{}>) => {
-    this.room.presence.update(this.participant);
+    this.updateParticipant(this.participant);
 
     await this.getParticipants();
 
@@ -302,6 +452,12 @@ export class Room {
       ParticipantEvent.MY_PARTICIPANT_JOINED,
       this.transfromSocketMesssageToParticipant(data),
     );
+
+    this.componentsToAttachAfterJoin.forEach((component) => {
+      this.logger.log('room @ attachComponentAfterJoin', component.name);
+      this.addComponent(component);
+    });
+
     this.logger.log('local participant joined room @ update participants', this.participants);
   };
 
