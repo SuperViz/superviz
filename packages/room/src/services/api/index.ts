@@ -1,4 +1,5 @@
 import { FeatureFlags } from '../../common/types/feature-flag.types';
+import { Group } from '../../common/types/group.types';
 import config from '../config';
 import { ComponentLimits } from '../config/types';
 
@@ -67,6 +68,21 @@ export class ApiService {
     const path = `/participants/${id}`;
     const url = this.createUrl(path);
     return this.doRequest(url, 'GET', undefined, { apikey: config.get<string>('apiKey') });
+  }
+
+  static async sendActivity(userId: string, product: string) {
+    const path = '/activity';
+    const url = this.createUrl(path);
+
+    const body = {
+      groupId: config.get<string>('group.id'),
+      groupName: config.get<string>('group.name'),
+      meetingId: config.get<string>('roomId'),
+      product,
+      userId,
+    };
+
+    return this.doRequest(url, 'POST', body, { apikey: config.get<string>('apiKey') });
   }
 
   static async getFeatures(apiKey: string): Promise<FeatureFlags> {

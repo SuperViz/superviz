@@ -27,6 +27,13 @@ jest.mock('../services/io', () => ({
     })),
   })),
 }));
+
+jest.mock('../services/api', () => ({
+  ApiService: {
+    sendActivity: jest.fn(() => Promise.resolve()),
+  },
+}));
+
 jest.mock('../common/utils/logger');
 
 describe('Room', () => {

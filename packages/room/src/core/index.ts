@@ -5,6 +5,7 @@ import { Component, ComponentNames, PresenceMap } from '../common/types/componen
 import { Group } from '../common/types/group.types';
 import { InitialParticipant, Participant } from '../common/types/participant.types';
 import { Logger } from '../common/utils/logger';
+import { ApiService } from '../services/api';
 import config from '../services/config';
 import { ComponentLimits, Limit } from '../services/config/types';
 import { EventBus } from '../services/event-bus';
@@ -202,6 +203,8 @@ export class Room {
     this.activeComponents.add(component.name);
     this.componentInstances.set(component.name, component as Component);
     this.updateParticipant({ activeComponents: Array.from(this.activeComponents) });
+
+    await ApiService.sendActivity(this.participant.id, component.name);
   }
 
   /**
