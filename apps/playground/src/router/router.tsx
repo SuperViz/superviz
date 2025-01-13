@@ -23,6 +23,7 @@ import { VideoWithReact } from "../pages/video-with-react.tsx";
 import { MatterportEmbed } from "../pages/matterport-embed.tsx";
 import { SuperVizRoom } from "../pages/superviz-room.tsx";
 import { MatterportWithNewRoom } from "../pages/matterport-with-new-superviz-room.tsx";
+import { ThreeWithNewRoom } from "../pages/three-with-new-room.jsx";
 
 export const routeList: RouteObject[] = [
   {
@@ -119,6 +120,10 @@ export const routeList: RouteObject[] = [
       { 
         path: 'matterport-with-superviz-room', 
         element: <MatterportWithNewRoom />
+      }, 
+      {
+        path: 'three-with-new-room',
+        element: <ThreeWithNewRoom />
       }
     ],
   },
