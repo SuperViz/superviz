@@ -37,6 +37,7 @@ import {
 } from '../common/constants/presence';
 import { STORE_TYPES } from '../common/constants/store';
 import { SceneLight } from './matterport/scene-light';
+import { MatterportEvents } from './matterport/matterport-events';
 
 export class Presence3D {
   public name: string;
@@ -61,13 +62,7 @@ export class Presence3D {
   private localSlot: number = -1;
 
   private currentCirclePosition: Partial<Vector3> = DefaultCoordinates;
-  private currentLocalPosition: Coordinates = DefaultCoordinates;
-  private currentLocalRotation: Coordinates = DefaultCoordinates;
-  private currentLocalFloorId: number;
-  private currentLocalMode: Matterport.Mode.Mode;
-  private currentLocalLaserDest: Coordinates = DefaultCoordinates;
   private circlePositions: CirclePosition[] = [];
-  private currentSweepId: string;
 
   private THREE;
   private sceneLight: SceneLight;
@@ -87,6 +82,8 @@ export class Presence3D {
 
   private laserLerpers: Record<string, any> = {};
   private names: Record<string, any> = {};
+
+  private matterportEvents: MatterportEvents;
 
   constructor(matterportSdk: Matterport, options?: MatterportComponentOptions) {
     this.name = 'presence3dMatterport';
@@ -132,9 +129,6 @@ export class Presence3D {
     });
 
     this.createCircleOfPositions();
-
-    // subscribe to matterport move functions
-    this.subscribeToMatterportEvents();
   }
 
   private get localParticipantId(): string {
@@ -236,6 +230,14 @@ export class Presence3D {
 
       return;
     }
+
+    this.matterportEvents = new MatterportEvents(
+      this.matterportSdk,
+      this.presence3DManager,
+      this.localParticipantId,
+      this.adjustMyPositionToCircle,
+    );
+    this.matterportEvents.subscribeToMatterportEvents();
 
     this.subscribeToRealtimeEvents();
     this.subscribeToEventBusEvents();
@@ -549,13 +551,8 @@ export class Presence3D {
    * @returns {void}
    */
   private setPrivate = (isPrivate: boolean): void => {
-    this.logger.log('matterport component @ private mode');
-    this.presence3DManager.updatePresence3D({
-      id: this.localParticipantId,
-      isPrivate: !!isPrivate,
-    } as ParticipantDataInput);
-
-    this.isPrivate = !!isPrivate;
+    this.isPrivate = isPrivate;
+    this.matterportEvents.setPrivate(isPrivate);
   };
 
   /**
@@ -627,15 +624,15 @@ export class Presence3D {
         transition,
         zoom: 25,
       }).then((nextMode) => {
-        this.currentLocalMode = nextMode;
+        this.matterportEvents.setMode(nextMode);
       });
 
-      if (mode === Mode.FLOORPLAN && this.currentLocalFloorId !== floor) {
+      if (mode === Mode.FLOORPLAN && this.matterportEvents.getCurrentFloorId() !== floor) {
         if (floor === -1) {
           this.matterportSdk.Floor.showAll();
         } else {
           this.matterportSdk.Floor.moveTo(floor).then(() => {
-            this.currentLocalFloorId = floor;
+            this.matterportEvents.setFloor(floor);
           });
         }
       }
@@ -676,11 +673,7 @@ export class Presence3D {
         onLoaded: () => {
           // send a sync
           this.matterportSdk.Camera.getPose().then((pose) => {
-            this._onLocalCameraMoveObserver({
-              position: pose.position,
-              rotation: pose.rotation,
-              sweep: pose.sweep,
-            });
+            this.matterportEvents.onCameraMove(pose.position, pose.rotation);
             resolve(avatarModel);
           });
         },
@@ -744,94 +737,6 @@ export class Presence3D {
     laser.obj3D.userData = { uuid: participant.id };
     this.lasers[participant.id] = laser;
   }
-
-  private subscribeToMatterportEvents(): void {
-    this.matterportSdk.Camera.pose.subscribe(this._onLocalCameraMoveObserver);
-    this.matterportSdk.Pointer.intersection.subscribe(this._onLocalMouseMoveObserver);
-    this.matterportSdk.Floor.current.subscribe(this._onLocalFloorChangeObserver);
-    this.matterportSdk.Mode.current.subscribe(this._onLocalModeChangeObserver);
-    this.matterportSdk.Sweep.current.subscribe(this._onLocalSweepChangeObserver);
-  }
-
-  private _onLocalSweepChangeObserver = (sweep: Matterport.Sweep.ObservableSweepData): void => {
-    if (!this.presence3DManager) return;
-
-    this.currentSweepId = sweep.id;
-
-    if (this.isPrivate) return;
-
-    this.presence3DManager.updatePresence3D({
-      id: this.localParticipantId,
-      sweep: this.currentSweepId,
-    } as ParticipantDataInput);
-  };
-
-  private _onLocalFloorChangeObserver = (floor: Matterport.Floor.ObservableFloorData): void => {
-    if (!this.presence3DManager) return;
-
-    if (floor.id !== '') {
-      this.currentLocalFloorId = parseFloat(floor.id);
-    }
-    if (floor.name === 'all') {
-      this.currentLocalFloorId = -1;
-    }
-
-    if (this.isPrivate) return;
-
-    this.presence3DManager.updatePresence3D({
-      id: this.localParticipantId,
-      floor: this.currentLocalFloorId,
-    } as ParticipantDataInput);
-  };
-
-  private _onLocalModeChangeObserver = (mode: Matterport.Mode.Mode): void => {
-    if (!this.presence3DManager) return;
-
-    this.currentLocalMode = mode;
-
-    if (this.isPrivate) return;
-
-    this.presence3DManager.updatePresence3D({
-      id: this.localParticipantId,
-      mode: this.currentLocalMode,
-    } as ParticipantDataInput);
-  };
-
-  private _onLocalCameraMoveObserver = ({ position, rotation, sweep }): void => {
-    if (!this.presence3DManager) return;
-
-    this.currentLocalPosition = this.adjustMyPositionToCircle(position);
-    this.currentLocalRotation = rotation;
-
-    if (this.isPrivate) return;
-
-    this.presence3DManager.updatePresence3D({
-      id: this.localParticipantId,
-      position: this.currentLocalPosition,
-      rotation: this.currentLocalRotation,
-      laser: this.currentLocalLaserDest,
-      sweep: this.currentSweepId,
-      mode: this.currentLocalMode,
-      floor: this.currentLocalFloorId,
-    } as ParticipantDataInput);
-  };
-
-  private _onLocalMouseMoveObserver = (intersectionData): void => {
-    if (!this.presence3DManager || this.isPrivate) return;
-
-    this.currentLocalLaserDest = intersectionData.position;
-
-    if (this.isPrivate) return;
-
-    this.presence3DManager.updatePresence3D({
-      id: this.localParticipantId,
-      position: this.currentLocalPosition,
-      rotation: this.currentLocalRotation,
-      laser: this.currentLocalLaserDest,
-      mode: this.currentLocalMode,
-      sweep: this.currentSweepId,
-    } as ParticipantDataInput);
-  };
 
   private addInputComponent = async (): Promise<void> => {
     if (!this.matterportSdk.Scene) return;
@@ -903,7 +808,7 @@ export class Presence3D {
       this.circlePositions.push({ x, y: 0, z, slot: participants[i]?.slot?.index ?? -1 });
     }
 
-    this.adjustMyPositionToCircle(this.currentLocalPosition);
+    this.adjustMyPositionToCircle(this.matterportEvents?.getCurrentPosition());
     this.logger.log('Updated circle positions:', this.circlePositions);
   }
 
@@ -973,7 +878,7 @@ export class Presence3D {
     this.matterportSdk.Sweep.moveTo(sweepId, {
       transitionTime: SWEEP_DURATION,
       transition: this.matterportSdk.Sweep.Transition.FLY,
-      rotation: rotation || this.currentLocalRotation,
+      rotation: rotation || this.matterportEvents.getCurrentRotation(),
     })
       .catch((e) => {
         console.log('[SuperViz] Error when trying to sweep', e);
