@@ -40,7 +40,7 @@ export function Matterport() {
 
     const matterportPresence = new MatterportPresence3D(matterportInstance, {
       isAvatarsEnabled: false,
-      isLaserEnabled: false,
+      isLaserEnabled: true,
       isNameEnabled: true,
     });
 

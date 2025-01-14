@@ -29,19 +29,14 @@ import {
 } from '../types';
 
 import { Presence3dEvents } from './types';
-
-const SWEEP_DURATION = 500;
-const DEFAULT_AVATAR: AvatarType = {
-  model3DUrl: 'https://production.storage.superviz.com/readyplayerme/1.glb',
-  imageUrl: 'https://production.cdn.superviz.com/static/default-avatars/1.png',
-};
-const NO_AVATAR_LASER_HEIGHT = 1.5; // Height for laser when not using avatars
-const AVATAR_LASER_HEIGHT_OFFSET = 0.15; // Height offset for laser when using avatars
-
-const storeType = {
-  GLOBAL: 'global-store' as StoreType.GLOBAL,
-  PRESENCE_3D: 'presence-3d-store' as StoreType.PRESENCE_3D,
-};
+import {
+  SWEEP_DURATION,
+  DEFAULT_AVATAR,
+  NO_AVATAR_LASER_HEIGHT,
+  AVATAR_LASER_HEIGHT_OFFSET,
+} from '../common/constants/presence';
+import { STORE_TYPES } from '../common/constants/store';
+import { SceneLight } from './matterport/scene-light';
 
 export class Presence3D {
   public name: string;
@@ -75,8 +70,7 @@ export class Presence3D {
   private currentSweepId: string;
 
   private THREE;
-  private directionalLight: Matterport.Scene.INode;
-  private ambientLight: Matterport.Scene.INode;
+  private sceneLight: SceneLight;
 
   private avatars: Record<string, Avatar> = {};
   private lasers: Record<string, Laser> = {};
@@ -92,6 +86,7 @@ export class Presence3D {
   private hasJoined3D: boolean = false;
 
   private laserLerpers: Record<string, any> = {};
+  private names: Record<string, any> = {};
 
   constructor(matterportSdk: Matterport, options?: MatterportComponentOptions) {
     this.name = 'presence3dMatterport';
@@ -131,7 +126,10 @@ export class Presence3D {
     this.addInputComponent();
 
     // light
-    this.addSceneLight();
+    this.sceneLight = new SceneLight(this.matterportSdk);
+    this.sceneLight.addSceneLight().then(() => {
+      this.THREE = this.sceneLight.getTHREE();
+    });
 
     this.createCircleOfPositions();
 
@@ -163,11 +161,11 @@ export class Presence3D {
     this.room = ioc.createRoom(this.name);
     this.presence3DManager = new Presence3DManager(this.room, this.useStore);
 
-    const { localParticipant, hasJoinedRoom } = this.useStore(storeType.GLOBAL);
+    const { localParticipant, hasJoinedRoom } = this.useStore(STORE_TYPES.GLOBAL);
     localParticipant.subscribe();
     hasJoinedRoom.subscribe();
 
-    const { hasJoined3D, participants } = this.useStore(storeType.PRESENCE_3D);
+    const { hasJoined3D, participants } = this.useStore(STORE_TYPES.PRESENCE_3D);
     hasJoined3D.subscribe();
     participants.subscribe(this.onParticipantsUpdated);
 
@@ -207,12 +205,11 @@ export class Presence3D {
 
     this.presence3DManager = undefined;
 
-    this.useStore(storeType.PRESENCE_3D).destroy();
+    this.useStore(STORE_TYPES.PRESENCE_3D).destroy();
     this.useStore = undefined;
 
     this.isAttached = false;
-    this.ambientLight?.stop();
-    this.directionalLight?.stop();
+    this.sceneLight.destroy();
 
     this.participants.forEach((participant) => {
       this.removeParticipant(participant, true);
@@ -428,7 +425,7 @@ export class Presence3D {
   /** Participants */
 
   private createParticipantList = () => {
-    const list = this.useStore(storeType.PRESENCE_3D).participants.value;
+    const list = this.useStore(STORE_TYPES.PRESENCE_3D).participants.value;
 
     Object.values(list).forEach((participant: ParticipantDataInput) => {
       if (participant.isPrivate) return;
@@ -481,6 +478,11 @@ export class Presence3D {
     this.destroyAvatar(participant);
     this.destroyLaser(participant);
 
+    if (this.names[participant.id]) {
+      this.names[participant.id].stop();
+      delete this.names[participant.id];
+    }
+
     if (this.laserLerpers[participant.id]) {
       this.laserLerpers[participant.id].node.stop();
       delete this.laserLerpers[participant.id];
@@ -494,12 +496,6 @@ export class Presence3D {
   };
 
   private addParticipant = async (participant): Promise<void> => {
-    console.log('Adding participant:', {
-      participantId: participant?.id,
-      isLocal: participant?.id === this.localParticipantId,
-      isLaserEnabled: this.config.isLaserEnabled,
-      isAvatarsEnabled: this.config.isAvatarsEnabled,
-    });
     if (!participant || !participant.id || participant.type === 'audience') return;
     const participantOn3D = this.createParticipantOn3D(participant);
 
@@ -519,7 +515,7 @@ export class Presence3D {
       await this.createAvatar(participantOn3D);
     }
     this.config.isLaserEnabled && this.createLaser(participantOn3D);
-    this.config.isNameEnabled && this.createName(participantOn3D, this.avatars[participant.id]);
+    await this.createIndependentName(participantOn3D);
 
     this.createCircleOfPositions();
   };
@@ -726,11 +722,6 @@ export class Presence3D {
   }
 
   private async createLaser(participant: ParticipantOn3D) {
-    console.log('Creating laser for participant:', participant.id, {
-      isAttached: this.isAttached,
-      isLaserEnabled: this.config.isLaserEnabled,
-      hasScene: !!this.matterportSdk.Scene,
-    });
     if (!this.isAttached || !this.matterportSdk.Scene || !this.config.isLaserEnabled) return;
 
     let laserOrigin: Vector3;
@@ -752,10 +743,6 @@ export class Presence3D {
     laser.start();
     laser.obj3D.userData = { uuid: participant.id };
     this.lasers[participant.id] = laser;
-    console.log('Laser created:', {
-      laserId: participant.id,
-      laserInstance: this.lasers[participant.id],
-    });
   }
 
   private subscribeToMatterportEvents(): void {
@@ -858,58 +845,6 @@ export class Presence3D {
     mpInputNode.start();
   };
 
-  private addSceneLight = async (): Promise<void> => {
-    this.directionalLight = await this.createDirectionLight();
-    this.ambientLight = await this.createAmbientLight();
-  };
-
-  private createDirectionLight = async (): Promise<Matterport.Scene.INode> => {
-    if (!this.matterportSdk.Scene) return;
-
-    const [sceneObject] = await this.matterportSdk.Scene.createObjects(1);
-    const dirLightNode: Matterport.Scene.INode = sceneObject.addNode();
-    const initial = {
-      enabled: true,
-      color: {
-        r: 1,
-        g: 1,
-        b: 1,
-      },
-      intensity: 1.0,
-      position: {
-        x: 0.2,
-        y: 1,
-        z: 0,
-      },
-      target: {
-        x: 0.5,
-        y: 0,
-        z: 0,
-      },
-      debug: false,
-    };
-    const component = dirLightNode.addComponent('mp.directionalLight', initial);
-    this.THREE = component.context.three; // very important to get three instance from matterport
-
-    dirLightNode.start();
-    return dirLightNode;
-  };
-
-  private createAmbientLight = async (): Promise<Matterport.Scene.INode> => {
-    if (!this.matterportSdk.Scene) return;
-
-    const [sceneObject] = await this.matterportSdk.Scene.createObjects(1);
-    const ambLightNode: Matterport.Scene.INode = sceneObject.addNode();
-    const initial = {
-      enabled: true,
-      color: { r: 1.0, g: 1, b: 1 },
-      intensity: 1.0,
-    };
-    ambLightNode.addComponent('mp.ambientLight', initial);
-    ambLightNode.start();
-    return ambLightNode;
-  };
-
   private adjustMyPositionToCircle = (position): Coordinates => {
     if (!this.presence3DManager) {
       return position;
@@ -973,11 +908,6 @@ export class Presence3D {
   }
 
   private onParticipantsUpdated = (participants) => {
-    console.log('Participants updated:', {
-      participantCount: participants.length,
-      hasLasers: Object.keys(this.lasers),
-      config: this.config,
-    });
     if (!this.isAttached) return;
 
     this.logger.log('matterport component @ onParticipantsUpdated', participants);
@@ -1159,5 +1089,23 @@ export class Presence3D {
         this.tempQuaternion,
       );
     }
+  }
+
+  private async createIndependentName(participant: ParticipantOn3D) {
+    if (!this.isAttached || !this.matterportSdk.Scene || !this.config.isNameEnabled) return;
+
+    const [sceneObject] = await this.matterportSdk.Scene.createObjects(1);
+    const nameNode = sceneObject.addNode();
+    const nameComponent = nameNode.addComponent('name') as any;
+    nameComponent.THREE = this.THREE;
+
+    // Create an Object3D to hold the name
+    const nameObject = new this.THREE.Object3D();
+    (nameNode as any).obj3D.add(nameObject);
+
+    await nameComponent.createName(nameObject, participant.name, participant.slot, 1.5);
+
+    this.names[participant.id] = nameNode;
+    nameNode.start();
   }
 }
