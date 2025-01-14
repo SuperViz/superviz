@@ -345,7 +345,7 @@ export class Presence3D {
       await this.createAvatar(participantOn3D);
     }
     this.config.isLaserEnabled && this.createLaser(participantOn3D);
-    await this.createIndependentName(participantOn3D);
+    // await this.createIndependentName(participantOn3D);
 
     this.createCircleOfPositions();
   };
@@ -499,11 +499,16 @@ export class Presence3D {
         url,
         localScale,
         onLoaded: () => {
-          // send a sync
-          this.matterportSdk.Camera.getPose().then((pose) => {
-            this.matterportEvents.onCameraMove(pose.position, pose.rotation);
+          if (this.matterportEvents) {
+            this.matterportSdk.Camera.getPose().then((pose) => {
+              this.matterportEvents.onCameraMove(pose.position, pose.rotation);
+              this.createName(participant, avatarModel);
+              resolve(avatarModel);
+            });
+          } else {
+            this.createName(participant, avatarModel);
             resolve(avatarModel);
-          });
+          }
         },
       });
       avatarModel.start();
