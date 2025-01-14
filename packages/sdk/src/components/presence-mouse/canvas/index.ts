@@ -2,13 +2,13 @@ import * as Socket from '@superviz/socket-client';
 import { throttle } from 'lodash';
 
 import { RealtimeEvent } from '../../../common/types/events.types';
+import { MEETING_COLORS } from '../../../common/types/meeting-colors.types';
 import { Participant } from '../../../common/types/participant.types';
 import { StoreType } from '../../../common/types/stores.types';
 import { Logger } from '../../../common/utils';
 import { BaseComponent } from '../../base';
 import { ComponentNames } from '../../types';
 import { Camera, ParticipantMouse, PresenceMouseProps, Transform } from '../types';
-import { MEETING_COLORS } from '../../../common/types/meeting-colors.types';
 
 export class PointersCanvas extends BaseComponent {
   public name: ComponentNames;
@@ -49,8 +49,6 @@ export class PointersCanvas extends BaseComponent {
 
     this.goToMouseCallback = options?.callbacks?.onGoToPresence;
 
-    const { localParticipant } = this.useStore(StoreType.GLOBAL);
-    localParticipant.subscribe();
     this.getCamera();
   }
 
@@ -61,6 +59,9 @@ export class PointersCanvas extends BaseComponent {
    */
   protected start(): void {
     this.logger.log('presence-mouse component @ start');
+
+    const { localParticipant } = this.useStore(StoreType.GLOBAL);
+    localParticipant.subscribe();
 
     this.canvas.addEventListener('mousemove', this.onMyParticipantMouseMove);
     this.canvas.addEventListener('mouseout', this.onMyParticipantMouseOut);
@@ -199,13 +200,14 @@ export class PointersCanvas extends BaseComponent {
     const screenScaleY = this.divWrapper.clientWidth / mouse.camera.screen.width;
     const scaleToAllowVisibilityY = Math.min(screenScaleY, 1);
 
-    if (this.goToMouseCallback)
+    if (this.goToMouseCallback) {
       this.goToMouseCallback({
         x: translatedX,
         y: translatedY,
         scaleX: scaleToAllowVisibilityX,
         scaleY: scaleToAllowVisibilityY,
       });
+    }
   };
 
   /** Presence Mouse Events */

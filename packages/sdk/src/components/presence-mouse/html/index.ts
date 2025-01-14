@@ -3,6 +3,7 @@ import { isEqual } from 'lodash';
 import { Subscription, fromEvent, throttleTime } from 'rxjs';
 
 import { RealtimeEvent } from '../../../common/types/events.types';
+import { MEETING_COLORS } from '../../../common/types/meeting-colors.types';
 import { Participant } from '../../../common/types/participant.types';
 import { StoreType } from '../../../common/types/stores.types';
 import { Logger } from '../../../common/utils';
@@ -16,7 +17,6 @@ import {
   Transform,
   VoidElements,
 } from '../types';
-import { MEETING_COLORS } from '../../../common/types/meeting-colors.types';
 
 export class PointersHTML extends BaseComponent {
   public name: ComponentNames;
@@ -73,9 +73,6 @@ export class PointersHTML extends BaseComponent {
     };
 
     this.name = ComponentNames.PRESENCE;
-    const { localParticipant } = this.useStore(StoreType.GLOBAL);
-    localParticipant.subscribe();
-
     this.containerTagname = this.container.tagName.toUpperCase();
     this.goToPresenceCallback = options?.callbacks?.onGoToPresence;
   }
@@ -89,6 +86,9 @@ export class PointersHTML extends BaseComponent {
    */
   protected start(): void {
     this.logger.log('presence-mouse component @ start');
+
+    const { localParticipant } = this.useStore(StoreType.GLOBAL);
+    localParticipant.subscribe();
 
     this.renderWrapper();
     this.addListeners();

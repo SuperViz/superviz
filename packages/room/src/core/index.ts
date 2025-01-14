@@ -177,7 +177,7 @@ export class Room {
    * @param component - A partial component object to be added to the room.
    * @returns A promise that resolves when the component has been added or queued.
    */
-  public async addComponent(component: Partial<Component>) {
+  public async addComponent(component: Partial<Component> | any) {
     if (!this.canAddComponent(component)) return;
 
     const { hasJoinedRoom } = this.useStore(StoreType.GLOBAL);
@@ -221,7 +221,7 @@ export class Room {
    *
    * @returns A promise that resolves when the component has been successfully removed.
    */
-  public async removeComponent(component: Partial<Component>) {
+  public async removeComponent(component: Partial<Component> | any) {
     if (!this.activeComponents.has(component.name)) {
       const message = `[SuperViz] Component ${component.name} is not initialized yet.`;
       this.logger.log(message);
