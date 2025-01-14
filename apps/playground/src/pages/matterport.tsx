@@ -17,7 +17,7 @@ type WindowWithMP_SDK = Window & {
 
 export function Matterport() {
   const containerId = "matterport-container";
-  const modelId = "Zh14WDtkjdC";
+  const modelId = "sfhmi3y1MDk";
   const room = useRef<LauncherFacade | null>(null);
   const mpSdk = useRef<any | null>(null);
 
@@ -57,7 +57,7 @@ export function Matterport() {
 
       mpSdk.current = await showcaseWindow.MP_SDK.connect(
         showcaseWindow,
-        MATTERPORT_KEY
+        MATTERPORT_KEY,
       );
 
       initializeSuperViz(mpSdk.current as never);
@@ -73,11 +73,13 @@ export function Matterport() {
     };
   }, []);
 
+  console.log("matterport component @ render");
+
   return (
     <iframe
       className="matterport-iframe"
       id={containerId}
-      src={`/mp-bundle/showcase.html?&brand=0&mls=2&mt=0&search=0&kb=0&play=1&qs=1&applicationKey=${MATTERPORT_KEY}&m=${modelId}`}
+      src={`/mp-bundle/showcase.html?&play=1&search=0&vr=0&qs=1&hr=0&kb=0&applicationKey=${MATTERPORT_KEY}&m=${modelId}`}
     />
   );
 }

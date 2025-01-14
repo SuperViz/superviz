@@ -8,7 +8,12 @@ import { isEqual } from 'lodash';
 import { Vector3, Quaternion } from 'three';
 
 import { Avatar, AvatarsConstants, Name } from '../common/types/avatars.types';
-import { CirclePosition, Coordinates, DefaultCoordinates, Simple2DPoint } from '../common/types/coordinates.types';
+import {
+  CirclePosition,
+  Coordinates,
+  DefaultCoordinates,
+  Simple2DPoint,
+} from '../common/types/coordinates.types';
 import { Laser } from '../common/types/lasers.types';
 import type { MpSdk as Matterport, Rotation } from '../common/types/matterport.types';
 import { Logger } from '../common/utils/logger';
@@ -30,6 +35,8 @@ const DEFAULT_AVATAR: AvatarType = {
   model3DUrl: 'https://production.storage.superviz.com/readyplayerme/1.glb',
   imageUrl: 'https://production.cdn.superviz.com/static/default-avatars/1.png',
 };
+const NO_AVATAR_LASER_HEIGHT = 1.5; // Height for laser when not using avatars
+const AVATAR_LASER_HEIGHT_OFFSET = 0.15; // Height offset for laser when using avatars
 
 const storeType = {
   GLOBAL: 'global-store' as StoreType.GLOBAL,
@@ -83,6 +90,8 @@ export class Presence3D {
   private unsubscribeFrom: Array<(id: unknown) => void> = [];
   private hasJoinedRoom: boolean = false;
   private hasJoined3D: boolean = false;
+
+  private laserLerpers: Record<string, any> = {};
 
   constructor(matterportSdk: Matterport, options?: MatterportComponentOptions) {
     this.name = 'presence3dMatterport';
@@ -472,6 +481,11 @@ export class Presence3D {
     this.destroyAvatar(participant);
     this.destroyLaser(participant);
 
+    if (this.laserLerpers[participant.id]) {
+      this.laserLerpers[participant.id].node.stop();
+      delete this.laserLerpers[participant.id];
+    }
+
     if (unsubscribe) {
       this.presence3DManager?.unsubscribeFromUpdates(participant.id, this.onParticipantUpdated);
     }
@@ -480,32 +494,30 @@ export class Presence3D {
   };
 
   private addParticipant = async (participant): Promise<void> => {
+    console.log('Adding participant:', {
+      participantId: participant?.id,
+      isLocal: participant?.id === this.localParticipantId,
+      isLaserEnabled: this.config.isLaserEnabled,
+      isAvatarsEnabled: this.config.isAvatarsEnabled,
+    });
     if (!participant || !participant.id || participant.type === 'audience') return;
     const participantOn3D = this.createParticipantOn3D(participant);
 
     if (this.participants.find((p) => p.id === participantOn3D.id)) {
       this.logger.log('matterport component @ addParticipant - participant already exists');
-
       this.onParticipantUpdated(participant);
       return;
     }
 
     this.participants.push(participantOn3D);
-
-    this.logger.log('matterport component @ addParticipant', {
-      participant,
-      participantOn3D,
-      participants: this.participants,
-    });
-
     this.roomParticipants[participant.id] = participant;
-
-    // audience listens to the hosts broadcast channel
     this.presence3DManager.subscribeToUpdates(participantOn3D.id, this.onParticipantUpdated);
 
     if (this.localParticipantId === participantOn3D.id) return;
 
-    this.config.isAvatarsEnabled && (await this.createAvatar(participantOn3D));
+    if (this.config.isAvatarsEnabled) {
+      await this.createAvatar(participantOn3D);
+    }
     this.config.isLaserEnabled && this.createLaser(participantOn3D);
     this.config.isNameEnabled && this.createName(participantOn3D, this.avatars[participant.id]);
 
@@ -714,18 +726,23 @@ export class Presence3D {
   }
 
   private async createLaser(participant: ParticipantOn3D) {
-    this.logger.log('matterport component @ createLaser', participant);
-
+    console.log('Creating laser for participant:', participant.id, {
+      isAttached: this.isAttached,
+      isLaserEnabled: this.config.isLaserEnabled,
+      hasScene: !!this.matterportSdk.Scene,
+    });
     if (!this.isAttached || !this.matterportSdk.Scene) return;
 
-    let laserOrigin: Vector3 = new Vector3(0, -0.2, 0.07);
+    let laserOrigin: Vector3;
 
-    if (participant.avatarConfig?.laserOrigin) {
+    if (this.config.isAvatarsEnabled && participant.avatarConfig?.laserOrigin) {
       laserOrigin = new Vector3(
         participant.avatarConfig.laserOrigin.x,
         participant.avatarConfig.laserOrigin.y,
         participant.avatarConfig.laserOrigin.z,
       );
+    } else {
+      laserOrigin = new Vector3(0, 0, 0);
     }
 
     const [sceneObject] = await this.matterportSdk.Scene.createObjects(1);
@@ -735,6 +752,10 @@ export class Presence3D {
     laser.start();
     laser.obj3D.userData = { uuid: participant.id };
     this.lasers[participant.id] = laser;
+    console.log('Laser created:', {
+      laserId: participant.id,
+      laserInstance: this.lasers[participant.id],
+    });
   }
 
   private subscribeToMatterportEvents(): void {
@@ -917,11 +938,7 @@ export class Presence3D {
       );
     }
 
-    this.currentCirclePosition.set(
-      positionInTheCircle.x,
-      position.y,
-      positionInTheCircle.z,
-    );
+    this.currentCirclePosition.set(positionInTheCircle.x, position.y, positionInTheCircle.z);
 
     calculatedPos.add(
       this.currentCirclePosition.multiplyScalar(AvatarsConstants.DISTANCE_BETWEEN_AVATARS),
@@ -932,12 +949,11 @@ export class Presence3D {
 
   private createCircleOfPositions(): void {
     this.circlePositions = [];
-    const participants = [
-      ...Object.values(this.participants),
-      this.localParticipant,
-    ].sort((a, b) => {
-      return (a.slot?.index || 0) - (b.slot?.index || 0);
-    });
+    const participants = [...Object.values(this.participants), this.localParticipant].sort(
+      (a, b) => {
+        return (a.slot?.index || 0) - (b.slot?.index || 0);
+      },
+    );
 
     const participantCount = participants.length;
     if (participantCount === 0) return;
@@ -957,6 +973,11 @@ export class Presence3D {
   }
 
   private onParticipantsUpdated = (participants) => {
+    console.log('Participants updated:', {
+      participantCount: participants.length,
+      hasLasers: Object.keys(this.lasers),
+      config: this.config,
+    });
     if (!this.isAttached) return;
 
     this.logger.log('matterport component @ onParticipantsUpdated', participants);
@@ -970,14 +991,7 @@ export class Presence3D {
     Object.values(participants).forEach((participant: ParticipantOn3D) => {
       if (participant.id === this.localParticipantId) return;
       const participantId = participant.id;
-      const {
-        position,
-        rotation,
-        sweep,
-        floor,
-        mode,
-        isPrivate,
-      } = participant;
+      const { position, rotation, sweep, floor, mode, isPrivate } = participant;
 
       this.positionInfos[participantId] = {
         position,
@@ -995,22 +1009,25 @@ export class Presence3D {
         this.addParticipant(participant);
       }
 
-      if (this.avatars[participantId]) {
-        const remoteAvatar = this.avatars[participantId];
-        const remoteLaser = this.lasers[participantId];
+      // Update avatar if it exists
+      if (this.avatars[participantId] && position && rotation) {
+        this.updateAvatar(this.avatars[participantId], position, rotation);
+      }
 
-        const laserDestinationPosition: Coordinates = participant.laser;
-        if (position && rotation) {
-          this.updateAvatar(remoteAvatar, position, rotation);
+      // Update laser independently
+      const remoteLaser = this.lasers[participantId];
+      if (remoteLaser && position) {
+        if (this.laserUpdateIntervals[participantId]) {
+          clearInterval(this.laserUpdateIntervals[participantId]);
         }
-        if (remoteLaser) {
-          if (this.laserUpdateIntervals[participantId]) {
-            clearInterval(this.laserUpdateIntervals[participantId]);
-          }
-          this.laserUpdateIntervals[participantId] = setInterval(() => {
-            this.updateLaser(participantId, remoteAvatar, remoteLaser, laserDestinationPosition);
-          }, 30);
-        }
+        this.laserUpdateIntervals[participantId] = setInterval(async () => {
+          await this.updateLaser(
+            participantId,
+            this.avatars[participantId],
+            remoteLaser,
+            participant.laser,
+          );
+        }, 16);
       }
     });
   };
@@ -1027,14 +1044,16 @@ export class Presence3D {
       transitionTime: SWEEP_DURATION,
       transition: this.matterportSdk.Sweep.Transition.FLY,
       rotation: rotation || this.currentLocalRotation,
-    }).catch((e) => {
-      console.log('[SuperViz] Error when trying to sweep', e);
-    }).finally(() => {
-      this.isSweeping = false;
-      if (this.mpInputComponent) {
-        this.mpInputComponent.inputs.userNavigationEnabled = true;
-      }
-    });
+    })
+      .catch((e) => {
+        console.log('[SuperViz] Error when trying to sweep', e);
+      })
+      .finally(() => {
+        this.isSweeping = false;
+        if (this.mpInputComponent) {
+          this.mpInputComponent.inputs.userNavigationEnabled = true;
+        }
+      });
   }
 
   private updateAvatar(remoteAvatar: Avatar, position: Coordinates, rotation: Simple2DPoint) {
@@ -1070,26 +1089,65 @@ export class Presence3D {
     lerper.animateVector(remoteAvatar.obj3D.position, adjustPosVec);
   }
 
-  private updateLaser(
+  private async updateLaser(
     userId: string,
-    remoteAvatar: Avatar,
+    remoteAvatar: Avatar | null,
     remoteLaser: Laser,
     laserDestinationPosition: Coordinates,
   ) {
     const participant = this.roomParticipants[userId];
-    if (
-      !remoteAvatar ||
-      !remoteLaser ||
-      !laserDestinationPosition ||
-      !this.isAttached ||
-      !participant
-    ) {
+    if (!remoteLaser || !laserDestinationPosition || !this.isAttached || !participant) {
       return;
     }
+
     const laserInstance = remoteLaser.laserPointer;
-    const { x, y, z } = remoteAvatar.obj3D.position;
-    const position: Coordinates = { x, y: y + 0.35, z };
-    remoteAvatar.obj3D.getWorldQuaternion(this.tempQuaternion);
+    let position: Coordinates;
+
+    if (remoteAvatar) {
+      const { x, y, z } = remoteAvatar.obj3D.position;
+      position = { x, y: y + AVATAR_LASER_HEIGHT_OFFSET, z };
+      remoteAvatar.obj3D.getWorldQuaternion(this.tempQuaternion);
+    } else {
+      const participantInfo = this.positionInfos[userId];
+
+      // Create lerper if it doesn't exist
+      if (!this.laserLerpers[userId]) {
+        const [sceneObject] = await this.matterportSdk.Scene.createObjects(1);
+        const lerperNode = sceneObject.addNode();
+        this.laserLerpers[userId] = lerperNode.addComponent('lerper');
+        this.laserLerpers[userId].speed = 0.95;
+        lerperNode.start();
+      }
+
+      const lerper = this.laserLerpers[userId];
+      if (!lerper.curPos) {
+        lerper.curPos = new this.THREE.Vector3(
+          participantInfo.position.x,
+          NO_AVATAR_LASER_HEIGHT,
+          participantInfo.position.z,
+        );
+      }
+
+      lerper.animateVector(
+        lerper.curPos,
+        new this.THREE.Vector3(
+          participantInfo.position.x,
+          NO_AVATAR_LASER_HEIGHT,
+          participantInfo.position.z,
+        ),
+      );
+
+      position = {
+        x: lerper.curPos.x,
+        y: NO_AVATAR_LASER_HEIGHT,
+        z: lerper.curPos.z,
+      };
+
+      this.tempQuaternion.setFromEuler(
+        new this.THREE.Euler(participantInfo.rotation.x, participantInfo.rotation.y, 0, 'XYZ'),
+      );
+    }
+
     if (laserInstance) {
       const { slot } = participant;
       laserInstance.updateGeometry(
