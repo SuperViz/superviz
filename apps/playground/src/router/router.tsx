@@ -30,6 +30,7 @@ import { FormElementsWithNewRoom } from "../pages/form-elements-with-new-room.ts
 import { YjsQuillWioWithNewRoom } from "../pages/yjs-quill-wio-with-new-room.tsx";
 import { MousePointersWithNewRoom } from "../pages/mouse-pointers-with-new-room.tsx";
 import { MousePointersWithNewRoomHTML } from "../pages/mouse-pointers-with-new-room-html.tsx";
+import { CommentsHtmlCasesWithNewRoom } from "../pages/comments-html-cases-with-new-room.tsx";
 
 export const routeList: RouteObject[] = [
   {
@@ -154,6 +155,10 @@ export const routeList: RouteObject[] = [
       {
         path: 'mouse-pointers-with-new-room-html',
         element: <MousePointersWithNewRoomHTML />
+      }, 
+      {
+        path: 'comments-html-cases-with-new-room', 
+        element: <CommentsHtmlCasesWithNewRoom />
       }
     ],
   },
