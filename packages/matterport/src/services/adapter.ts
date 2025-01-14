@@ -6,6 +6,7 @@ import type { ParticipantDataInput } from '@superviz/sdk/dist/services/presence-
 import type { Room } from '@superviz/socket-client';
 import { isEqual } from 'lodash';
 import { Quaternion, Vector3 } from 'three';
+import { NameService } from './matterport/name-service';
 
 import { Avatar, AvatarsConstants, Name } from '../common/types/avatars.types';
 import {
@@ -82,6 +83,8 @@ export class Presence3D {
   private matterportEvents: MatterportEvents;
   private realtimeEvents: RealtimeEvents;
 
+  private nameService: NameService;
+
   constructor(matterportSdk: Matterport, options?: MatterportComponentOptions) {
     this.name = 'presence3dMatterport';
     this.logger = new Logger('@superviz/sdk/matterport-component');
@@ -123,6 +126,7 @@ export class Presence3D {
     this.sceneLight = new SceneLight(this.matterportSdk);
     this.sceneLight.addSceneLight().then(() => {
       this.THREE = this.sceneLight.getTHREE();
+      this.nameService = new NameService(this.matterportSdk, this.config.isNameEnabled, this.THREE);
     });
 
     this.createCircleOfPositions();
@@ -214,6 +218,7 @@ export class Presence3D {
     this.laserUpdateIntervals = {};
     this.avatars = {};
     this.lasers = {};
+    this.nameService?.destroyAll();
   };
 
   private start = (): void => {
@@ -307,6 +312,7 @@ export class Presence3D {
 
     this.destroyAvatar(participant);
     this.destroyLaser(participant);
+    this.nameService?.destroyName(participant.id);
 
     if (this.names[participant.id]) {
       this.names[participant.id].stop();
@@ -344,8 +350,10 @@ export class Presence3D {
     if (this.config.isAvatarsEnabled) {
       await this.createAvatar(participantOn3D);
     }
+    if (this.config.isNameEnabled) {
+      await this.nameService?.createName(participantOn3D);
+    }
     this.config.isLaserEnabled && this.createLaser(participantOn3D);
-    // await this.createIndependentName(participantOn3D);
 
     this.createCircleOfPositions();
   };
@@ -697,6 +705,10 @@ export class Presence3D {
           );
         }, 16);
       }
+
+      if (this.config.isNameEnabled && position) {
+        this.nameService?.updateNamePosition(participantId, position);
+      }
     });
   };
 
@@ -827,24 +839,6 @@ export class Presence3D {
         this.tempQuaternion,
       );
     }
-  }
-
-  private async createIndependentName(participant: ParticipantOn3D) {
-    if (!this.isAttached || !this.matterportSdk.Scene || !this.config.isNameEnabled) return;
-
-    const [sceneObject] = await this.matterportSdk.Scene.createObjects(1);
-    const nameNode = sceneObject.addNode();
-    const nameComponent = nameNode.addComponent('name') as any;
-    nameComponent.THREE = this.THREE;
-
-    // Create an Object3D to hold the name
-    const nameObject = new this.THREE.Object3D();
-    (nameNode as any).obj3D.add(nameObject);
-
-    await nameComponent.createName(nameObject, participant.name, participant.slot, 1.5);
-
-    this.names[participant.id] = nameNode;
-    nameNode.start();
   }
 
   private onParticipantUpdated = (participant): void => {
