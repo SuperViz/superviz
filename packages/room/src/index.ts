@@ -6,6 +6,7 @@ import { Room } from './core';
 import { Callback, ParticipantEvent, RoomEvent, RoomState } from './core/types';
 import { ApiService } from './services/api';
 import config from './services/config';
+import { useStore } from './stores/common/use-store';
 import { InitializeRoomParams, InitializeRoomSchema } from './types';
 
 /**
@@ -153,10 +154,11 @@ export {
 };
 
 if (typeof window !== 'undefined') {
-  window.SuperVizRoom = {
+  window.SuperViz = {
     createRoom,
     RoomEvent,
     ParticipantEvent,
     RoomState,
+    useStore,
   };
 }

@@ -5,5 +5,8 @@ declare global {
   interface Window {
     SuperVizRoom: SuperVizCdn;
     SUPERVIZ: Launcher;
+
+    SuperViz: any
+    SUPERVIZ_ROOM: any
   }
 }

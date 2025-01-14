@@ -31,6 +31,8 @@ export abstract class BaseComponent extends Observable {
    */
 
   public attach = (params: DefaultAttachComponentOptions): void => {
+    this.useStore = params.useStore.bind(this);
+
     if (Object.values(params).includes(null) || Object.values(params).includes(undefined)) {
       const message = `${this.name} @ attach - params are required`;
 

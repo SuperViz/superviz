@@ -9,7 +9,20 @@ import { Constructor, WebComponentsBaseInterface } from './types';
 export const WebComponentsBase = <T extends Constructor<LitElement>>(superClass: T) => {
   class WebComponentsBaseClass extends superClass {
     private unsubscribeFrom: Array<(id: unknown) => void> = [];
-    protected useStore = useStore.bind(this) as typeof useStore;
+
+    /**
+     * @function useStore
+     * @description A function that returns the store based on the environment,
+      if the `@superviz/room` is initialized,
+     * it will use the store from the window object,
+      otherwise it will use the store from the `@suuperviz/sdk`
+     *  @returns {Store<T>} - The store
+     */
+    protected useStore = (
+      window.SUPERVIZ_ROOM ?
+        window.SuperViz.useStore :
+        useStore.bind(this)
+    ) as typeof useStore;
 
     static styles = [
       variableStyle,
