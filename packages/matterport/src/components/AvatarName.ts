@@ -37,13 +37,29 @@ const AvatarName = function () {
     const textHeight = 10 * rescaler;
     const actualFontSize = 0.03;
     const metrics = context.measureText(text);
-    const textWidth = metrics.width * rescaler * 1.12; // 1.12 is to account for stroke width
-    canvas.width = textWidth;
-    canvas.height = textHeight;
+    const textWidth = metrics.width * rescaler * 1.12;
+
+    const horizontalPadding = 60;
+    const verticalPadding = 150;
+    canvas.width = textWidth + horizontalPadding;
+    canvas.height = textHeight + verticalPadding;
+
     context.font = `${textHeight}px OpenSans-SemiBold`;
     context.textBaseline = 'middle';
     context.fillStyle = textColor;
-    context.fillText(text, 0, textHeight / 2);
+    context.fillText(text, horizontalPadding / 2, (textHeight + verticalPadding) / 2);
+
+    const c = document.createElement('canvas');
+    c.width = textWidth + horizontalPadding + 10;
+    c.height = textHeight + verticalPadding + 10;
+    const ctx = c.getContext('2d');
+    const colorWithAlpha = this.addAlpha(backgroundColor.split('#')[1], 0.99);
+    ctx.fillStyle = `#${colorWithAlpha}`;
+
+    ctx.beginPath();
+    const cornerRadius = c.height / 3;
+    ctx.roundRect(0, 0, c.width, c.height * 0.9, cornerRadius);
+    ctx.fill();
 
     const texture = new this.THREE.Texture(canvas);
     texture.needsUpdate = true;
@@ -65,17 +81,6 @@ const AvatarName = function () {
     textObject.textWidth = (textWidth / textHeight) * textObject.textHeight;
     sprite.scale.set((textWidth / textHeight) * actualFontSize, actualFontSize, 1);
 
-    const c = document.createElement('canvas');
-    c.width = textWidth + 10;
-    c.height = textHeight + 10;
-    const ctx = c.getContext('2d');
-    const colorWithAlpha = this.addAlpha(backgroundColor.split('#')[1], 0.99);
-    ctx.fillStyle = `#${colorWithAlpha}`; // this.addAlpha(backgroundColor, 0.99);
-
-    ctx.beginPath();
-
-    ctx.roundRect(-15, 0, c.width, c.height * 0.9, c.width);
-    ctx.fill();
     const backgroundTexture = new this.THREE.Texture(c);
     backgroundTexture.needsUpdate = true;
 
@@ -88,7 +93,7 @@ const AvatarName = function () {
       map: backgroundTexture,
     });
     const background = new this.THREE.Sprite(backgroundMaterial);
-    background.scale.set(1.18, 1.25, 1.1);
+    background.scale.set(1.18, 1.35, 1.1);
     sprite.add(background);
     textObject.add(sprite);
     return textObject;
