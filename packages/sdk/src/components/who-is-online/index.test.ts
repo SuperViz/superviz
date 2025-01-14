@@ -122,12 +122,28 @@ describe('Who Is Online', () => {
         styles: '.unit-test-class { color: red; }',
       });
 
+      whoIsOnlineComponent.attach({
+        ioc: new IOC(MOCK_LOCAL_PARTICIPANT),
+        config: MOCK_CONFIG,
+        eventBus: EVENT_BUS_MOCK,
+        connectionLimit: LIMITS_MOCK.presence.maxParticipants,
+        useStore,
+      });
+
       expect(whoIsOnlineComponent['position']).toBe('bottom-left');
     });
 
     test('should set default position when passing an object without position', () => {
       const whoIsOnlineComponent = new WhoIsOnline({
         styles: '.unit-test-class { color: red; }',
+      });
+
+      whoIsOnlineComponent.attach({
+        ioc: new IOC(MOCK_LOCAL_PARTICIPANT),
+        config: MOCK_CONFIG,
+        eventBus: EVENT_BUS_MOCK,
+        connectionLimit: LIMITS_MOCK.presence.maxParticipants,
+        useStore,
       });
 
       expect(whoIsOnlineComponent['position']).toBe('top-right');

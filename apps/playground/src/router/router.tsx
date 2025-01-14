@@ -25,6 +25,7 @@ import { SuperVizRoom } from "../pages/superviz-room.tsx";
 import { MatterportWithNewRoom } from "../pages/matterport-with-new-superviz-room.tsx";
 import { ThreeWithNewRoom } from "../pages/three-with-new-room.jsx";
 import { AutodeskWithNewRoom } from "../pages/autodesk-with-new-room.tsx";
+import { WhoIsOnlineWithNewRoom } from "../pages/who-is-online-with-new-room.tsx";
 
 export const routeList: RouteObject[] = [
   {
@@ -129,6 +130,10 @@ export const routeList: RouteObject[] = [
       {
         path: 'autodesk-with-new-room',
         element: <AutodeskWithNewRoom />
+      },
+      {
+        path: 'who-is-online-with-new-room',
+        element: <WhoIsOnlineWithNewRoom />
       }
     ],
   },

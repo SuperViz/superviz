@@ -5,6 +5,7 @@ import { getConfig } from "../config";
 import { useCallback, useEffect, useRef } from "react";
 import { createRoom, Room } from "@superviz/room";
 import { Presence3D } from "@superviz/matterport-plugin";
+import { WhoIsOnline } from "@superviz/sdk";
 
 const MATTERPORT_KEY = getConfig<string>("keys.matterport");
 const SUPERVIZ_KEY = getConfig<string>("keys.superviz");
@@ -22,6 +23,7 @@ export function MatterportWithNewRoom() {
   const room = useRef<Room | null>(null);
   const mpSdk = useRef<any | null>(null);
   const matterportPresence = useRef<Presence3D | null>(null);
+  const whoIsOnline = useRef<WhoIsOnline | null>(null);
 
   const initializeSuperViz = useCallback(async () => {
     const uuid = generateId();
@@ -79,14 +81,25 @@ export function MatterportWithNewRoom() {
       isNameEnabled: true,
     });
 
+    whoIsOnline.current = new WhoIsOnline();
+
+    room.current.addComponent(whoIsOnline.current);
     room.current?.addComponent(matterportPresence.current);
   }
 
   const removeMatterport = () => {
-    if (!room.current || !mpSdk.current || !matterportPresence.current) return;
+    if (!room.current || !mpSdk.current) return;
 
-    room.current?.removeComponent(matterportPresence.current);
+    if(whoIsOnline.current) {
+      room.current.removeComponent(whoIsOnline.current!);
+    }
+
+    if(matterportPresence.current) {
+      room.current?.removeComponent(matterportPresence.current!);
+    }
+
     matterportPresence.current = null;
+    whoIsOnline.current = null;
   }
 
   return (

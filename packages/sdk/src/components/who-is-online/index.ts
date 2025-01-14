@@ -28,11 +28,23 @@ export class WhoIsOnline extends BaseComponent {
   private localParticipantId: string;
   private initialized: boolean;
 
-  constructor(options?: WhoIsOnlinePosition | WhoIsOnlineOptions) {
+  constructor(private options?: WhoIsOnlinePosition | WhoIsOnlineOptions) {
     super();
 
     this.name = ComponentNames.WHO_IS_ONLINE;
     this.logger = new Logger('@superviz/sdk/who-is-online-component');
+  }
+
+  // #region Start/Destroy/Events
+
+  /**
+   * @function start
+   * @description Initializes the Who Is Online component
+   * @returns {void}
+   */
+  protected start(): void {
+    const { localParticipant } = this.useStore(StoreType.GLOBAL);
+    this.localParticipantId = localParticipant.value.id;
 
     const {
       disablePresenceControls,
@@ -46,34 +58,21 @@ export class WhoIsOnline extends BaseComponent {
 
     following.subscribe();
 
-    if (typeof options !== 'object') {
-      this.position = options ?? Position.TOP_RIGHT;
-      return;
+    if (typeof this.options !== 'object') {
+      this.position = this.options ?? Position.TOP_RIGHT;
     }
 
-    if (typeof options === 'object') {
-      this.position = options.position ?? Position.TOP_RIGHT;
-      this.setStyles(options.styles);
+    if (typeof this.options === 'object') {
+      this.position = this.options.position ?? Position.TOP_RIGHT;
+      this.setStyles(this.options.styles);
 
-      disablePresenceControls.publish(options.disablePresenceControls);
-      disableGoToParticipant.publish(options.disableGoToParticipant);
-      disableFollowParticipant.publish(options.disableFollowParticipant);
-      disablePrivateMode.publish(options.disablePrivateMode);
-      disableGatherAll.publish(options.disableGatherAll);
-      disableFollowMe.publish(options.disableFollowMe);
+      disablePresenceControls.publish(this.options.disablePresenceControls);
+      disableGoToParticipant.publish(this.options.disableGoToParticipant);
+      disableFollowParticipant.publish(this.options.disableFollowParticipant);
+      disablePrivateMode.publish(this.options.disablePrivateMode);
+      disableGatherAll.publish(this.options.disableGatherAll);
+      disableFollowMe.publish(this.options.disableFollowMe);
     }
-  }
-
-  // #region Start/Destroy/Events
-
-  /**
-   * @function start
-   * @description Initializes the Who Is Online component
-   * @returns {void}
-   */
-  protected start(): void {
-    const { localParticipant } = this.useStore(StoreType.GLOBAL);
-    this.localParticipantId = localParticipant.value.id;
 
     this.subscribeToRealtimeEvents();
     this.positionWhoIsOnline();
@@ -174,7 +173,7 @@ export class WhoIsOnline extends BaseComponent {
       const dataList = list
         .filter((participant) => participant.data['id'])
         .map(({ data }: { data: any }) => {
-          let avatar = data.avatar;
+          let { avatar } = data;
 
           if (!avatar) {
             avatar = this.getAvatar({
