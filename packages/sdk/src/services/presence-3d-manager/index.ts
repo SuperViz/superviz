@@ -28,8 +28,6 @@ export class Presence3DManager {
 
     // have to set manually because useStore is binded to the 3d plugin that creates the service
     localParticipant.subscribe((data) => {
-      this.room.presence.update(data);
-
       const { participants } = this.useStore(StoreType.PRESENCE_3D);
 
       const participant = {
@@ -43,6 +41,7 @@ export class Presence3DManager {
       ]);
 
       this.localParticipant = participant;
+      this.unthrottledUpdatePresence3D(data);
     });
   }
 

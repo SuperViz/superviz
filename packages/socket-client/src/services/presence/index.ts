@@ -130,7 +130,7 @@ export class PresenceRoom {
    * @returns {void}
    */
   public off(event: PresenceEventsArg): void {
-    this.observers.get(event).unsubscribe();
+    this.observers.get(event)?.unsubscribe();
     this.observers.delete(event);
     this.observers.set(event, new Subject());
   }

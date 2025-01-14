@@ -1,5 +1,6 @@
 import { MOCK_CONFIG } from '../../../../__mocks__/config.mock';
 import { EVENT_BUS_MOCK } from '../../../../__mocks__/event-bus.mock';
+import { LIMITS_MOCK } from '../../../../__mocks__/limits.mock';
 import { MOCK_LOCAL_PARTICIPANT } from '../../../../__mocks__/participants.mock';
 import { useStore } from '../../../common/utils/use-store';
 import { IOC } from '../../../services/io';
@@ -7,7 +8,6 @@ import { Presence3DManager } from '../../../services/presence-3d-manager';
 import { ParticipantMouse } from '../types';
 
 import { PointersHTML } from '.';
-import { LIMITS_MOCK } from '../../../../__mocks__/limits.mock';
 
 const createMousePointers = (id: string = 'html'): PointersHTML => {
   const presenceMouseComponent = new PointersHTML(id);
@@ -16,7 +16,6 @@ const createMousePointers = (id: string = 'html'): PointersHTML => {
   presenceMouseComponent.attach({
     ioc: new IOC(MOCK_LOCAL_PARTICIPANT),
     config: MOCK_CONFIG,
-    Presence3DManagerService: Presence3DManager,
     eventBus: EVENT_BUS_MOCK,
     connectionLimit: LIMITS_MOCK.presence.maxParticipants,
     useStore,
@@ -31,7 +30,7 @@ describe('MousePointers on HTML', () => {
   let MOCK_MOUSE: ParticipantMouse;
 
   beforeEach(() => {
-    document.body.innerHTML = `<div><div id="html"></div></div>`;
+    document.body.innerHTML = '<div><div id="html"></div></div>';
 
     MOCK_MOUSE = {
       ...MOCK_LOCAL_PARTICIPANT,
@@ -246,16 +245,15 @@ describe('MousePointers on HTML', () => {
 
   describe('renderVoidElementWrapper', () => {
     test('should create a wrapper and append it to the parent', () => {
-      document.body.innerHTML = `<div><img id="void-element" style="height: 100px; width: 100px;"></div>`;
+      document.body.innerHTML = '<div><img id="void-element" style="height: 100px; width: 100px;"></div>';
       presenceMouseComponent = createMousePointers('void-element');
 
-      presenceMouseComponent['container'].getBoundingClientRect = () =>
-        ({
-          left: 20,
-          top: 30,
-          width: 100,
-          height: 100,
-        } as any);
+      presenceMouseComponent['container'].getBoundingClientRect = () => ({
+        left: 20,
+        top: 30,
+        width: 100,
+        height: 100,
+      } as any);
 
       presenceMouseComponent['start']();
 
@@ -282,13 +280,12 @@ describe('MousePointers on HTML', () => {
       document.body.innerHTML = '<svg id="svg"><rect id="rect"></rect></svg>';
 
       presenceMouseComponent = createMousePointers('rect');
-      presenceMouseComponent['container'].getBoundingClientRect = () =>
-        ({
-          left: 20,
-          top: 30,
-          width: 100,
-          height: 100,
-        } as unknown as DOMRect);
+      presenceMouseComponent['container'].getBoundingClientRect = () => ({
+        left: 20,
+        top: 30,
+        width: 100,
+        height: 100,
+      } as unknown as DOMRect);
 
       presenceMouseComponent['start']();
 
@@ -309,16 +306,15 @@ describe('MousePointers on HTML', () => {
     });
 
     test('should create a wrapper for a ellipse element and append it to the parent', () => {
-      document.body.innerHTML = `<svg id="svg"><ellipse id="ellipse"></ellipse></svg>`;
+      document.body.innerHTML = '<svg id="svg"><ellipse id="ellipse"></ellipse></svg>';
 
       presenceMouseComponent = createMousePointers('ellipse');
-      presenceMouseComponent['container'].getBoundingClientRect = () =>
-        ({
-          left: 20,
-          top: 30,
-          width: 100,
-          height: 100,
-        } as unknown as DOMRect);
+      presenceMouseComponent['container'].getBoundingClientRect = () => ({
+        left: 20,
+        top: 30,
+        width: 100,
+        height: 100,
+      } as unknown as DOMRect);
 
       presenceMouseComponent['start']();
 
@@ -339,15 +335,14 @@ describe('MousePointers on HTML', () => {
     });
 
     test('should create a wrapper for a svg element and append it to the parent', () => {
-      document.body.innerHTML = `<svg id="svg"></svg>`;
+      document.body.innerHTML = '<svg id="svg"></svg>';
       presenceMouseComponent = createMousePointers('svg');
-      presenceMouseComponent['container'].getBoundingClientRect = () =>
-        ({
-          left: 20,
-          top: 30,
-          width: 100,
-          height: 100,
-        } as unknown as DOMRect);
+      presenceMouseComponent['container'].getBoundingClientRect = () => ({
+        left: 20,
+        top: 30,
+        width: 100,
+        height: 100,
+      } as unknown as DOMRect);
 
       presenceMouseComponent['start']();
 
@@ -370,7 +365,7 @@ describe('MousePointers on HTML', () => {
 
   describe('renderElementWrapper', () => {
     beforeEach(() => {
-      document.body.innerHTML = `<div><div id="regular-element"></div></div>`;
+      document.body.innerHTML = '<div><div id="regular-element"></div></div>';
     });
 
     test('should create a wrapper and append it to the parent', () => {
@@ -380,7 +375,6 @@ describe('MousePointers on HTML', () => {
         config: MOCK_CONFIG,
         eventBus: EVENT_BUS_MOCK,
         ioc: new IOC(MOCK_LOCAL_PARTICIPANT),
-        Presence3DManagerService: Presence3DManager,
         connectionLimit: LIMITS_MOCK.presence.maxParticipants,
         useStore,
       });
@@ -401,7 +395,7 @@ describe('MousePointers on HTML', () => {
 
   describe('onMyParticipantMouseMove', () => {
     beforeEach(() => {
-      document.body.innerHTML = `<div><div id="html"><div style="width: 100px; height: 100px;"></div></div></div>`;
+      document.body.innerHTML = '<div><div id="html"><div style="width: 100px; height: 100px;"></div></div></div>';
       presenceMouseComponent = createMousePointers();
     });
 
@@ -477,13 +471,12 @@ describe('MousePointers on HTML', () => {
       );
 
       presenceMouseComponent['container'].getBoundingClientRect = jest.fn(
-        () =>
-          ({
-            left: 10,
-            right: 100,
-            top: 20,
-            bottom: 90,
-          } as any),
+        () => ({
+          left: 10,
+          right: 100,
+          top: 20,
+          bottom: 90,
+        } as any),
       );
 
       const mouseEvent1 = {
@@ -762,16 +755,15 @@ describe('MousePointers on HTML', () => {
     });
 
     test('should update the wrapper position', () => {
-      document.body.innerHTML = `<div><svg id="svg"></svg></div>`;
+      document.body.innerHTML = '<div><svg id="svg"></svg></div>';
       presenceMouseComponent = createMousePointers('svg');
 
-      presenceMouseComponent['container'].getBoundingClientRect = () =>
-        ({
-          left: 100,
-          top: 100,
-          width: 100,
-          height: 100,
-        } as unknown as DOMRect);
+      presenceMouseComponent['container'].getBoundingClientRect = () => ({
+        left: 100,
+        top: 100,
+        width: 100,
+        height: 100,
+      } as unknown as DOMRect);
 
       presenceMouseComponent['start']();
       presenceMouseComponent['updateSVGElementWrapper']();
@@ -931,11 +923,10 @@ describe('MousePointers on HTML', () => {
 
   describe('updateVoidElementWrapper', () => {
     test('should update the wrapper position', () => {
-      presenceMouseComponent['container'].getBoundingClientRect = () =>
-        ({
-          width: 200,
-          height: 200,
-        } as any);
+      presenceMouseComponent['container'].getBoundingClientRect = () => ({
+        width: 200,
+        height: 200,
+      } as any);
 
       presenceMouseComponent['start']();
 

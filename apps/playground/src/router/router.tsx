@@ -22,6 +22,9 @@ import { ReactFlowWithReactSDK } from "../pages/react-flow-with-react-sdk.tsx";
 import { VideoWithReact } from "../pages/video-with-react.tsx";
 import { MatterportEmbed } from "../pages/matterport-embed.tsx";
 import { SuperVizRoom } from "../pages/superviz-room.tsx";
+import { MatterportWithNewRoom } from "../pages/matterport-with-new-superviz-room.tsx";
+import { ThreeWithNewRoom } from "../pages/three-with-new-room.jsx";
+import { AutodeskWithNewRoom } from "../pages/autodesk-with-new-room.tsx";
 
 export const routeList: RouteObject[] = [
   {
@@ -114,6 +117,18 @@ export const routeList: RouteObject[] = [
       { 
         path: 'room', 
         element: <SuperVizRoom />
+      },
+      { 
+        path: 'matterport-with-superviz-room', 
+        element: <MatterportWithNewRoom />
+      }, 
+      {
+        path: 'three-with-new-room',
+        element: <ThreeWithNewRoom />
+      }, 
+      {
+        path: 'autodesk-with-new-room',
+        element: <AutodeskWithNewRoom />
       }
     ],
   },

@@ -1,6 +1,6 @@
 {
   "name": "@superviz/threejs-plugin",
-  "version": "1.3.0-lab.1",
+  "version": "1.3.0-lab.2",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
@@ -33,7 +33,6 @@
     "@anolilab/semantic-release-pnpm": "^1.1.3",
     "@semantic-release/release-notes-generator": "^14.0.1",
     "@superviz/eslint-config": "workspace:*",
-    "@superviz/sdk": "workspace:*",
     "@superviz/socket-client": "workspace:*",
     "@superviz/typescript-config": "workspace:*",
     "@types/debug": "^4.1.12",
@@ -53,6 +52,7 @@
     "lodash": "^4.17.21",
     "three": "0.167.1",
     "three-mesh-bvh": "0.7.6",
-    "three-spritetext": "1.8.2"
+    "three-spritetext": "1.8.2",
+    "@superviz/sdk": "workspace:*"
   }
 }

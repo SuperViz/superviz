@@ -1,5 +1,9 @@
+import { FeatureFlags } from '../../common/types/feature-flag.types';
+import { Group } from '../../common/types/group.types';
 import config from '../config';
 import { ComponentLimits } from '../config/types';
+
+import { CreateParticipantParams } from './types';
 
 export class ApiService {
   static async doRequest(url: string, method: string, body: any, customHeaders = {}) {
@@ -50,5 +54,42 @@ export class ApiService {
     const url = this.createUrl(path);
     const { message } = await this.doRequest(url, 'POST', { apiKey });
     return message;
+  }
+
+  static async createParticipant(
+    participant: CreateParticipantParams,
+  ): Promise<void> {
+    const path = '/participants';
+    const url = this.createUrl(path);
+    return this.doRequest(url, 'POST', { ...participant }, { apikey: config.get<string>('apiKey') });
+  }
+
+  static async fetchParticipant(id: string) {
+    const path = `/participants/${id}`;
+    const url = this.createUrl(path);
+    return this.doRequest(url, 'GET', undefined, { apikey: config.get<string>('apiKey') });
+  }
+
+  static async sendActivity(userId: string, product: string) {
+    const path = '/activity';
+    const url = this.createUrl(path);
+
+    const body = {
+      groupId: config.get<string>('group.id'),
+      groupName: config.get<string>('group.name'),
+      meetingId: config.get<string>('roomId'),
+      product,
+      userId,
+    };
+
+    return this.doRequest(url, 'POST', body, { apikey: config.get<string>('apiKey') });
+  }
+
+  static async getFeatures(apiKey: string): Promise<FeatureFlags> {
+    return this.doRequest(
+      `https://remote-config.superviz.com/features/${apiKey}`,
+      'GET',
+      undefined,
+    ) as Promise<FeatureFlags>;
   }
 }
