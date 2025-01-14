@@ -731,7 +731,7 @@ export class Presence3D {
       isLaserEnabled: this.config.isLaserEnabled,
       hasScene: !!this.matterportSdk.Scene,
     });
-    if (!this.isAttached || !this.matterportSdk.Scene) return;
+    if (!this.isAttached || !this.matterportSdk.Scene || !this.config.isLaserEnabled) return;
 
     let laserOrigin: Vector3;
 
