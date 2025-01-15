@@ -1,7 +1,8 @@
 import { PresenceEvent, PresenceEvents, Room } from '@superviz/socket-client';
 
 import { MEETING_COLORS, NAME_IS_WHITE_TEXT } from '../../common/types/colors.types';
-import { Participant, Slot } from '../../common/types/participant.types';
+import { ComponentNames } from '../../common/types/component.types';
+import { Participant, ParticipantType, Slot } from '../../common/types/participant.types';
 
 export class SlotService {
   private isAssigningSlot = false;
@@ -155,13 +156,36 @@ export class SlotService {
   };
 
   /**
-   * Determines if a participant needs a slot.
+   * Determines if a participant needs a slot based on their active components and type.
    *
-   * @param participant - The participant to check.
-   * @returns `true` if the participant needs a slot, otherwise `false`.
+   * @param participant - The participant object to check.
+   * @returns `true` if the participant needs a slot, `false` otherwise.
+   *
+   * The function checks if the participant has any active components that require a slot
+   * or if the participant is involved in a video conference and is not of type `AUDIENCE`.
    */
-  private participantNeedsSlot = (participant: Participant): boolean => {
-    return true;
+  public participantNeedsSlot = (participant: Participant): boolean => {
+    const COMPONENTS_THAT_NEED_SLOT = [
+      ComponentNames.FORM_ELEMENTS,
+      ComponentNames.WHO_IS_ONLINE,
+      ComponentNames.PRESENCE,
+      ComponentNames.PRESENCE_AUTODESK,
+      ComponentNames.PRESENCE_MATTERPORT,
+      ComponentNames.PRESENCE_THREEJS,
+      ComponentNames.YJS_PROVIDER,
+    ];
+
+    const componentsNeedSlot = COMPONENTS_THAT_NEED_SLOT.some((component) => {
+      return participant?.activeComponents?.includes(component);
+    });
+
+    const videoNeedSlot =
+      participant?.activeComponents?.includes(ComponentNames.VIDEO_CONFERENCE) &&
+      participant.type !== ParticipantType.AUDIENCE;
+
+    const needSlot = componentsNeedSlot || videoNeedSlot;
+
+    return needSlot;
   };
 
   /**
