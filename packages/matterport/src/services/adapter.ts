@@ -6,7 +6,6 @@ import type { ParticipantDataInput } from '@superviz/sdk/dist/services/presence-
 import type { Room } from '@superviz/socket-client';
 import { isEqual } from 'lodash';
 import { Quaternion, Vector3 } from 'three';
-import { NameService } from './matterport/name-service';
 
 import { Avatar, AvatarsConstants, Name } from '../common/types/avatars.types';
 import {
@@ -31,6 +30,10 @@ import {
   AVATAR_LASER_HEIGHT_OFFSET,
   NO_AVATAR_LASER_HEIGHT,
   SWEEP_DURATION,
+  MIN_NAME_HEIGHT,
+  MAX_NAME_HEIGHT,
+  MIN_DIST_SQUARED,
+  MAX_DIST_SQUARED,
 } from '../common/constants/presence';
 
 import { STORE_TYPES } from '../common/constants/store';
@@ -83,7 +86,7 @@ export class Presence3D {
   private matterportEvents: MatterportEvents;
   private realtimeEvents: RealtimeEvents;
 
-  private nameService: NameService;
+  private isEmbedMode: boolean = false;
 
   constructor(matterportSdk: Matterport, options?: MatterportComponentOptions) {
     this.name = 'presence3dMatterport';
@@ -108,8 +111,6 @@ export class Presence3D {
 
     this.logger.log('matterport component @ constructor - config', this.config);
 
-    /** Matterport things */
-
     this.matterportSdk = matterportSdk;
 
     // if it's using embed mode, that's no have Scene
@@ -117,19 +118,149 @@ export class Presence3D {
       this.matterportSdk.Scene.register('lerper', AvatarLerper);
       this.matterportSdk.Scene.register('name', AvatarName);
       this.matterportSdk.Scene.register('laser', LaserPointer);
+    } else {
+      this.isEmbedMode = false;
     }
 
     // input control
     this.addInputComponent();
 
-    // light
+    // get THREE from Matterport through SceneLight
     this.sceneLight = new SceneLight(this.matterportSdk);
     this.sceneLight.addSceneLight().then(() => {
       this.THREE = this.sceneLight.getTHREE();
-      this.nameService = new NameService(this.matterportSdk, this.config.isNameEnabled, this.THREE);
     });
 
     this.createCircleOfPositions();
+  }
+
+  /* CREATE NAME IF USER HAS AN AVATAR */
+  private async createNameForAvatars(participant: ParticipantOn3D, avatarModel) {
+    if (!avatarModel) return;
+
+    const threeVersion = Number(this.THREE.REVISION);
+
+    const url = participant.avatar?.model3DUrl ?? AvatarsConstants.DEFAULT_AVATAR_URL;
+    const isDefaultAvatar = url?.includes('readyplayerme');
+
+    const nameInstance: Name = avatarModel.avatarName;
+
+    console.log('nameInstance', nameInstance);
+    console.log('avatarModel', avatarModel);
+
+    const slot = participant.slot ?? this.roomParticipants[participant.id]?.slot;
+
+    const boundingBox = new this.THREE.Box3().setFromObject(avatarModel.obj3D);
+    const size = new Vector3(0, 0, 0);
+    boundingBox.getSize(size);
+    let nameHeight;
+
+    // max compatibility with old matterport versions
+    if (threeVersion <= 146) {
+      nameHeight = boundingBox.min.y - avatarModel.position.y + size.y * 1.1;
+    } else {
+      nameHeight = size.y * 1.2;
+
+      if (isDefaultAvatar) {
+        nameHeight = size.y * 4.1;
+      }
+    }
+
+    nameInstance.createName(avatarModel.obj3D, 'Peter', slot, nameHeight);
+  }
+
+  private async createAvatar(participant: ParticipantOn3D) {
+    this.logger.log('matterport component @ createAvatar', participant);
+
+    if (!this.isAttached || !this.matterportSdk.Scene) return;
+
+    const scale: number = participant?.avatarConfig?.scale || 0.55;
+    const height: number = participant?.avatarConfig?.height || 0.25;
+
+    const [sceneObject] = await this.matterportSdk.Scene.createObjects(1);
+    const avatarModel: Avatar = sceneObject.addNode();
+    const rotation: Coordinates = DefaultCoordinates;
+
+    avatarModel.obj3D.rotation.set(rotation.x, rotation.y, rotation.z);
+    avatarModel.obj3D.name = 'avatar';
+    avatarModel.obj3D.userData = {
+      uuid: participant.id,
+      name: participant.name,
+      height,
+    };
+
+    const url = participant.avatar?.model3DUrl ?? AvatarsConstants.DEFAULT_AVATAR_URL;
+    const localScale = { x: scale, y: scale, z: scale };
+
+    avatarModel.lerper = avatarModel.addComponent('lerper');
+    avatarModel.avatarName = avatarModel.addComponent('name');
+    this.avatars[participant.id] = avatarModel;
+
+    return new Promise((resolve) => {
+      avatarModel.addComponent('mp.gltfLoader', {
+        url,
+        localScale,
+        onLoaded: () => {
+          if (this.matterportEvents) {
+            this.matterportSdk.Camera.getPose().then((pose) => {
+              this.matterportEvents.onCameraMove(pose.position, pose.rotation);
+            });
+          } else {
+            // TODO: FIGURE THIS OUT
+          }
+          this.createNameForAvatars(participant, avatarModel);
+          resolve(avatarModel);
+        },
+      });
+      avatarModel.start();
+    });
+  }
+
+  private async createLaser(participant: ParticipantOn3D) {
+    if (!this.isAttached || !this.matterportSdk.Scene || !this.config.isLaserEnabled) return;
+
+    console.log('Creating laser for participant:', participant);
+
+    let laserOrigin: Vector3;
+
+    if (this.config.isAvatarsEnabled && participant.avatarConfig?.laserOrigin) {
+      laserOrigin = new Vector3(
+        participant.avatarConfig.laserOrigin.x,
+        participant.avatarConfig.laserOrigin.y,
+        participant.avatarConfig.laserOrigin.z,
+      );
+    } else {
+      laserOrigin = new Vector3(0, 0, 0);
+    }
+
+    const [sceneObject] = await this.matterportSdk.Scene.createObjects(1);
+    const laser: Laser = sceneObject.addNode();
+
+    return new Promise((resolve) => {
+      // Create laser pointer first
+      laser.laserPointer = laser.addComponent('laser', { origin: laserOrigin });
+
+      laser.laserPointer.onInitCallback = () => {
+        laser.avatarName = laser.addComponent('name');
+
+        const slot = participant.slot ?? this.roomParticipants[participant.id]?.slot;
+
+        // only create name if avatars are not enabled
+        if (!this.config.isAvatarsEnabled) {
+          const nameInstance: Name = laser.avatarName;
+          const nameHeight = MIN_NAME_HEIGHT;
+          nameInstance.createName(laser.laserPointer.group, participant.name, slot, nameHeight);
+          laser.laserPointer.setNameComponent(laser.avatarName);
+        }
+
+        laser.obj3D.userData = { uuid: participant.id };
+        this.lasers[participant.id] = laser;
+        resolve(laser);
+      };
+
+      // Only start once
+      laser.start();
+    });
   }
 
   private get localParticipantId(): string {
@@ -218,7 +349,7 @@ export class Presence3D {
     this.laserUpdateIntervals = {};
     this.avatars = {};
     this.lasers = {};
-    this.nameService?.destroyAll();
+    // this.nameService?.destroyAll();
   };
 
   private start = (): void => {
@@ -312,7 +443,7 @@ export class Presence3D {
 
     this.destroyAvatar(participant);
     this.destroyLaser(participant);
-    this.nameService?.destroyName(participant.id);
+    //this.nameService?.destroyName(participant.id);
 
     if (this.names[participant.id]) {
       this.names[participant.id].stop();
@@ -347,13 +478,13 @@ export class Presence3D {
 
     if (this.localParticipantId === participantOn3D.id) return;
 
-    if (this.config.isAvatarsEnabled) {
-      await this.createAvatar(participantOn3D);
+    if (!this.isEmbedMode) {
+      // IF AVATARS ARE ENABLED, CREATE THE AVATAR
+      this.config.isAvatarsEnabled && (await this.createAvatar(participantOn3D));
+
+      // IF LASER IS ENABLED, CREATE THE LASER
+      this.config.isLaserEnabled && this.createLaser(participantOn3D);
     }
-    if (this.config.isNameEnabled) {
-      await this.nameService?.createName(participantOn3D);
-    }
-    this.config.isLaserEnabled && this.createLaser(participantOn3D);
 
     this.createCircleOfPositions();
   };
@@ -474,110 +605,6 @@ export class Presence3D {
       }
     }
   };
-
-  private async createAvatar(participant: ParticipantOn3D) {
-    this.logger.log('matterport component @ createAvatar', participant);
-
-    if (!this.isAttached || !this.matterportSdk.Scene) return;
-
-    const scale: number = participant?.avatarConfig?.scale || 0.55;
-    const height: number = participant?.avatarConfig?.height || 0.25;
-
-    const [sceneObject] = await this.matterportSdk.Scene.createObjects(1);
-    const avatarModel: Avatar = sceneObject.addNode();
-    const rotation: Coordinates = DefaultCoordinates;
-
-    avatarModel.obj3D.rotation.set(rotation.x, rotation.y, rotation.z);
-    avatarModel.obj3D.name = 'avatar';
-    avatarModel.obj3D.userData = {
-      uuid: participant.id,
-      name: participant.name,
-      height,
-    };
-
-    const url = participant.avatar?.model3DUrl ?? AvatarsConstants.DEFAULT_AVATAR_URL;
-    const localScale = { x: scale, y: scale, z: scale };
-
-    avatarModel.lerper = avatarModel.addComponent('lerper');
-    avatarModel.avatarName = avatarModel.addComponent('name');
-    this.avatars[participant.id] = avatarModel;
-
-    return new Promise((resolve) => {
-      avatarModel.addComponent('mp.gltfLoader', {
-        url,
-        localScale,
-        onLoaded: () => {
-          if (this.matterportEvents) {
-            this.matterportSdk.Camera.getPose().then((pose) => {
-              this.matterportEvents.onCameraMove(pose.position, pose.rotation);
-              this.createName(participant, avatarModel);
-              resolve(avatarModel);
-            });
-          } else {
-            this.createName(participant, avatarModel);
-            resolve(avatarModel);
-          }
-        },
-      });
-      avatarModel.start();
-    });
-  }
-
-  private async createName(participant: ParticipantOn3D, avatarModel) {
-    this.logger.log('createName', participant, avatarModel);
-
-    if (!avatarModel) return;
-
-    const threeVersion = Number(this.THREE.REVISION);
-
-    const url = participant.avatar?.model3DUrl ?? AvatarsConstants.DEFAULT_AVATAR_URL;
-    const isDefaultAvatar = url?.includes('readyplayerme');
-
-    const nameInstance: Name = avatarModel.avatarName;
-    const slot = participant.slot ?? this.roomParticipants[participant.id]?.slot;
-
-    const boundingBox = new this.THREE.Box3().setFromObject(avatarModel.obj3D);
-    const size = new Vector3(0, 0, 0);
-    boundingBox.getSize(size);
-    let nameHeight;
-
-    // max compatibility with old matterport versions
-    if (threeVersion <= 146) {
-      nameHeight = boundingBox.min.y - avatarModel.position.y + size.y * 1.1;
-    } else {
-      nameHeight = size.y * 1.2;
-
-      if (isDefaultAvatar) {
-        nameHeight = size.y * 4.1;
-      }
-    }
-
-    nameInstance.createName(avatarModel.obj3D, participant.name, slot, nameHeight);
-  }
-
-  private async createLaser(participant: ParticipantOn3D) {
-    if (!this.isAttached || !this.matterportSdk.Scene || !this.config.isLaserEnabled) return;
-
-    let laserOrigin: Vector3;
-
-    if (this.config.isAvatarsEnabled && participant.avatarConfig?.laserOrigin) {
-      laserOrigin = new Vector3(
-        participant.avatarConfig.laserOrigin.x,
-        participant.avatarConfig.laserOrigin.y,
-        participant.avatarConfig.laserOrigin.z,
-      );
-    } else {
-      laserOrigin = new Vector3(0, 0, 0);
-    }
-
-    const [sceneObject] = await this.matterportSdk.Scene.createObjects(1);
-    const laser: Laser = sceneObject.addNode();
-    laser.laserPointer = laser.addComponent('laser', { origin: laserOrigin });
-
-    laser.start();
-    laser.obj3D.userData = { uuid: participant.id };
-    this.lasers[participant.id] = laser;
-  }
 
   private addInputComponent = async (): Promise<void> => {
     if (!this.matterportSdk.Scene) return;
@@ -705,10 +732,6 @@ export class Presence3D {
           );
         }, 16);
       }
-
-      if (this.config.isNameEnabled && position) {
-        this.nameService?.updateNamePosition(participantId, position);
-      }
     });
   };
 
@@ -783,6 +806,10 @@ export class Presence3D {
     const laserInstance = remoteLaser.laserPointer;
     let position: Coordinates;
 
+    // Get current camera position for distance calculation
+    const currentPose = await this.matterportSdk.Camera.getPose();
+    const cameraPosition = currentPose.position;
+
     if (remoteAvatar) {
       const { x, y, z } = remoteAvatar.obj3D.position;
       position = { x, y: y + AVATAR_LASER_HEIGHT_OFFSET, z };
@@ -808,6 +835,7 @@ export class Presence3D {
         );
       }
 
+      // Lerp to new position
       lerper.animateVector(
         lerper.curPos,
         new this.THREE.Vector3(
@@ -819,7 +847,7 @@ export class Presence3D {
 
       position = {
         x: lerper.curPos.x,
-        y: NO_AVATAR_LASER_HEIGHT,
+        y: lerper.curPos.y,
         z: lerper.curPos.z,
       };
 
@@ -829,6 +857,17 @@ export class Presence3D {
     }
 
     if (laserInstance) {
+      // Calculate distance-based name height
+      const dx = cameraPosition.x - position.x;
+      const dz = cameraPosition.z - position.z;
+      const distanceSquared = dx * dx + dz * dz;
+
+      const nameHeight =
+        MIN_NAME_HEIGHT +
+        (Math.min(Math.max(distanceSquared - MIN_DIST_SQUARED, 0), MAX_DIST_SQUARED) /
+          MAX_DIST_SQUARED) *
+          (MAX_NAME_HEIGHT - MIN_NAME_HEIGHT);
+
       const { slot } = participant;
       laserInstance.updateGeometry(
         position,
@@ -837,6 +876,7 @@ export class Presence3D {
         true,
         slot,
         this.tempQuaternion,
+        nameHeight, // Pass nameHeight to LaserPointer
       );
     }
   }
@@ -894,7 +934,8 @@ export class Presence3D {
 
       this.config.isAvatarsEnabled && (await this.createAvatar(participantOn3D));
       this.config.isLaserEnabled && this.createLaser(participantOn3D);
-      this.config.isNameEnabled && this.createName(participantOn3D, this.avatars[participant.id]);
+      this.config.isNameEnabled &&
+        this.createNameForAvatars(participantOn3D, this.avatars[participant.id]);
     } else {
       const index = this.participants.findIndex((u) => u.id === participant.id);
       if (index !== -1) {

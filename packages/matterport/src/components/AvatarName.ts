@@ -3,48 +3,48 @@ import { Slot } from '../types';
 const AvatarName = function () {
   this.onInit = function () {
     this.THREE = this.context.three;
+    this.textObject = null;
   };
 
   this.onTick = function (tickDelta) {};
 
-  this.onEvent = function () {};
-
-  this.onInputsUpdated = function () {};
-
-  this.onDestroy = function () {};
-
-  this.createName = async (avatar, name, slot: Slot, height) => {
-    const scene = avatar;
+  this.createName = async (object3D, name, slot: Slot, height) => {
     const y = height;
-    const backgroundColor: string = slot?.color ?? '#878291';
-    const textColor: string = slot?.textColor ?? '#fff';
+    const backgroundColor: string = '#403D45';
+    const textColor: string = '#fff';
+
     const font = new FontFace(
-      'OpenSans-SemiBold',
-      'url(https://superviz2homologmediaserver.s3.amazonaws.com/static/fonts/OpenSans-SemiBold.woff)',
+      'Roboto',
+      'url(https://fonts.gstatic.com/s/roboto/v30/KFOlCnqEu92Fr1MmWUlfBBc4.woff2)',
     );
     await font.load();
     document.fonts.add(font);
-    const textObject3D = this.createText(name, textColor, backgroundColor);
-    textObject3D.position.set(0, y, 0);
-    scene.add(textObject3D);
-    return textObject3D;
+    this.textObject = this.createText(name, textColor, backgroundColor);
+    this.textObject.position.set(0, y, 0);
+    object3D.add(this.textObject);
+    return this.textObject;
+  };
+
+  this.updateHeight = function (height) {
+    if (this.textObject) {
+      this.textObject.position.y = height;
+    }
   };
 
   this.createText = (text: string, textColor: string, backgroundColor: string) => {
     const canvas = document.createElement('canvas');
     const context = canvas.getContext('2d');
-    const rescaler = 100;
-    const textHeight = 10 * rescaler;
+    const textHeight = 1000;
     const actualFontSize = 0.03;
     const metrics = context.measureText(text);
-    const textWidth = metrics.width * rescaler * 1.12;
+    const textWidth = metrics.width * 112;
 
     const horizontalPadding = 60;
     const verticalPadding = 150;
     canvas.width = textWidth + horizontalPadding;
     canvas.height = textHeight + verticalPadding;
 
-    context.font = `${textHeight}px OpenSans-SemiBold`;
+    context.font = `${textHeight}px Roboto`;
     context.textBaseline = 'middle';
     context.fillStyle = textColor;
     context.fillText(text, horizontalPadding / 2, (textHeight + verticalPadding) / 2);
@@ -53,8 +53,7 @@ const AvatarName = function () {
     c.width = textWidth + horizontalPadding + 10;
     c.height = textHeight + verticalPadding + 10;
     const ctx = c.getContext('2d');
-    const colorWithAlpha = this.addAlpha(backgroundColor.split('#')[1], 0.99);
-    ctx.fillStyle = `#${colorWithAlpha}`;
+    ctx.fillStyle = `${backgroundColor}`;
 
     ctx.beginPath();
     const cornerRadius = c.height / 3;
@@ -63,6 +62,9 @@ const AvatarName = function () {
 
     const texture = new this.THREE.Texture(canvas);
     texture.needsUpdate = true;
+    texture.minFilter = this.THREE.LinearMipMapLinearFilter;
+    texture.magFilter = this.THREE.LinearFilter;
+    texture.generateMipmaps = true;
     const material = new this.THREE.SpriteMaterial({
       map: texture,
       useScreenCoordinates: false,
@@ -70,6 +72,7 @@ const AvatarName = function () {
       alphaTest: 0.5,
       depthTest: true,
       transparent: true,
+      sizeAttenuation: false,
     });
     const sprite = new this.THREE.Sprite(material);
     sprite.raycast = () => {
@@ -83,6 +86,9 @@ const AvatarName = function () {
 
     const backgroundTexture = new this.THREE.Texture(c);
     backgroundTexture.needsUpdate = true;
+    backgroundTexture.minFilter = this.THREE.LinearMipMapLinearFilter;
+    backgroundTexture.magFilter = this.THREE.LinearFilter;
+    backgroundTexture.generateMipmaps = true;
 
     const backgroundMaterial = new this.THREE.SpriteMaterial({
       opacity: 0.99,
@@ -91,18 +97,13 @@ const AvatarName = function () {
       alphaTest: 0.1,
       color: new this.THREE.Color(backgroundColor),
       map: backgroundTexture,
+      sizeAttenuation: false,
     });
     const background = new this.THREE.Sprite(backgroundMaterial);
     background.scale.set(1.18, 1.35, 1.1);
     sprite.add(background);
     textObject.add(sprite);
     return textObject;
-  };
-
-  this.addAlpha = (color, opacity) => {
-    // coerce values so ti is between 0 and 1.
-    const _opacity = Math.round(Math.min(Math.max(opacity || 1, 0), 1) * 255);
-    return color + _opacity.toString(16).toUpperCase();
   };
 };
 
