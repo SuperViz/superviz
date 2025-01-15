@@ -1,6 +1,7 @@
 import { PresenceEvent } from '@superviz/socket-client';
 import { Subject } from 'rxjs';
 
+import { ParticipantType } from '../common/types/participant.types';
 import { Logger } from '../common/utils/logger';
 import config from '../services/config';
 import { IOC } from '../services/io';
@@ -252,6 +253,11 @@ describe('Room', () => {
         colorName: 'gray',
         timestamp: expect.any(Number),
       },
+      avatar: {
+        imageUrl: null,
+        model3DUrl: null,
+      },
+      type: ParticipantType.GUEST,
       activeComponents: [],
     }]);
 

@@ -23,8 +23,13 @@ export function SuperVizRoom() {
     const newRoom = await createRoom({
       developerToken: SUPERVIZ_KEY,
       participant: {
-        name: "Participant Name",
         id: uuid,
+        name: "Participant Name",
+        email: 'carlos@superviz.com',
+        avatar: { 
+          model3DUrl: 'https://production.storage.superviz.com/readyplayerme/1.glb',
+          imageUrl: 'https://production.cdn.superviz.com/static/default-avatars/1.png',
+        }
       },
       group: {
         name: SUPERVIZ_ROOM_PREFIX,

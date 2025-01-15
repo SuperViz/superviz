@@ -1,9 +1,9 @@
 import type { PresenceEvent, Room as SocketRoomType } from '@superviz/socket-client';
-import { Subject, Subscription, timestamp } from 'rxjs';
+import { Subject, Subscription } from 'rxjs';
 
 import { Component, ComponentNames, PresenceMap } from '../common/types/component.types';
 import { Group } from '../common/types/group.types';
-import { InitialParticipant, Participant } from '../common/types/participant.types';
+import { InitialParticipant, Participant, ParticipantType } from '../common/types/participant.types';
 import { Logger } from '../common/utils/logger';
 import { ApiService } from '../services/api';
 import config from '../services/config';
@@ -331,6 +331,11 @@ export class Room {
       activeComponents: participant?.activeComponents ?? [],
       email: participant?.email ?? null,
       slot: participant?.slot ?? SlotService.getDefaultSlot(),
+      type: participant?.type ?? ParticipantType.GUEST,
+      avatar: participant?.avatar ?? {
+        imageUrl: null,
+        model3DUrl: null,
+      },
     };
   }
 
@@ -341,12 +346,17 @@ export class Room {
    * @returns A new participant object with the provided initial data and default slot properties.
    */
   private createParticipant(initialData: InitialParticipant): Participant {
-    const participant = {
+    const participant: Participant = {
       id: initialData.id,
       name: initialData.name,
       email: initialData.email ?? null,
       activeComponents: [],
       slot: SlotService.getDefaultSlot(),
+      type: ParticipantType.GUEST,
+      avatar: initialData?.avatar ?? {
+        imageUrl: null,
+        model3DUrl: null,
+      },
     };
 
     const { localParticipant } = this.useStore(StoreType.GLOBAL);
