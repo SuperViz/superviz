@@ -26,6 +26,7 @@ export enum StoreType {
   GLOBAL = 'global-store',
   PRESENCE_3D = 'presence-3d-store',
   WHO_IS_ONLINE = 'who-is-online-store',
+  VIDEO = 'video-store',
 }
 
 type Subject<T extends (...args: any[]) => any, K extends keyof ReturnType<T>> = ReturnType<T>[K];
