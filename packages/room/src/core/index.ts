@@ -1,9 +1,10 @@
 import type { PresenceEvent, Room as SocketRoomType } from '@superviz/socket-client';
-import { Subject, Subscription, timestamp } from 'rxjs';
+import { Subject, Subscription } from 'rxjs';
 
 import { Component, ComponentNames, PresenceMap } from '../common/types/component.types';
+import { EventBusEvent } from '../common/types/event-bus.events.types';
 import { Group } from '../common/types/group.types';
-import { InitialParticipant, Participant } from '../common/types/participant.types';
+import { InitialParticipant, Participant, ParticipantType } from '../common/types/participant.types';
 import { Logger } from '../common/utils/logger';
 import { ApiService } from '../services/api';
 import config from '../services/config';
@@ -177,7 +178,7 @@ export class Room {
    * @param component - A partial component object to be added to the room.
    * @returns A promise that resolves when the component has been added or queued.
    */
-  public async addComponent(component: Partial<Component>) {
+  public async addComponent(component: Partial<Component> | any) {
     if (!this.canAddComponent(component)) return;
 
     const { hasJoinedRoom } = this.useStore(StoreType.GLOBAL);
@@ -221,7 +222,7 @@ export class Room {
    *
    * @returns A promise that resolves when the component has been successfully removed.
    */
-  public async removeComponent(component: Partial<Component>) {
+  public async removeComponent(component: Partial<Component> | any) {
     if (!this.activeComponents.has(component.name)) {
       const message = `[SuperViz] Component ${component.name} is not initialized yet.`;
       this.logger.log(message);
@@ -252,6 +253,7 @@ export class Room {
     this.slotService = new SlotService(this.room, this.participant);
 
     this.subscribeToRoomEvents();
+    this.subscribeToEventBusEvents();
   }
 
   private canAddComponent(component: Partial<Component>): boolean {
@@ -331,6 +333,11 @@ export class Room {
       activeComponents: participant?.activeComponents ?? [],
       email: participant?.email ?? null,
       slot: participant?.slot ?? SlotService.getDefaultSlot(),
+      type: participant?.type ?? ParticipantType.GUEST,
+      avatar: participant?.avatar ?? {
+        imageUrl: null,
+        model3DUrl: null,
+      },
     };
   }
 
@@ -341,18 +348,34 @@ export class Room {
    * @returns A new participant object with the provided initial data and default slot properties.
    */
   private createParticipant(initialData: InitialParticipant): Participant {
-    const participant = {
+    const participant: Participant = {
       id: initialData.id,
       name: initialData.name,
       email: initialData.email ?? null,
       activeComponents: [],
       slot: SlotService.getDefaultSlot(),
+      type: ParticipantType.GUEST,
+      avatar: initialData?.avatar ?? {
+        imageUrl: null,
+        model3DUrl: null,
+      },
     };
 
     const { localParticipant } = this.useStore(StoreType.GLOBAL);
     localParticipant.publish(participant);
 
     return participant;
+  }
+
+  private subscribeToEventBusEvents() {
+    this.eventBus.subscribe(
+      EventBusEvent.UPDATE_PARTICIPANT,
+      this.onLocalParticipantUpdateOnEventBus,
+    );
+    this.eventBus.subscribe(
+      EventBusEvent.UPDATE_PARTICIPANT_LIST,
+      this.onParticipantsListUpdateOnEventBus,
+    );
   }
 
   /**
@@ -577,5 +600,30 @@ export class Room {
     };
 
     map[state]?.();
+  };
+
+  /**
+   * Handles updates to the local participant received from the event bus.
+   *
+   * @param data - The participant data to update.
+   * @returns void
+   */
+  private onLocalParticipantUpdateOnEventBus = (data: Participant) => {
+    if (!this.room) return;
+
+    this.updateParticipant(data);
+  };
+
+  /**
+   * Handles updates to the participant list received from the event bus.
+   *
+   * @param data - The updated participant list.
+   * @returns void
+   */
+  private onParticipantsListUpdateOnEventBus = (data: Record<string, Participant>) => {
+    if (!this.room) return;
+
+    const { participants } = useStore(StoreType.GLOBAL);
+    participants.publish(data);
   };
 }

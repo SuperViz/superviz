@@ -339,6 +339,7 @@ describe('createRoom', () => {
       participantId: 'abc123',
       name: 'John Doe',
       email: undefined,
+      avatar: null,
     });
   });
 });

@@ -25,6 +25,7 @@ import { Logger } from '../../common/utils';
 import { BrowserService } from '../../services/browser';
 import config from '../../services/config';
 import { ConnectionService } from '../../services/connection-status';
+import RemoteConfigService from '../../services/remote-config-service';
 import { RoomStateService } from '../../services/room-state';
 import VideoConferenceManager from '../../services/video-conference-manager';
 import {
@@ -204,9 +205,14 @@ export class VideoConference extends BaseComponent {
    * @description start video manager
    * @returns {void}
    */
-  private startVideo = (): void => {
+  private startVideo = async (): Promise<void> => {
     const defaultAvatars =
       this.params?.userType !== ParticipantType.AUDIENCE && this.params?.defaultAvatars === true;
+
+    if (!config.get('conferenceLayerUrl')) {
+      const { conferenceLayerUrl } = await RemoteConfigService.getRemoteConfig(config.get('environment'));
+      config.set('conferenceLayerUrl', conferenceLayerUrl);
+    }
 
     this.videoConfig = {
       language: this.params?.language,
@@ -463,7 +469,7 @@ export class VideoConference extends BaseComponent {
 
     if (state !== VideoFrameState.INITIALIZED) return;
 
-    this.roomState = new RoomStateService(this.room, this.drawingRoom, this.logger);
+    this.roomState = new RoomStateService(this.room, this.drawingRoom, this.logger, this.useStore);
     this.roomState.kickParticipantObserver.subscribe(this.onKickLocalParticipant);
     this.roomState.start();
 

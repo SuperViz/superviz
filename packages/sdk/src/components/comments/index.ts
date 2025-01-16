@@ -57,13 +57,6 @@ export class Comments extends BaseComponent {
     });
 
     this.pinAdapter = pinAdapter;
-
-    const { group, localParticipant } = this.useStore(StoreType.GLOBAL);
-    group.subscribe();
-
-    localParticipant.subscribe((participant) => {
-      this.localParticipantId = participant.id;
-    });
   }
 
   /**
@@ -141,6 +134,14 @@ export class Comments extends BaseComponent {
    */
   protected start(): void {
     if (typeof window === 'undefined') return;
+
+    const { group, localParticipant } = this.useStore(StoreType.GLOBAL);
+    group.subscribe();
+
+    localParticipant.subscribe((participant) => {
+      this.localParticipantId = participant.id;
+    });
+
     this.clientUrl = window.location.href;
 
     this.positionComments();

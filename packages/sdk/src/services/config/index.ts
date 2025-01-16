@@ -16,6 +16,12 @@ export class ConfigurationService {
 
     return get<Configuration, any, T>(this.configuration, key, defaultValue as T) as T;
   }
+
+  public set<T>(key: Key, value: T): void {
+    if (!this.configuration) return;
+
+    this.configuration[key] = value;
+  }
 }
 
 export default new ConfigurationService();

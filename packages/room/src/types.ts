@@ -9,6 +9,10 @@ export const InitializeRoomSchema = z.object({
     id: z.string().regex(pattern, { message: '[SuperViz | Room] Participant id is invalid, it should be between 2 and 64 characters and only accept letters, numbers and special characters: -_&@+=,(){}[]/«».|\'"' }),
     name: z.string().optional(),
     email: z.string().email().optional(),
+    avatar: z.object({
+      model3DUrl: z.string().optional(),
+      imageUrl: z.string().optional(),
+    }).optional(),
   }),
   group: z.object({
     id: z.string().regex(pattern, { message: '[SuperViz | Room] Group id is invalid, it should be between 2 and 64 characters and only accept letters, numbers and special characters: -_&@+=,(){}[]/«».|\'"' }),

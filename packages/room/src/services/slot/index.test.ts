@@ -1,5 +1,6 @@
 import { PresenceEvent, PresenceEvents, Room } from '@superviz/socket-client';
 
+import { ComponentNames } from '../../common/types/component.types';
 import { Participant, Slot } from '../../common/types/participant.types';
 
 import { SlotService } from './index';
@@ -21,6 +22,7 @@ describe('SlotService', () => {
     participant = {
       id: 'participant1',
       slot: SlotService.getDefaultSlot(),
+      activeComponents: [ComponentNames.WHO_IS_ONLINE],
     } as Participant;
 
     slotService = new SlotService(room, participant);
