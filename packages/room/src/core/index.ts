@@ -2,6 +2,7 @@ import type { PresenceEvent, Room as SocketRoomType } from '@superviz/socket-cli
 import { Subject, Subscription } from 'rxjs';
 
 import { Component, ComponentNames, PresenceMap } from '../common/types/component.types';
+import { EventBusEvent } from '../common/types/event-bus.events.types';
 import { Group } from '../common/types/group.types';
 import { InitialParticipant, Participant, ParticipantType } from '../common/types/participant.types';
 import { Logger } from '../common/utils/logger';
@@ -252,6 +253,7 @@ export class Room {
     this.slotService = new SlotService(this.room, this.participant);
 
     this.subscribeToRoomEvents();
+    this.subscribeToEventBusEvents();
   }
 
   private canAddComponent(component: Partial<Component>): boolean {
@@ -363,6 +365,17 @@ export class Room {
     localParticipant.publish(participant);
 
     return participant;
+  }
+
+  private subscribeToEventBusEvents() {
+    this.eventBus.subscribe(
+      EventBusEvent.UPDATE_PARTICIPANT,
+      this.onLocalParticipantUpdateOnEventBus,
+    );
+    this.eventBus.subscribe(
+      EventBusEvent.UPDATE_PARTICIPANT_LIST,
+      this.onParticipantsListUpdateOnEventBus,
+    );
   }
 
   /**
@@ -587,5 +600,30 @@ export class Room {
     };
 
     map[state]?.();
+  };
+
+  /**
+   * Handles updates to the local participant received from the event bus.
+   *
+   * @param data - The participant data to update.
+   * @returns void
+   */
+  private onLocalParticipantUpdateOnEventBus = (data: Participant) => {
+    if (!this.room) return;
+
+    this.updateParticipant(data);
+  };
+
+  /**
+   * Handles updates to the participant list received from the event bus.
+   *
+   * @param data - The updated participant list.
+   * @returns void
+   */
+  private onParticipantsListUpdateOnEventBus = (data: Record<string, Participant>) => {
+    if (!this.room) return;
+
+    const { participants } = useStore(StoreType.GLOBAL);
+    participants.publish(data);
   };
 }

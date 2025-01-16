@@ -5,7 +5,7 @@ import { ParticipantType, VideoParticipant } from '../../common/types/participan
 import { RealtimeStateTypes } from '../../common/types/realtime.types';
 import { StoreType } from '../../common/types/stores.types';
 import { Logger, Observer } from '../../common/utils';
-import { useStore } from '../../common/utils/use-store';
+import { useStore as useStoreType } from '../../common/utils/use-store';
 import { DrawingData } from '../video-conference-manager/types';
 
 import { RoomPropertiesEvents, VideoRoomProperties } from './type';
@@ -21,15 +21,16 @@ export class RoomStateService {
   private isSyncFrozen: boolean;
   private state: RealtimeStateTypes = RealtimeStateTypes.DISCONNECTED;
   private readonly MESSAGE_SIZE_LIMIT = 60000;
-  private useStore: typeof useStore = useStore.bind(this);
+  private useStore: typeof useStoreType;
   public kickParticipantObserver: Observer;
   private started: boolean;
   private drawingRoom: Room;
 
-  constructor(room: Room, drawingRoom: Room, logger: Logger) {
+  constructor(room: Room, drawingRoom: Room, logger: Logger, useStore: typeof useStoreType) {
     this.room = room;
     this.drawingRoom = drawingRoom;
 
+    this.useStore = useStore.bind(this);
     this.logger = logger;
     this.kickParticipantObserver = new Observer({ logger: this.logger });
 
@@ -160,7 +161,7 @@ export class RoomStateService {
    */
   public setKickParticipant = (kickParticipantId: string): Promise<void> => {
     if (!kickParticipantId) return;
-    const { participants } = useStore(StoreType.GLOBAL);
+    const { participants } = this.useStore(StoreType.GLOBAL);
 
     const participant = participants.value[kickParticipantId];
     this.updateRoomProperties({

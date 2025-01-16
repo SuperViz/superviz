@@ -469,7 +469,7 @@ export class VideoConference extends BaseComponent {
 
     if (state !== VideoFrameState.INITIALIZED) return;
 
-    this.roomState = new RoomStateService(this.room, this.drawingRoom, this.logger);
+    this.roomState = new RoomStateService(this.room, this.drawingRoom, this.logger, this.useStore);
     this.roomState.kickParticipantObserver.subscribe(this.onKickLocalParticipant);
     this.roomState.start();
 
