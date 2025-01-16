@@ -3,28 +3,9 @@ import type { useStore } from '@superviz/sdk/dist/common/utils/use-store';
 import type { DefaultAttachComponentOptions } from '@superviz/sdk/dist/components/base/types';
 import type { EventBus } from '@superviz/sdk/dist/services/event-bus';
 import type { ParticipantDataInput } from '@superviz/sdk/dist/services/presence-3d-manager/types';
-import type { Room } from '@superviz/socket-client';
+import type { PresenceEvent, PresenceEvents, Room, SocketEvent } from '@superviz/socket-client';
 import { isEqual } from 'lodash';
 import { Quaternion, Vector3 } from 'three';
-
-import { Avatar, AvatarsConstants, Name } from '../common/types/avatars.types';
-import {
-  CirclePosition,
-  Coordinates,
-  DefaultCoordinates,
-  Simple2DPoint,
-} from '../common/types/coordinates.types';
-import { Laser } from '../common/types/lasers.types';
-import type { MpSdk as Matterport, Rotation } from '../common/types/matterport.types';
-import { Logger } from '../common/utils/logger';
-import AvatarLerper from '../components/AvatarLerper';
-import AvatarName from '../components/AvatarName';
-import LaserPointer from '../components/LaserPointer';
-import { MatterportComponentOptions, Mode, ParticipantOn3D, PositionInfo } from '../types';
-
-import { MatterportEvents } from './matterport/matterport-events';
-import { RealtimeEvents } from './realtime/realtime-events';
-import { Presence3dEvents } from './types';
 
 import {
   AVATAR_LASER_HEIGHT_OFFSET,
@@ -35,9 +16,26 @@ import {
   MIN_DIST_SQUARED,
   MAX_DIST_SQUARED,
 } from '../common/constants/presence';
-
 import { STORE_TYPES } from '../common/constants/store';
+import { AvatarObject, AvatarsConstants, Name } from '../common/types/avatarsObject.types';
+import {
+  CirclePosition,
+  Coordinates,
+  DefaultCoordinates,
+  Simple2DPoint,
+} from '../common/types/coordinates.types';
+import { Laser } from '../common/types/lasers.types';
+import type { MpSdk as Matterport, Rotation } from '../common/types/matterport.types';
+import { Logger } from '../common/utils/logger';
+import Avatar3D from '../components/Avatar3D';
+import AvatarLerper from '../components/AvatarLerper';
+import AvatarName from '../components/AvatarName';
+import LaserPointer from '../components/LaserPointer';
+import { MatterportComponentOptions, Mode, ParticipantOn3D, PositionInfo } from '../types';
+
+import { MatterportEvents } from './matterport/matterport-events';
 import { SceneLight } from './matterport/scene-light';
+import { Presence3dEvents } from './types';
 
 export class Presence3D {
   public name: string;
@@ -67,7 +65,7 @@ export class Presence3D {
   private THREE;
   private sceneLight: SceneLight;
 
-  private avatars: Record<string, Avatar> = {};
+  private avatars: Record<string, AvatarObject> = {};
   private lasers: Record<string, Laser> = {};
   private laserUpdateIntervals = {};
   private positionInfos: Record<string, PositionInfo> = {};
@@ -84,9 +82,15 @@ export class Presence3D {
   private names: Record<string, any> = {};
 
   private matterportEvents: MatterportEvents;
-  private realtimeEvents: RealtimeEvents;
 
   private isEmbedMode: boolean = false;
+
+  private currentLocalPosition: Coordinates = DefaultCoordinates;
+  private currentLocalRotation: Coordinates = DefaultCoordinates;
+  private currentLocalFloorId: number;
+  private currentLocalMode: Matterport.Mode.Mode;
+  private currentLocalLaserDest: Coordinates = DefaultCoordinates;
+  private currentSweepId: string;
 
   constructor(matterportSdk: Matterport, options?: MatterportComponentOptions) {
     this.name = 'presence3dMatterport';
@@ -118,108 +122,47 @@ export class Presence3D {
       this.matterportSdk.Scene.register('lerper', AvatarLerper);
       this.matterportSdk.Scene.register('name', AvatarName);
       this.matterportSdk.Scene.register('laser', LaserPointer);
+      this.matterportSdk.Scene.register('avatar3d', Avatar3D);
     } else {
-      this.isEmbedMode = false;
+      this.isEmbedMode = true;
     }
 
     // input control
     this.addInputComponent();
 
-    // get THREE from Matterport through SceneLight
+    // REDO ::
     this.sceneLight = new SceneLight(this.matterportSdk);
     this.sceneLight.addSceneLight().then(() => {
       this.THREE = this.sceneLight.getTHREE();
     });
 
     this.createCircleOfPositions();
+
+    this.subscribeToMatterportEvents();
   }
 
-  /* CREATE NAME IF USER HAS AN AVATAR */
-  private async createNameForAvatars(participant: ParticipantOn3D, avatarModel) {
-    if (!avatarModel) return;
-
-    const threeVersion = Number(this.THREE.REVISION);
-
-    const url = participant.avatar?.model3DUrl ?? AvatarsConstants.DEFAULT_AVATAR_URL;
-    const isDefaultAvatar = url?.includes('readyplayerme');
-
-    const nameInstance: Name = avatarModel.avatarName;
-
-    console.log('nameInstance', nameInstance);
-    console.log('avatarModel', avatarModel);
-
-    const slot = participant.slot ?? this.roomParticipants[participant.id]?.slot;
-
-    const boundingBox = new this.THREE.Box3().setFromObject(avatarModel.obj3D);
-    const size = new Vector3(0, 0, 0);
-    boundingBox.getSize(size);
-    let nameHeight;
-
-    // max compatibility with old matterport versions
-    if (threeVersion <= 146) {
-      nameHeight = boundingBox.min.y - avatarModel.position.y + size.y * 1.1;
-    } else {
-      nameHeight = size.y * 1.2;
-
-      if (isDefaultAvatar) {
-        nameHeight = size.y * 4.1;
-      }
-    }
-
-    nameInstance.createName(avatarModel.obj3D, 'Peter', slot, nameHeight);
-  }
-
-  private async createAvatar(participant: ParticipantOn3D) {
-    this.logger.log('matterport component @ createAvatar', participant);
-
-    if (!this.isAttached || !this.matterportSdk.Scene) return;
-
-    const scale: number = participant?.avatarConfig?.scale || 0.55;
-    const height: number = participant?.avatarConfig?.height || 0.25;
-
+  private async createAvatar3D(participant: ParticipantOn3D) {
     const [sceneObject] = await this.matterportSdk.Scene.createObjects(1);
-    const avatarModel: Avatar = sceneObject.addNode();
-    const rotation: Coordinates = DefaultCoordinates;
+    const avatarModel: AvatarObject = sceneObject.addNode();
 
-    avatarModel.obj3D.rotation.set(rotation.x, rotation.y, rotation.z);
-    avatarModel.obj3D.name = 'avatar';
-    avatarModel.obj3D.userData = {
-      uuid: participant.id,
-      name: participant.name,
-      height,
-    };
-
-    const url = participant.avatar?.model3DUrl ?? AvatarsConstants.DEFAULT_AVATAR_URL;
-    const localScale = { x: scale, y: scale, z: scale };
-
-    avatarModel.lerper = avatarModel.addComponent('lerper');
-    avatarModel.avatarName = avatarModel.addComponent('name');
     this.avatars[participant.id] = avatarModel;
 
     return new Promise((resolve) => {
-      avatarModel.addComponent('mp.gltfLoader', {
-        url,
-        localScale,
-        onLoaded: () => {
-          if (this.matterportEvents) {
-            this.matterportSdk.Camera.getPose().then((pose) => {
-              this.matterportEvents.onCameraMove(pose.position, pose.rotation);
-            });
-          } else {
-            // TODO: FIGURE THIS OUT
-          }
-          this.createNameForAvatars(participant, avatarModel);
-          resolve(avatarModel);
-        },
+      avatarModel.avatar = avatarModel.addComponent('avatar3d', {
+        url: participant.avatar?.model3DUrl ?? AvatarsConstants.DEFAULT_AVATAR_URL,
+        participant,
+        avatarModel,
+        matterportSdk: this.matterportSdk,
+        matterportEvents: this.matterportEvents,
+        roomParticipants: this.roomParticipants,
       });
       avatarModel.start();
+      resolve(avatarModel);
     });
   }
 
   private async createLaser(participant: ParticipantOn3D) {
     if (!this.isAttached || !this.matterportSdk.Scene || !this.config.isLaserEnabled) return;
-
-    console.log('Creating laser for participant:', participant);
 
     let laserOrigin: Vector3;
 
@@ -262,6 +205,18 @@ export class Presence3D {
       laser.start();
     });
   }
+
+  private onParticipantLeave = (event: PresenceEvent<Participant>): void => {
+    this.logger.log('matterport component @ onParticipantLeave', event.data);
+    console.log('onParticipantLeave :!', event.data);
+    const participantToRemove = this.participants.find(
+      (participantOnlist) => participantOnlist.id === event.id,
+    );
+
+    if (!participantToRemove) return;
+
+    this.removeParticipant(participantToRemove, true);
+  };
 
   private get localParticipantId(): string {
     return this.localParticipant?.id;
@@ -321,8 +276,8 @@ export class Presence3D {
   };
 
   private destroy = (): void => {
-    this.realtimeEvents?.unsubscribeFromRealtimeEvents();
-    this.realtimeEvents?.unsubscribeFromEventBusEvents();
+    this.unsubscribeToRealtimeEvents();
+    this.unsubscribeToEventBusEvents();
     this.room.disconnect();
     this.room = undefined;
     this.participants.forEach((participant) => {
@@ -364,27 +319,8 @@ export class Presence3D {
       return;
     }
 
-    this.matterportEvents = new MatterportEvents(
-      this.matterportSdk,
-      this.presence3DManager,
-      this.localParticipantId,
-      this.adjustMyPositionToCircle,
-    );
-    this.matterportEvents.subscribeToMatterportEvents();
-
-    this.realtimeEvents = new RealtimeEvents(
-      this.room,
-      this.eventBus,
-      this.logger,
-      this.matterportSdk,
-      this.localParticipantId,
-      this.positionInfos,
-      this.mpInputComponent,
-    );
-
-    this.realtimeEvents.subscribeToRealtimeEvents();
-    this.realtimeEvents.subscribeToEventBusEvents();
-
+    this.subscribeToRealtimeEvents();
+    this.subscribeToEventBusEvents();
     this.createParticipantList();
   };
 
@@ -433,6 +369,7 @@ export class Presence3D {
   };
 
   private removeParticipant = (participant: ParticipantOn3D, unsubscribe: boolean): void => {
+    console.log('removeParticipant :!', participant);
     this.logger.log('matterport component @ removeParticipant', { participant, unsubscribe });
 
     this.participants = this.participants.filter(
@@ -480,7 +417,9 @@ export class Presence3D {
 
     if (!this.isEmbedMode) {
       // IF AVATARS ARE ENABLED, CREATE THE AVATAR
-      this.config.isAvatarsEnabled && (await this.createAvatar(participantOn3D));
+      //  this.config.isAvatarsEnabled && (await this.createAvatar(participantOn3D));
+
+      this.config.isAvatarsEnabled && this.createAvatar3D(participantOn3D);
 
       // IF LASER IS ENABLED, CREATE THE LASER
       this.config.isLaserEnabled && this.createLaser(participantOn3D);
@@ -547,6 +486,8 @@ export class Presence3D {
 
   private async destroyAvatar(participant: ParticipantOn3D) {
     this.logger.log('matterport component @ destroyAvatar', participant);
+
+    // TODO : Call Avatar3D destroy
 
     if (this.avatars[participant.id]) {
       this.avatars[participant.id].stop();
@@ -704,6 +645,8 @@ export class Presence3D {
         floor,
       };
 
+      console.log('onParticipantsUpdated :!', participant, 'isPrivate', isPrivate);
+
       if (isPrivate && this.avatars[participantId]) {
         this.removeParticipant(participant, true);
       }
@@ -711,10 +654,12 @@ export class Presence3D {
       if (!isPrivate && !this.avatars[participantId]) {
         this.addParticipant(participant);
       }
-
       // Update avatar if it exists
-      if (this.avatars[participantId] && position && rotation) {
-        this.updateAvatar(this.avatars[participantId], position, rotation);
+      if (this.avatars[participantId] && position && rotation && this.isAttached) {
+        const avatarModel = this.avatars[participantId];
+        avatarModel.avatar.update(position, rotation, this.currentCirclePosition);
+
+        //this.updateAvatar(this.avatars[participantId], position, rotation);
       }
 
       // Update laser independently
@@ -759,10 +704,13 @@ export class Presence3D {
       });
   }
 
-  private updateAvatar(remoteAvatar: Avatar, position: Coordinates, rotation: Simple2DPoint) {
+  /*
+  private updateAvatar(remoteAvatar: AvatarObject, position: Coordinates, rotation: Simple2DPoint) {
     if (!this.isAttached) {
       return;
     }
+
+    console.log('this is you called from the outside', remoteAvatar);
     // convert from 2 vector angle to quaternion
     const XVector3: Vector3 = new this.THREE.Vector3(1, 0, 0);
     const YVector3: Vector3 = new this.THREE.Vector3(0, 1, 0);
@@ -791,10 +739,11 @@ export class Presence3D {
     adjustPosVec.y = position.y + addY;
     lerper.animateVector(remoteAvatar.obj3D.position, adjustPosVec);
   }
+  */
 
   private async updateLaser(
     userId: string,
-    remoteAvatar: Avatar | null,
+    remoteAvatar: AvatarObject | null,
     remoteLaser: Laser,
     laserDestinationPosition: Coordinates,
   ) {
@@ -932,15 +881,209 @@ export class Presence3D {
       const participantOn3D = this.createParticipantOn3D(participant);
       this.participants.push(participantOn3D);
 
-      this.config.isAvatarsEnabled && (await this.createAvatar(participantOn3D));
-      this.config.isLaserEnabled && this.createLaser(participantOn3D);
-      this.config.isNameEnabled &&
-        this.createNameForAvatars(participantOn3D, this.avatars[participant.id]);
+      console.log('removed participant', participant);
+
+      // this.config.isAvatarsEnabled && (await this.createAvatar(participantOn3D));
+      // this.config.isLaserEnabled && this.createLaser(participantOn3D);
+      //  this.config.isNameEnabled &&
+      //    this.createNameForAvatars(participantOn3D, this.avatars[participant.id]);
+
+      // Call createName through the avatar's component
+      if (this.config.isNameEnabled && this.avatars[participant.id]) {
+        const avatarModel = this.avatars[participant.id];
+        avatarModel.avatar.createName(participantOn3D, avatarModel);
+      }
     } else {
       const index = this.participants.findIndex((u) => u.id === participant.id);
       if (index !== -1) {
         this.participants[index] = participant;
       }
     }
+  };
+
+  private subscribeToMatterportEvents(): void {
+    this.matterportSdk.Camera.pose.subscribe(this._onLocalCameraMoveObserver);
+    this.matterportSdk.Pointer.intersection.subscribe(this._onLocalMouseMoveObserver);
+    this.matterportSdk.Floor.current.subscribe(this._onLocalFloorChangeObserver);
+    this.matterportSdk.Mode.current.subscribe(this._onLocalModeChangeObserver);
+    this.matterportSdk.Sweep.current.subscribe(this._onLocalSweepChangeObserver);
+  }
+
+  private subscribeToRealtimeEvents = (): void => {
+    this.logger.log('matterport component @ subscribeToRealtimeEvents');
+    this.room.on<Participant>(Presence3dEvents.PARTICIPANT_JOINED, this.onParticipantJoined);
+    this.room.presence.on('presence.leave' as PresenceEvents, this.onParticipantLeave);
+    this.room.on<{ id?: string }>(Presence3dEvents.GATHER, this.onGatherUpdate);
+    this.room.on<{ id?: string }>(Presence3dEvents.FOLLOW_ME, this.onFollowParticipantUpdate);
+  };
+
+  private unsubscribeToRealtimeEvents = (): void => {
+    this.logger.log('matterport component @ unsubscribeToRealtimeEvents');
+    this.room.presence.off('presence.leave' as PresenceEvents);
+    this.room.off(Presence3dEvents.PARTICIPANT_JOINED, this.onParticipantJoined);
+    this.room.off(Presence3dEvents.GATHER, this.onGatherUpdate);
+    this.room.off(Presence3dEvents.FOLLOW_ME, this.onFollowParticipantUpdate);
+  };
+
+  private subscribeToEventBusEvents = (): void => {
+    this.logger.log('matterport component @ subscribeToEventBusEvents');
+    this.eventBus.subscribe('realtime.go-to-participant', this.goTo);
+    this.eventBus.subscribe('realtime.local-follow-participant', this.localFollow);
+    this.eventBus.subscribe('realtime.follow-participant', this.follow);
+    this.eventBus.subscribe('realtime.private-mode', this.setPrivate);
+  };
+
+  private unsubscribeToEventBusEvents = (): void => {
+    this.logger.log('matterport component @ unsubscribeToEventBusEvents');
+    this.eventBus.unsubscribe('realtime.go-to-participant', this.goTo);
+    this.eventBus.unsubscribe('realtime.local-follow-participant', this.localFollow);
+    this.eventBus.unsubscribe('realtime.private-mode', this.setPrivate);
+    this.eventBus.unsubscribe('realtime.follow-participant', this.follow);
+  };
+
+  private onParticipantJoined = (participant): void => {
+    if (!participant.data) return;
+
+    this.logger.log('matterport component @ onParticipantJoined', participant);
+
+    const { id, name, avatar, avatarConfig, type, slot } = participant.data;
+
+    if (id === this.localParticipantId) {
+      this.onLocalParticipantJoined(participant.data);
+
+      return;
+    }
+
+    this.addParticipant({
+      id,
+      name,
+      avatar,
+      avatarConfig,
+      type,
+      slot,
+    });
+  };
+
+  private onLocalParticipantJoined = (participant): void => {
+    this.createParticipantList();
+
+    if (this.config.avatarConfig) {
+      this.presence3DManager.setParticipantData({
+        avatarConfig: this.config.avatarConfig,
+      } as ParticipantDataInput);
+    }
+
+    if (participant.avatar?.model3DUrl) {
+      this.presence3DManager.setParticipantData({
+        avatar: {
+          model3DUrl: participant?.avatar.model3DUrl,
+          imageUrl: participant?.avatar?.imageUrl,
+        },
+      } as ParticipantDataInput);
+    }
+
+    if (!participant.avatar?.model3DUrl) {
+      this.presence3DManager.setParticipantData({
+        avatar: {
+          model3DUrl: AvatarsConstants.DEFAULT_AVATAR_URL,
+          imageUrl: participant?.avatar?.imageUrl,
+        },
+      } as ParticipantDataInput);
+    }
+  };
+
+  private onGatherUpdate = (event: SocketEvent<{ id: string | undefined }>): void => {
+    this.logger.log('three js component @ onGatherUpdate', event.data.id);
+
+    if (event.data.id === this.localParticipantId) return;
+
+    this.eventBus.publish('realtime.go-to-participant', event.data.id);
+  };
+
+  private onFollowParticipantUpdate = (event: SocketEvent<{ id: string | undefined }>): void => {
+    if (event.data.id === this.localParticipantId) return;
+    this.logger.log('three js component @ onFollowParticipantUpdate', event.data.id);
+    this.followParticipantId = event.data.id;
+    this.moveToAnotherParticipant(event.data.id);
+  };
+
+  private _onLocalCameraMoveObserver = ({ position, rotation, sweep }): void => {
+    if (!this.presence3DManager) return;
+
+    this.currentLocalPosition = this.adjustMyPositionToCircle(position);
+    this.currentLocalRotation = rotation;
+
+    if (this.isPrivate) return;
+
+    this.presence3DManager.updatePresence3D({
+      id: this.localParticipantId,
+      position: this.currentLocalPosition,
+      rotation: this.currentLocalRotation,
+      laser: this.currentLocalLaserDest,
+      sweep: this.currentSweepId,
+      mode: this.currentLocalMode,
+      floor: this.currentLocalFloorId,
+    } as ParticipantDataInput);
+  };
+
+  private _onLocalMouseMoveObserver = (intersectionData): void => {
+    if (!this.presence3DManager || this.isPrivate) return;
+
+    this.currentLocalLaserDest = intersectionData.position;
+
+    if (this.isPrivate) return;
+
+    this.presence3DManager.updatePresence3D({
+      id: this.localParticipantId,
+      position: this.currentLocalPosition,
+      rotation: this.currentLocalRotation,
+      laser: this.currentLocalLaserDest,
+      mode: this.currentLocalMode,
+      sweep: this.currentSweepId,
+    } as ParticipantDataInput);
+  };
+
+  private _onLocalFloorChangeObserver = (floor: Matterport.Floor.ObservableFloorData): void => {
+    if (!this.presence3DManager) return;
+
+    if (floor.id !== '') {
+      this.currentLocalFloorId = parseFloat(floor.id);
+    }
+    if (floor.name === 'all') {
+      this.currentLocalFloorId = -1;
+    }
+
+    if (this.isPrivate) return;
+
+    this.presence3DManager.updatePresence3D({
+      id: this.localParticipantId,
+      floor: this.currentLocalFloorId,
+    } as ParticipantDataInput);
+  };
+
+  private _onLocalModeChangeObserver = (mode: Matterport.Mode.Mode): void => {
+    if (!this.presence3DManager) return;
+
+    this.currentLocalMode = mode;
+
+    if (this.isPrivate) return;
+
+    this.presence3DManager.updatePresence3D({
+      id: this.localParticipantId,
+      mode: this.currentLocalMode,
+    } as ParticipantDataInput);
+  };
+
+  private _onLocalSweepChangeObserver = (sweep: Matterport.Sweep.ObservableSweepData): void => {
+    if (!this.presence3DManager) return;
+
+    this.currentSweepId = sweep.id;
+
+    if (this.isPrivate) return;
+
+    this.presence3DManager.updatePresence3D({
+      id: this.localParticipantId,
+      sweep: this.currentSweepId,
+    } as ParticipantDataInput);
   };
 }

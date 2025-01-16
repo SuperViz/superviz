@@ -21,7 +21,7 @@ export const NAME_HEIGHT_OFFSET = -0.25;
 export const MIN_NAME_HEIGHT = 0.02;
 
 /** Maximum name height */
-export const MAX_NAME_HEIGHT = 0.8;
+export const MAX_NAME_HEIGHT = 0.02;
 
 /** Minimum distance squared */
 export const MIN_DIST_SQUARED = 1;

@@ -17,7 +17,7 @@ type WindowWithMP_SDK = Window & {
 
 export function Matterport() {
   const containerId = "matterport-container";
-  const modelId = "sfhmi3y1MDk";
+  const modelId = "EbGfUeJG6q2";
   const room = useRef<LauncherFacade | null>(null);
   const mpSdk = useRef<any | null>(null);
 

@@ -21,6 +21,7 @@ export class RealtimeEvents {
     private localParticipantId: string,
     private positionInfos: Record<string, PositionInfo>,
     private mpInputComponent: Matterport.Scene.IComponent,
+    private onParticipantLeaveCallback: (event: PresenceEvent<Participant>) => void,
   ) {}
 
   public subscribeToRealtimeEvents(): void {
@@ -144,8 +145,9 @@ export class RealtimeEvents {
     this.logger.log('matterport component @ onParticipantJoined', event.data);
   };
 
-  private onParticipantLeave = (event: PresenceEvent<unknown>): void => {
+  private onParticipantLeave = (event: PresenceEvent<Participant>): void => {
     this.logger.log('matterport component @ onParticipantLeave', event);
+    this.onParticipantLeaveCallback(event);
   };
 
   private goTo = (participantId: string): void => {
