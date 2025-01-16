@@ -92,6 +92,8 @@ export class Presence3D {
   private currentLocalLaserDest: Coordinates = DefaultCoordinates;
   private currentSweepId: string;
 
+  private maxDistanceSquared: number;
+
   constructor(matterportSdk: Matterport, options?: MatterportComponentOptions) {
     this.name = 'presence3dMatterport';
     this.logger = new Logger('@superviz/sdk/matterport-component');
@@ -139,6 +141,30 @@ export class Presence3D {
     this.createCircleOfPositions();
 
     this.subscribeToMatterportEvents();
+
+    // Get scene bounds from sweep positions
+    this.matterportSdk.Model.getData().then(({ sweeps }) => {
+      let minX = Infinity;
+      let maxX = -Infinity;
+      let minZ = Infinity;
+      let maxZ = -Infinity;
+
+      // Find min/max coordinates from all sweep positions
+      sweeps.forEach((sweep) => {
+        minX = Math.min(minX, sweep.position.x);
+        maxX = Math.max(maxX, sweep.position.x);
+        minZ = Math.min(minZ, sweep.position.z);
+        maxZ = Math.max(maxZ, sweep.position.z);
+      });
+
+      // Calculate diagonal distance of the scene
+      const dx = maxX - minX;
+      const dz = maxZ - minZ;
+      const diagonalSquared = dx * dx + dz * dz;
+
+      // Set MAX_DIST_SQUARED to a portion of the diagonal (e.g., 1/4)
+      this.maxDistanceSquared = diagonalSquared / 4;
+    });
   }
 
   private async createAvatar3D(participant: ParticipantOn3D) {
@@ -645,8 +671,6 @@ export class Presence3D {
         floor,
       };
 
-      console.log('onParticipantsUpdated :!', participant, 'isPrivate', isPrivate);
-
       if (isPrivate && this.avatars[participantId]) {
         this.removeParticipant(participant, true);
       }
@@ -658,8 +682,6 @@ export class Presence3D {
       if (this.avatars[participantId] && position && rotation && this.isAttached) {
         const avatarModel = this.avatars[participantId];
         avatarModel.avatar.update(position, rotation, this.currentCirclePosition);
-
-        //this.updateAvatar(this.avatars[participantId], position, rotation);
       }
 
       // Update laser independently
@@ -703,43 +725,6 @@ export class Presence3D {
         }
       });
   }
-
-  /*
-  private updateAvatar(remoteAvatar: AvatarObject, position: Coordinates, rotation: Simple2DPoint) {
-    if (!this.isAttached) {
-      return;
-    }
-
-    console.log('this is you called from the outside', remoteAvatar);
-    // convert from 2 vector angle to quaternion
-    const XVector3: Vector3 = new this.THREE.Vector3(1, 0, 0);
-    const YVector3: Vector3 = new this.THREE.Vector3(0, 1, 0);
-    const quaternionX: Quaternion = new this.THREE.Quaternion().setFromAxisAngle(
-      XVector3,
-      this.THREE.MathUtils.degToRad(-rotation.x),
-    );
-    const quaternionY: Quaternion = new this.THREE.Quaternion().setFromAxisAngle(
-      YVector3,
-      this.THREE.MathUtils.degToRad(rotation?.y) + Math.PI,
-    );
-    const { lerper } = remoteAvatar;
-    lerper.animateQuaternion(remoteAvatar.obj3D.quaternion, quaternionY.multiply(quaternionX));
-
-    // add synced height
-    const addedHeight = parseFloat(remoteAvatar?.obj3D?.userData?.height ?? 0.0);
-
-    const addY: number = addedHeight - AvatarsConstants.AVATARS_HEIGHT_ADJUST;
-    const localPosVec: Vector3 = new this.THREE.Vector3(
-      this.currentCirclePosition.x,
-      0,
-      this.currentCirclePosition.z,
-    );
-    const avatarPosVec: Vector3 = new this.THREE.Vector3(position?.x, 0, position?.z);
-    const adjustPosVec: Vector3 = avatarPosVec.sub(localPosVec);
-    adjustPosVec.y = position.y + addY;
-    lerper.animateVector(remoteAvatar.obj3D.position, adjustPosVec);
-  }
-  */
 
   private async updateLaser(
     userId: string,
@@ -796,7 +781,7 @@ export class Presence3D {
 
       position = {
         x: lerper.curPos.x,
-        y: lerper.curPos.y,
+        y: NO_AVATAR_LASER_HEIGHT, // Keep laser at fixed height
         z: lerper.curPos.z,
       };
 
@@ -806,17 +791,7 @@ export class Presence3D {
     }
 
     if (laserInstance) {
-      // Calculate distance-based name height
-      const dx = cameraPosition.x - position.x;
-      const dz = cameraPosition.z - position.z;
-      const distanceSquared = dx * dx + dz * dz;
-
-      const nameHeight =
-        MIN_NAME_HEIGHT +
-        (Math.min(Math.max(distanceSquared - MIN_DIST_SQUARED, 0), MAX_DIST_SQUARED) /
-          MAX_DIST_SQUARED) *
-          (MAX_NAME_HEIGHT - MIN_NAME_HEIGHT);
-
+      // Update laser position and geometry first
       const { slot } = participant;
       laserInstance.updateGeometry(
         position,
@@ -825,8 +800,22 @@ export class Presence3D {
         true,
         slot,
         this.tempQuaternion,
-        nameHeight, // Pass nameHeight to LaserPointer
       );
+
+      // Then update name height separately if it exists
+      if (remoteLaser.avatarName?.updateHeight) {
+        const dx = cameraPosition.x - position.x;
+        const dz = cameraPosition.z - position.z;
+        const distanceSquared = dx * dx + dz * dz;
+
+        const nameHeight =
+          MIN_NAME_HEIGHT +
+          (Math.min(Math.max(distanceSquared - MIN_DIST_SQUARED, 0), this.maxDistanceSquared) /
+            this.maxDistanceSquared) *
+            (MAX_NAME_HEIGHT - MIN_NAME_HEIGHT);
+
+        remoteLaser.avatarName.updateHeight(nameHeight);
+      }
     }
   }
 
