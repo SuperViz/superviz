@@ -95,6 +95,14 @@ export class Presence3D {
   private tempEuler: Euler;
   private tempDestVector: Vector3;
 
+  // Add cached camera position
+  private lastCameraPosition: Vector3;
+  private lastCameraUpdateTime: number = 0;
+  private readonly CAMERA_UPDATE_INTERVAL: number = 100; // Update every 100ms
+
+  private readonly NAME_HEIGHT_UPDATE_INTERVAL: number = 100; // Update every 100ms
+  private lastNameHeightUpdate: Record<string, number> = {};
+
   constructor(matterportSdk: Matterport, options?: MatterportComponentOptions) {
     this.name = 'presence3dMatterport';
     this.logger = new Logger('@superviz/sdk/matterport-component');
@@ -141,6 +149,7 @@ export class Presence3D {
       this.tempEuler = new this.THREE.Euler();
       this.tempDestVector = new this.THREE.Vector3();
       this.tempQuaternion = new this.THREE.Quaternion();
+      this.lastCameraPosition = new this.THREE.Vector3();
     });
 
     this.createCircleOfPositions();
@@ -747,75 +756,123 @@ export class Presence3D {
       });
   }
 
+  private async updateCameraPosition(): Promise<Vector3> {
+    const now = Date.now();
+    if (now - this.lastCameraUpdateTime > this.CAMERA_UPDATE_INTERVAL) {
+      const pose = await this.matterportSdk.Camera.getPose();
+      this.lastCameraPosition.set(pose.position.x, pose.position.y, pose.position.z);
+      this.lastCameraUpdateTime = now;
+    }
+    return this.lastCameraPosition;
+  }
+
+  private calculateAvatarPosition(remoteAvatar: AvatarTypes): Vector3 {
+    const { x, y, z } = remoteAvatar.obj3D.position;
+    this.tempVector3.set(x, y + AVATAR_LASER_HEIGHT_OFFSET, z);
+    remoteAvatar.obj3D.getWorldQuaternion(this.tempQuaternion);
+    return this.tempVector3;
+  }
+
+  private updateQuaternionFromEuler(rotation: Rotation | Coordinates) {
+    this.tempEuler.set(rotation.x, rotation.y, 0, 'XYZ');
+    this.tempQuaternion.setFromEuler(this.tempEuler);
+  }
+
+  private calculateNonAvatarPosition(userId: string, participantInfo: PositionInfo): Vector3 {
+    const lerper = this.laserLerpers[userId];
+
+    if (lerper) {
+      this.tempDestVector.set(
+        participantInfo.position.x,
+        NO_AVATAR_LASER_HEIGHT,
+        participantInfo.position.z,
+      );
+      lerper.animateVector(lerper.curVector, this.tempDestVector);
+      this.tempVector3.set(lerper.curVector.x, NO_AVATAR_LASER_HEIGHT, lerper.curVector.z);
+    } else {
+      this.tempVector3.set(
+        participantInfo.position.x,
+        NO_AVATAR_LASER_HEIGHT,
+        participantInfo.position.z,
+      );
+    }
+
+    this.updateQuaternionFromEuler(participantInfo.rotation);
+
+    return this.tempVector3;
+  }
+
+  private updateLaserNameHeight(userId: string, remoteLaser: Laser, position: Vector3) {
+    if (!this.config.isAvatarsEnabled && remoteLaser.nameLabel?.updateHeight) {
+      const now = Date.now();
+      if (
+        !this.lastNameHeightUpdate[userId] ||
+        now - this.lastNameHeightUpdate[userId] > this.NAME_HEIGHT_UPDATE_INTERVAL
+      ) {
+        const nameHeight = remoteLaser.laserPointer.calculateNameHeight(
+          position,
+          this.lastCameraPosition,
+        );
+        remoteLaser.nameLabel.updateHeight(nameHeight);
+        this.lastNameHeightUpdate[userId] = now;
+      }
+    }
+  }
+
+  private updateLaserGeometry(
+    laserInstance: any,
+    position: Vector3,
+    laserDestinationPosition: Coordinates,
+    slot: any,
+  ) {
+    laserInstance.updateGeometry(
+      position,
+      laserDestinationPosition,
+      true,
+      true,
+      slot,
+      this.tempQuaternion,
+    );
+  }
+
+  private async calculateLaserPosition(
+    userId: string,
+    remoteAvatar: AvatarTypes | null,
+  ): Promise<Vector3> {
+    return remoteAvatar
+      ? this.calculateAvatarPosition(remoteAvatar)
+      : this.calculateNonAvatarPosition(userId, this.positionInfos[userId]);
+  }
+
   private async updateLaser(
     userId: string,
     remoteAvatar: AvatarTypes | null,
     remoteLaser: Laser,
     laserDestinationPosition: Coordinates,
   ) {
+    // Validation
     const participant = this.roomParticipants[userId];
-    if (!remoteLaser || !laserDestinationPosition || !this.isAttached || !participant) {
+    if (
+      !remoteLaser?.laserPointer ||
+      !laserDestinationPosition ||
+      !this.isAttached ||
+      !participant
+    ) {
       return;
     }
 
-    const laserInstance = remoteLaser.laserPointer;
-    let position: Coordinates;
+    // Update camera and position
+    await this.updateCameraPosition();
+    const position = await this.calculateLaserPosition(userId, remoteAvatar);
 
-    // Get current camera position for distance calculation
-    const currentPose = await this.matterportSdk.Camera.getPose();
-    const cameraPosition = currentPose.position;
-
-    if (remoteAvatar) {
-      const { x, y, z } = remoteAvatar.obj3D.position;
-      this.tempVector3.set(x, y + AVATAR_LASER_HEIGHT_OFFSET, z);
-      position = this.tempVector3;
-      remoteAvatar.obj3D.getWorldQuaternion(this.tempQuaternion);
-    } else {
-      const lerper = this.laserLerpers[userId];
-      const participantInfo = this.positionInfos[userId];
-
-      if (lerper) {
-        this.tempDestVector.set(
-          participantInfo.position.x,
-          NO_AVATAR_LASER_HEIGHT,
-          participantInfo.position.z,
-        );
-
-        lerper.animateVector(lerper.curVector, this.tempDestVector);
-
-        this.tempVector3.set(lerper.curVector.x, NO_AVATAR_LASER_HEIGHT, lerper.curVector.z);
-        position = this.tempVector3;
-      } else {
-        this.tempVector3.set(
-          participantInfo.position.x,
-          NO_AVATAR_LASER_HEIGHT,
-          participantInfo.position.z,
-        );
-        position = this.tempVector3;
-      }
-
-      this.tempEuler.set(participantInfo.rotation.x, participantInfo.rotation.y, 0, 'XYZ');
-      this.tempQuaternion.setFromEuler(this.tempEuler);
-    }
-
-    if (laserInstance) {
-      // Update laser position and geometry
-      const { slot } = participant;
-      laserInstance.updateGeometry(
-        position,
-        laserDestinationPosition,
-        true,
-        true,
-        slot,
-        this.tempQuaternion,
-      );
-
-      // Update name height if name component exists
-      if (remoteLaser.nameLabel?.updateHeight) {
-        const nameHeight = laserInstance.calculateNameHeight(position, cameraPosition);
-        remoteLaser.nameLabel.updateHeight(nameHeight);
-      }
-    }
+    // Update laser components
+    this.updateLaserGeometry(
+      remoteLaser.laserPointer,
+      position,
+      laserDestinationPosition,
+      participant.slot,
+    );
+    this.updateLaserNameHeight(userId, remoteLaser, position);
   }
 
   private onParticipantUpdated = (participant): void => {
