@@ -5,34 +5,28 @@ import type { EventBus } from '@superviz/sdk/dist/services/event-bus';
 import type { ParticipantDataInput } from '@superviz/sdk/dist/services/presence-3d-manager/types';
 import type { PresenceEvent, PresenceEvents, Room, SocketEvent } from '@superviz/socket-client';
 import { isEqual } from 'lodash';
-import { Quaternion, Vector3 } from 'three';
+import { Quaternion, Vector3, Euler } from 'three';
 
 import {
   AVATAR_LASER_HEIGHT_OFFSET,
-  NO_AVATAR_LASER_HEIGHT,
-  SWEEP_DURATION,
-  MIN_NAME_HEIGHT,
-  MAX_NAME_HEIGHT,
-  MIN_DIST_SQUARED,
-  MAX_DIST_SQUARED,
   DEFAULT_AVATAR_URL,
   DISTANCE_BETWEEN_AVATARS,
+  MAX_NAME_HEIGHT,
+  MIN_DIST_SQUARED,
+  MIN_NAME_HEIGHT,
+  NO_AVATAR_LASER_HEIGHT,
+  SWEEP_DURATION,
 } from '../common/constants/presence';
 import { STORE_TYPES } from '../common/constants/store';
 import { AvatarTypes, Name } from '../common/types/avatarTypes.types';
-import {
-  CirclePosition,
-  Coordinates,
-  DefaultCoordinates,
-  Simple2DPoint,
-} from '../common/types/coordinates.types';
+import { CirclePosition, Coordinates, DefaultCoordinates } from '../common/types/coordinates.types';
 import { Laser } from '../common/types/lasers.types';
 import type { MpSdk as Matterport, Rotation } from '../common/types/matterport.types';
 import { Logger } from '../common/utils/logger';
 import Avatar from '../components/Avatar';
-import AvatarLerper from '../components/AvatarLerper';
-import AvatarName from '../components/AvatarName';
+import Lerper from '../components/Lerper';
 import LaserPointer from '../components/LaserPointer';
+import NameLabel from '../components/NameLabel/NameLabel';
 import { MatterportComponentOptions, Mode, ParticipantOn3D, PositionInfo } from '../types';
 
 import { MatterportEvents } from './matterport/matterport-events';
@@ -96,6 +90,11 @@ export class Presence3D {
 
   private maxDistanceSquared: number;
 
+  // Add cached objects for vector calculations
+  private tempVector3: Vector3;
+  private tempEuler: Euler;
+  private tempDestVector: Vector3;
+
   constructor(matterportSdk: Matterport, options?: MatterportComponentOptions) {
     this.name = 'presence3dMatterport';
     this.logger = new Logger('@superviz/sdk/matterport-component');
@@ -123,8 +122,8 @@ export class Presence3D {
 
     // if it's using embed mode, that's no have Scene
     if (this.matterportSdk.Scene) {
-      this.matterportSdk.Scene.register('lerper', AvatarLerper);
-      this.matterportSdk.Scene.register('name', AvatarName);
+      this.matterportSdk.Scene.register('lerper', Lerper);
+      this.matterportSdk.Scene.register('name', NameLabel);
       this.matterportSdk.Scene.register('laser', LaserPointer);
       this.matterportSdk.Scene.register('avatar', Avatar);
     } else {
@@ -138,6 +137,10 @@ export class Presence3D {
     this.sceneLight = new SceneLight(this.matterportSdk);
     this.sceneLight.addSceneLight().then(() => {
       this.THREE = this.sceneLight.getTHREE();
+      this.tempVector3 = new this.THREE.Vector3();
+      this.tempEuler = new this.THREE.Euler();
+      this.tempDestVector = new this.THREE.Vector3();
+      this.tempQuaternion = new this.THREE.Quaternion();
     });
 
     this.createCircleOfPositions();
@@ -204,22 +207,45 @@ export class Presence3D {
       laserOrigin = new Vector3(0, 0, 0);
     }
 
+    // Create laser scene object
     const [sceneObject] = await this.matterportSdk.Scene.createObjects(1);
     const laser: Laser = sceneObject.addNode();
 
+    // Create lerper for this laser
+    const [lerperObject] = await this.matterportSdk.Scene.createObjects(1);
+    const lerperNode = lerperObject.addNode();
+    const lerper = lerperNode.addComponent('lerper') as any;
+    lerper.speed = 0.95;
+
+    // Initialize lerper with starting position
+    const participantInfo = this.positionInfos[participant.id];
+    const initialPos = new this.THREE.Vector3(
+      participantInfo?.position?.x || 0,
+      NO_AVATAR_LASER_HEIGHT,
+      participantInfo?.position?.z || 0,
+    );
+
+    // Set both current and destination to initial position
+    lerper.animateVector(initialPos, initialPos);
+    this.laserLerpers[participant.id] = lerper;
+    lerperNode.start();
+
     return new Promise((resolve) => {
-      laser.laserPointer = laser.addComponent('laser', { origin: laserOrigin });
+      laser.laserPointer = laser.addComponent('laser', {
+        origin: laserOrigin,
+        maxDistanceSquared: this.maxDistanceSquared,
+      });
 
       laser.laserPointer.onInitCallback = () => {
-        laser.avatarName = laser.addComponent('name');
+        laser.nameLabel = laser.addComponent('name');
 
         // only create name if avatars are not enabled
         if (!this.config.isAvatarsEnabled) {
-          const nameInstance: Name = laser.avatarName;
+          const nameInstance: Name = laser.nameLabel;
           const nameHeight = MIN_NAME_HEIGHT;
           const color = participant.slot?.color || '#FF0000';
           nameInstance.createName(laser.laserPointer.group, participant.name, color, nameHeight);
-          laser.laserPointer.setNameComponent(laser.avatarName);
+          laser.laserPointer.setNameComponent(laser.nameLabel);
         }
 
         laser.obj3D.userData = { uuid: participant.id };
@@ -741,52 +767,39 @@ export class Presence3D {
 
     if (remoteAvatar) {
       const { x, y, z } = remoteAvatar.obj3D.position;
-      position = { x, y: y + AVATAR_LASER_HEIGHT_OFFSET, z };
+      this.tempVector3.set(x, y + AVATAR_LASER_HEIGHT_OFFSET, z);
+      position = this.tempVector3;
       remoteAvatar.obj3D.getWorldQuaternion(this.tempQuaternion);
     } else {
+      const lerper = this.laserLerpers[userId];
       const participantInfo = this.positionInfos[userId];
 
-      // Create lerper if it doesn't exist
-      if (!this.laserLerpers[userId]) {
-        const [sceneObject] = await this.matterportSdk.Scene.createObjects(1);
-        const lerperNode = sceneObject.addNode();
-        this.laserLerpers[userId] = lerperNode.addComponent('lerper');
-        this.laserLerpers[userId].speed = 0.95;
-        lerperNode.start();
-      }
-
-      const lerper = this.laserLerpers[userId];
-      if (!lerper.curPos) {
-        lerper.curPos = new this.THREE.Vector3(
+      if (lerper) {
+        this.tempDestVector.set(
           participantInfo.position.x,
           NO_AVATAR_LASER_HEIGHT,
           participantInfo.position.z,
         );
-      }
 
-      // Lerp to new position
-      lerper.animateVector(
-        lerper.curPos,
-        new this.THREE.Vector3(
+        lerper.animateVector(lerper.curVector, this.tempDestVector);
+
+        this.tempVector3.set(lerper.curVector.x, NO_AVATAR_LASER_HEIGHT, lerper.curVector.z);
+        position = this.tempVector3;
+      } else {
+        this.tempVector3.set(
           participantInfo.position.x,
           NO_AVATAR_LASER_HEIGHT,
           participantInfo.position.z,
-        ),
-      );
+        );
+        position = this.tempVector3;
+      }
 
-      position = {
-        x: lerper.curPos.x,
-        y: NO_AVATAR_LASER_HEIGHT, // Keep laser at fixed height
-        z: lerper.curPos.z,
-      };
-
-      this.tempQuaternion.setFromEuler(
-        new this.THREE.Euler(participantInfo.rotation.x, participantInfo.rotation.y, 0, 'XYZ'),
-      );
+      this.tempEuler.set(participantInfo.rotation.x, participantInfo.rotation.y, 0, 'XYZ');
+      this.tempQuaternion.setFromEuler(this.tempEuler);
     }
 
     if (laserInstance) {
-      // Update laser position and geometry first
+      // Update laser position and geometry
       const { slot } = participant;
       laserInstance.updateGeometry(
         position,
@@ -797,19 +810,10 @@ export class Presence3D {
         this.tempQuaternion,
       );
 
-      // Then update name height separately if it exists
-      if (remoteLaser.avatarName?.updateHeight) {
-        const dx = cameraPosition.x - position.x;
-        const dz = cameraPosition.z - position.z;
-        const distanceSquared = dx * dx + dz * dz;
-
-        const nameHeight =
-          MIN_NAME_HEIGHT +
-          (Math.min(Math.max(distanceSquared - MIN_DIST_SQUARED, 0), this.maxDistanceSquared) /
-            this.maxDistanceSquared) *
-            (MAX_NAME_HEIGHT - MIN_NAME_HEIGHT);
-
-        remoteLaser.avatarName.updateHeight(nameHeight);
+      // Update name height if name component exists
+      if (remoteLaser.nameLabel?.updateHeight) {
+        const nameHeight = laserInstance.calculateNameHeight(position, cameraPosition);
+        remoteLaser.nameLabel.updateHeight(nameHeight);
       }
     }
   }

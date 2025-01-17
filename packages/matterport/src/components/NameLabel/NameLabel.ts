@@ -5,17 +5,17 @@ import {
   FontSettings,
   StyleSettings,
   TextObject,
-} from '../common/types/text.types';
-import { Slot } from '../types';
+} from '../../common/types/text.types';
+import { Slot } from '../../types';
 
-import { Canvas } from './AvatarName/Canvas';
-import { Material } from './AvatarName/Material';
+import { Canvas } from './Canvas';
+import { Material } from './Material';
 
 /**
  * AvatarName component handles the creation and management of name labels
  * that appear above avatars and laser pointers in the 3D space
  */
-function AvatarName() {
+function NameLabel() {
   // Canvas settings
   const CANVAS: CanvasSettings = {
     TEXT_HEIGHT: 1000,
@@ -146,5 +146,5 @@ function AvatarName() {
 }
 
 export default () => {
-  return new AvatarName();
+  return new NameLabel();
 };

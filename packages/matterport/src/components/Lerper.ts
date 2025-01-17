@@ -1,4 +1,4 @@
-const AvatarLerper = function () {
+const Lerper = function () {
   this.onInit = function () {
     this.THREE = this.context.three;
 
@@ -62,5 +62,5 @@ const AvatarLerper = function () {
 };
 
 export default () => {
-  return new AvatarLerper();
+  return new Lerper();
 };
