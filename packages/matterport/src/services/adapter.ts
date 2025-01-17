@@ -443,8 +443,6 @@ export class Presence3D {
 
     if (!this.isEmbedMode) {
       // IF AVATARS ARE ENABLED, CREATE THE AVATAR
-      //  this.config.isAvatarsEnabled && (await this.createAvatar(participantOn3D));
-
       this.config.isAvatarsEnabled && this.createAvatar3D(participantOn3D);
 
       // IF LASER IS ENABLED, CREATE THE LASER
@@ -872,10 +870,10 @@ export class Presence3D {
 
       console.log('removed participant', participant);
 
-      // this.config.isAvatarsEnabled && (await this.createAvatar(participantOn3D));
-      // this.config.isLaserEnabled && this.createLaser(participantOn3D);
-      //  this.config.isNameEnabled &&
-      //    this.createNameForAvatars(participantOn3D, this.avatars[participant.id]);
+      if (!this.isEmbedMode) {
+        this.config.isAvatarsEnabled && this.createAvatar3D(participantOn3D);
+        this.config.isLaserEnabled && this.createLaser(participantOn3D);
+      }
 
       // Call createName through the avatar's component
       if (this.config.isNameEnabled && this.avatars[participant.id]) {
