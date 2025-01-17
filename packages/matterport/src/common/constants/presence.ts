@@ -2,6 +2,22 @@
  * Constants used by the Presence3D service
  */
 
+/** Default avatar URL */
+export const DEFAULT_AVATAR_URL = 'https://production.storage.superviz.com/readyplayerme/1.glb';
+
+/** Default avatar image URL */
+export const DEFAULT_AVATAR_IMAGE_URL =
+  'https://production.cdn.superviz.com/static/default-avatars/1.png';
+
+/** Distance between avatars */
+export const DISTANCE_BETWEEN_AVATARS = 0.13;
+
+/** Avatars height adjust */
+export const AVATARS_HEIGHT_ADJUST = 0.62;
+
+/** Avatars radius */
+export const AVATARS_RADIUS = 0.3;
+
 /** Duration of sweep transitions in milliseconds */
 export const SWEEP_DURATION = 1000;
 
