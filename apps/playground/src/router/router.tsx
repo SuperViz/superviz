@@ -32,6 +32,7 @@ import { MousePointersWithNewRoom } from "../pages/mouse-pointers-with-new-room.
 import { MousePointersWithNewRoomHTML } from "../pages/mouse-pointers-with-new-room-html.tsx";
 import { CommentsHtmlCasesWithNewRoom } from "../pages/comments-html-cases-with-new-room.tsx";
 import { VideoWithNewRoom } from "../pages/video-with-new-room.tsx";
+import { SupervizReactRoom } from "../pages/superviz-react-room.tsx";
 
 export const routeList: RouteObject[] = [
   {
@@ -164,6 +165,10 @@ export const routeList: RouteObject[] = [
       { 
         path: 'video-with-new-room',
         element: <VideoWithNewRoom /> 
+      },
+      {
+        path: 'superviz-react-room', 
+        element: <SupervizReactRoom />
       }
     ],
   },

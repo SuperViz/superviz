@@ -32,6 +32,9 @@ importers:
       '@superviz/matterport-plugin':
         specifier: workspace:*
         version: link:../../packages/matterport
+      '@superviz/react':
+        specifier: workspace:*
+        version: link:../../packages/react-room
       '@superviz/react-sdk':
         specifier: workspace:*
         version: link:../../packages/react-sdk
@@ -311,6 +314,109 @@ importers:
       typescript:
         specifier: ^5.6.2
         version: 5.6.2
+
+  packages/react-room:
+    dependencies:
+      '@superviz/room':
+        specifier: workspace:*
+        version: link:../room
+      react:
+        specifier: ^18.2.0
+        version: 18.3.1
+      react-dom:
+        specifier: ^18.2.0
+        version: 18.3.1(react@18.3.1)
+      yjs:
+        specifier: '>=13.6.20'
+        version: 13.6.20
+    devDependencies:
+      '@anolilab/semantic-release-pnpm':
+        specifier: ^1.1.3
+        version: 1.1.3(yaml@2.5.1)
+      '@eslint/compat':
+        specifier: ^1.1.1
+        version: 1.1.1
+      '@rollup/plugin-replace':
+        specifier: ^6.0.1
+        version: 6.0.1(rollup@4.21.3)
+      '@semantic-release/release-notes-generator':
+        specifier: ^14.0.1
+        version: 14.0.1(semantic-release@24.0.0(typescript@5.6.2))
+      '@types/node':
+        specifier: ^20.14.9
+        version: 20.16.5
+      '@types/react':
+        specifier: ^18.3.3
+        version: 18.3.5
+      '@types/react-dom':
+        specifier: ^18.3.0
+        version: 18.3.0
+      '@typescript-eslint/eslint-plugin':
+        specifier: ^7.14.1
+        version: 7.18.0(@typescript-eslint/parser@8.17.0(eslint@9.10.0(jiti@1.21.6))(typescript@5.6.2))(eslint@9.10.0(jiti@1.21.6))(typescript@5.6.2)
+      '@typescript-eslint/parser':
+        specifier: ^8.17.0
+        version: 8.17.0(eslint@9.10.0(jiti@1.21.6))(typescript@5.6.2)
+      '@vitejs/plugin-react':
+        specifier: ^4.3.1
+        version: 4.3.1(vite@5.4.6(@types/node@20.16.5)(terser@5.32.0))
+      '@vitejs/plugin-react-swc':
+        specifier: ^3.7.0
+        version: 3.7.0(vite@5.4.6(@types/node@20.16.5)(terser@5.32.0))
+      eslint:
+        specifier: ^9.6.0
+        version: 9.10.0(jiti@1.21.6)
+      eslint-config-prettier:
+        specifier: ^9.1.0
+        version: 9.1.0(eslint@9.10.0(jiti@1.21.6))
+      eslint-plugin-prettier:
+        specifier: ^5.1.3
+        version: 5.2.1(@types/eslint@8.56.2)(eslint-config-prettier@9.1.0(eslint@9.10.0(jiti@1.21.6)))(eslint@9.10.0(jiti@1.21.6))(prettier@3.3.3)
+      eslint-plugin-react:
+        specifier: ^7.34.3
+        version: 7.36.1(eslint@9.10.0(jiti@1.21.6))
+      eslint-plugin-react-hooks:
+        specifier: ^4.6.2
+        version: 4.6.2(eslint@9.10.0(jiti@1.21.6))
+      eslint-plugin-react-refresh:
+        specifier: ^0.4.7
+        version: 0.4.11(eslint@9.10.0(jiti@1.21.6))
+      eslint-plugin-simple-import-sort:
+        specifier: ^12.1.0
+        version: 12.1.1(eslint@9.10.0(jiti@1.21.6))
+      glob:
+        specifier: ^10.4.2
+        version: 10.4.5
+      husky:
+        specifier: ^9.0.11
+        version: 9.1.6
+      lint-staged:
+        specifier: ^15.2.7
+        version: 15.2.10
+      prettier:
+        specifier: ^3.3.2
+        version: 3.3.3
+      react-hooks:
+        specifier: ^1.0.1
+        version: 1.0.1
+      semantic-release:
+        specifier: ^24.0.0
+        version: 24.0.0(typescript@5.6.2)
+      typescript:
+        specifier: ^5.6.2
+        version: 5.6.2
+      vite:
+        specifier: ^5.4.6
+        version: 5.4.6(@types/node@20.16.5)(terser@5.32.0)
+      vite-plugin-dts:
+        specifier: ^3.9.1
+        version: 3.9.1(@types/node@20.16.5)(rollup@4.21.3)(typescript@5.6.2)(vite@5.4.6(@types/node@20.16.5)(terser@5.32.0))
+      vite-plugin-linter:
+        specifier: ^2.1.1
+        version: 2.1.1(rollup@4.21.3)
+      vite-tsconfig-paths:
+        specifier: ^4.3.2
+        version: 4.3.2(typescript@5.6.2)(vite@5.4.6(@types/node@20.16.5)(terser@5.32.0))
 
   packages/react-sdk:
     dependencies:
