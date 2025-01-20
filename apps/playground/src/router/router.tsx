@@ -25,6 +25,13 @@ import { SuperVizRoom } from "../pages/superviz-room.tsx";
 import { MatterportWithNewRoom } from "../pages/matterport-with-new-superviz-room.tsx";
 import { ThreeWithNewRoom } from "../pages/three-with-new-room.jsx";
 import { AutodeskWithNewRoom } from "../pages/autodesk-with-new-room.tsx";
+import { WhoIsOnlineWithNewRoom } from "../pages/who-is-online-with-new-room.tsx";
+import { FormElementsWithNewRoom } from "../pages/form-elements-with-new-room.tsx";
+import { YjsQuillWioWithNewRoom } from "../pages/yjs-quill-wio-with-new-room.tsx";
+import { MousePointersWithNewRoom } from "../pages/mouse-pointers-with-new-room.tsx";
+import { MousePointersWithNewRoomHTML } from "../pages/mouse-pointers-with-new-room-html.tsx";
+import { CommentsHtmlCasesWithNewRoom } from "../pages/comments-html-cases-with-new-room.tsx";
+import { VideoWithNewRoom } from "../pages/video-with-new-room.tsx";
 
 export const routeList: RouteObject[] = [
   {
@@ -129,6 +136,34 @@ export const routeList: RouteObject[] = [
       {
         path: 'autodesk-with-new-room',
         element: <AutodeskWithNewRoom />
+      },
+      {
+        path: 'who-is-online-with-new-room',
+        element: <WhoIsOnlineWithNewRoom />
+      }, 
+      { 
+        path: 'form-elements-with-new-room',
+        element: <FormElementsWithNewRoom /> 
+      }, 
+      { 
+        path: 'yjs-with-quill-with-new-room',
+        element: <YjsQuillWioWithNewRoom />
+      }, 
+      { 
+        path: 'mouse-pointers-with-new-room',
+        element: <MousePointersWithNewRoom  />
+      }, 
+      {
+        path: 'mouse-pointers-with-new-room-html',
+        element: <MousePointersWithNewRoomHTML />
+      }, 
+      {
+        path: 'comments-html-cases-with-new-room', 
+        element: <CommentsHtmlCasesWithNewRoom />
+      }, 
+      { 
+        path: 'video-with-new-room',
+        element: <VideoWithNewRoom /> 
       }
     ],
   },

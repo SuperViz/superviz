@@ -121,16 +121,16 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
       - name: Check for changes in React SDK and dependencies
-        id: check_react_and_dependencies_changes
+        id: check_react_sdk_and_dependencies_changes
         run: |
-          git diff --quiet HEAD^ HEAD -- packages/react ':(exclude)packages/react/package.json' || echo "react_changed=true" >> $GITHUB_OUTPUT
+          git diff --quiet HEAD^ HEAD -- packages/react-sdk ':(exclude)packages/react-sdk/package.json' || echo "react_changed=true" >> $GITHUB_OUTPUT
           git diff --quiet HEAD^ HEAD -- packages/sdk ':(exclude)packages/sdk/package.json' || echo "react_changed=true" >> $GITHUB_OUTPUT
           git diff --quiet HEAD^ HEAD -- packages/autodesk ':(exclude)packages/autodesk/package.json' || echo "react_changed=true" >> $GITHUB_OUTPUT
           git diff --quiet HEAD^ HEAD -- packages/matterport ':(exclude)packages/matterport/package.json' || echo "react_changed=true" >> $GITHUB_OUTPUT
           git diff --quiet HEAD^ HEAD -- packages/three ':(exclude)packages/three/package.json' || echo "react_changed=true" >> $GITHUB_OUTPUT
           git diff --quiet HEAD^ HEAD -- packages/yjs ':(exclude)packages/yjs/package.json' || echo "react_changed=true" >> $GITHUB_OUTPUT
-      - name: Publish react package
-        if: steps.check_react_and_dependencies_changes.outputs.react_changed == 'true'
+      - name: Publish React SDK package
+        if: steps.check_react_sdk_and_dependencies_changes.outputs.react_changed == 'true'
         run: npm whoami && pnpm run semantic-release --filter=@superviz/react-sdk
         env:
           NPM_CONFIG_USERCONFIG: .npmrc.ci

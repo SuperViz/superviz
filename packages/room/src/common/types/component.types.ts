@@ -44,6 +44,6 @@ export interface AttachComponentOptions {
 }
 export interface Component {
   name: ComponentNames | string;
-  attach: (o: AttachComponentOptions) => void;
+  attach: (o: AttachComponentOptions | any) => void;
   detach: () => void;
 }

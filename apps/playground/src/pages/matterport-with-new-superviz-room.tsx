@@ -5,6 +5,7 @@ import { getConfig } from "../config";
 import { useCallback, useEffect, useRef } from "react";
 import { createRoom, Room } from "@superviz/room";
 import { Presence3D } from "@superviz/matterport-plugin";
+import { VideoConference, WhoIsOnline } from "@superviz/sdk";
 
 const MATTERPORT_KEY = getConfig<string>("keys.matterport");
 const SUPERVIZ_KEY = getConfig<string>("keys.superviz");
@@ -22,6 +23,8 @@ export function MatterportWithNewRoom() {
   const room = useRef<Room | null>(null);
   const mpSdk = useRef<any | null>(null);
   const matterportPresence = useRef<Presence3D | null>(null);
+  const whoIsOnline = useRef<WhoIsOnline | null>(null);
+  const video = useRef<VideoConference | null>(null);
 
   const initializeSuperViz = useCallback(async () => {
     const uuid = generateId();
@@ -79,14 +82,37 @@ export function MatterportWithNewRoom() {
       isNameEnabled: true,
     });
 
+    whoIsOnline.current = new WhoIsOnline({ position: 'bottom-right' });
+    video.current = new VideoConference({
+      enableFollow: true,
+      enableGather: true,
+      enableGoTo: true,
+      participantType: 'host',
+      defaultAvatars: true,
+    })
+
+    room.current.addComponent(video.current);
+    room.current.addComponent(whoIsOnline.current);
     room.current?.addComponent(matterportPresence.current);
   }
 
   const removeMatterport = () => {
-    if (!room.current || !mpSdk.current || !matterportPresence.current) return;
+    if (!room.current || !mpSdk.current) return;
 
-    room.current?.removeComponent(matterportPresence.current);
-    matterportPresence.current = null;
+    if(whoIsOnline.current) {
+      room.current.removeComponent(whoIsOnline.current!);
+      whoIsOnline.current = null;
+    }
+
+    if(matterportPresence.current) {
+      room.current?.removeComponent(matterportPresence.current!);
+      matterportPresence.current = null;
+    }
+
+    if(video.current) {
+      room.current.removeComponent(video.current!);
+      video.current = null;
+    }
   }
 
   return (

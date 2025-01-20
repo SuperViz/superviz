@@ -23,7 +23,7 @@ function createInstance() {
   const room = ioc.createRoom('test-room-state-service');
   const drawingRoom = ioc.createRoom('test-drawing-room');
   const logger = new Logger('Room State Service');
-  return new RoomStateService(room, drawingRoom, logger);
+  return new RoomStateService(room, drawingRoom, logger, useStore);
 }
 
 describe('roomState', () => {
@@ -260,24 +260,22 @@ describe('roomState', () => {
 
   describe('fetchRoomProperties', () => {
     beforeEach(() => {
-      serviceInstance['room'].presence.get = jest.fn((callback) =>
-        callback([
-          {
-            connectionId: 'connectionId 1',
-            id: 'id 1',
-            name: 'name 1',
-            timestamp: 1233,
-            data: {},
-          },
-          {
-            connectionId: 'connectionId 2',
-            id: 'id 2',
-            name: 'name 2',
-            timestamp: 1234,
-            data: {},
-          },
-        ]),
-      );
+      serviceInstance['room'].presence.get = jest.fn((callback) => callback([
+        {
+          connectionId: 'connectionId 1',
+          id: 'id 1',
+          name: 'name 1',
+          timestamp: 1233,
+          data: {},
+        },
+        {
+          connectionId: 'connectionId 2',
+          id: 'id 2',
+          name: 'name 2',
+          timestamp: 1234,
+          data: {},
+        },
+      ]));
     });
 
     test('should fetch room properties', async () => {
@@ -318,24 +316,22 @@ describe('roomState', () => {
     test('should initialize room properties if no last message', async () => {
       const history = jest.fn().mockImplementation((cb) => cb({ events: [] }));
       serviceInstance['room'].history = history;
-      serviceInstance['room'].presence.get = jest.fn((callback) =>
-        callback([
-          {
-            connectionId: 'connectionId 1',
-            id: 'id 1',
-            name: 'name 1',
-            timestamp: 1233,
-            data: {},
-          },
-          {
-            connectionId: 'connectionId 2',
-            id: 'id 2',
-            name: 'name 2',
-            timestamp: 1234,
-            data: {},
-          },
-        ]),
-      );
+      serviceInstance['room'].presence.get = jest.fn((callback) => callback([
+        {
+          connectionId: 'connectionId 1',
+          id: 'id 1',
+          name: 'name 1',
+          timestamp: 1233,
+          data: {},
+        },
+        {
+          connectionId: 'connectionId 2',
+          id: 'id 2',
+          name: 'name 2',
+          timestamp: 1234,
+          data: {},
+        },
+      ]));
 
       const fetchRoomProperties = jest.spyOn(serviceInstance as any, 'fetchRoomProperties');
       const initializeRoomProperties = jest.spyOn(

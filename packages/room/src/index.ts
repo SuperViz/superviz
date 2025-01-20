@@ -6,6 +6,7 @@ import { Room } from './core';
 import { Callback, ParticipantEvent, RoomEvent, RoomState } from './core/types';
 import { ApiService } from './services/api';
 import config from './services/config';
+import { useStore } from './stores/common/use-store';
 import { InitializeRoomParams, InitializeRoomSchema } from './types';
 
 /**
@@ -81,6 +82,7 @@ async function setUpParticipant(participant: InitialParticipant): Promise<Initia
       participantId: participant.id,
       name: participant?.name,
       email: participant?.email,
+      avatar: participant?.avatar?.imageUrl ?? null,
     });
   }
 
@@ -88,6 +90,7 @@ async function setUpParticipant(participant: InitialParticipant): Promise<Initia
     id: participant.id,
     name: participant.name ?? apiParticipant?.name,
     email: participant.email ?? apiParticipant?.email,
+    avatar: participant.avatar ?? apiParticipant?.avatar,
   };
 }
 
@@ -101,10 +104,10 @@ async function setUpParticipant(participant: InitialParticipant): Promise<Initia
  */
 export async function createRoom(params: InitializeRoomParams): Promise<Room> {
   try {
-    const { participant } = InitializeRoomSchema.parse(params);
+    const { participant: initialParticipant } = InitializeRoomSchema.parse(params);
 
     await setUpEnvironment(params);
-    await setUpParticipant(participant as InitialParticipant);
+    const participant = await setUpParticipant(initialParticipant as InitialParticipant);
 
     if (typeof window !== 'undefined' && window.SUPERVIZ_ROOM) {
       console.warn(`[SuperViz | Room] An existing room instance was found in the window object.
@@ -119,6 +122,8 @@ export async function createRoom(params: InitializeRoomParams): Promise<Room> {
       participant: {
         id: participant.id,
         name: participant.name,
+        avatar: participant.avatar,
+        email: participant.email,
       },
     });
 
@@ -153,10 +158,11 @@ export {
 };
 
 if (typeof window !== 'undefined') {
-  window.SuperVizRoom = {
+  window.SuperViz = {
     createRoom,
     RoomEvent,
     ParticipantEvent,
     RoomState,
+    useStore,
   };
 }
