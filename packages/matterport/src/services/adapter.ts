@@ -545,10 +545,12 @@ export class Presence3D {
   private async destroyAvatar(participant: ParticipantOn3D) {
     this.logger.log('matterport component @ destroyAvatar', participant);
 
-    // TODO : Call Avatar destroy
-
     if (this.avatars[participant.id]) {
-      this.avatars[participant.id].stop();
+      const avatar = this.avatars[participant.id];
+      if (avatar.avatar) {
+        avatar.avatar.destroy();
+      }
+      avatar.stop();
       delete this.avatars[participant.id];
     }
   }
