@@ -1,21 +1,52 @@
+import { Participant, Room, RoomState, createRoom } from '@superviz/room'
+
 import React, { 
   createContext, 
   useContext, 
   ReactNode, 
   useCallback, 
   useMemo, 
-  useRef 
+  useRef, 
+  useState
 } from 'react';
 
+type InitializeRoomParams = {
+  roomId: string;
+  participant: {
+    id: string;
+    name?: string;
+    email?: string;
+    avatar?: {
+      model3DUrl?: string;
+      imageUrl?: string;
+    };
+  };
+  group: {
+    id: string;
+    name: string;
+  };
+  debug?: boolean;
+  environment?: 'dev' | 'prod';
+}
+
+type RoomError = { 
+  code: string, 
+  message: string 
+}
+
+type RoomUpdate = {
+  status: RoomState | `${RoomState}`
+}
+
 interface RoomCallbacks {
-  onMyParticipantJoined?: (participant: any) => void;
-  onMyParticipantLeft?: (participant: any) => void;
-  onMyParticipantUpdated?: (participant: any) => void;
-  onParticipantJoined?: (participant: any) => void;
-  onParticipantLeft?: (participant: any) => void;
-  onParticipantUpdated?: (participant: any) => void;
-  onError?: (error: any) => void;
-  onRoomUpdated?: (data: any) => void;
+  onMyParticipantJoined?: (participant: Participant) => void;
+  onMyParticipantLeft?: (participant: Participant) => void;
+  onMyParticipantUpdated?: (participant: Participant) => void;
+  onParticipantJoined?: (participant: Participant) => void;
+  onParticipantLeft?: (participant: Participant) => void;
+  onParticipantUpdated?: (participant: Participant) => void;
+  onError?: (error: RoomError) => void;
+  onRoomUpdated?: (data: RoomUpdate) => void;
 }
 
 interface RoomContextInternalProps {
@@ -31,15 +62,50 @@ const RoomContext = createContext<RoomContextInternalProps | undefined>(undefine
 const RoomProvider: React.FC<{ 
   children: ReactNode 
   developerToken: string
-}> = ({ children }) => {
+}> = ({ children, developerToken }) => {
   const callbacks = useRef<RoomCallbacks>({});
+  const room = useRef<Room | null>(null);
+  const initialized = useRef<boolean>(false);
 
-  const joinRoom = useCallback(async (options: any) => {
-    console.log('Joining room with options', options, callbacks);
-  }, [callbacks]);
+  const joinRoom = useCallback(async (options: InitializeRoomParams) => {
+    if(initialized.current) {
+      console.warn('[SuperViz] Room already initialized, leaving room before joining again');
+      return;
+    }
+
+    initialized.current = true;
+
+    room.current = await createRoom(
+      Object.assign({}, options, { developerToken })
+    );
+
+    room.current.subscribe('my-participant.joined', onMyParticipantJoined);
+    room.current.subscribe('my-participant.left', onMyParticipantLeft);
+    room.current.subscribe('my-participant.updated', onMyParticipantUpdated);
+    room.current.subscribe('participant.joined', onParticipantJoined);
+    room.current.subscribe('participant.left', onParticipantLeft);
+    room.current.subscribe('participant.updated', onParticipantUpdated);
+    room.current.subscribe('room.error', onError);
+    room.current.subscribe('room.update', onRoomUpdated);
+  }, [callbacks, initialized]);
 
   const leaveRoom = useCallback(() => {
-    console.log('Leaving room');
+    if(!initialized.current) {
+      console.warn('[SuperViz] Room not initialized, nothing to leave');
+      return;
+    }
+
+    room.current?.leave();
+    room.current?.unsubscribe('my-participant.joined', onMyParticipantJoined);
+    room.current?.unsubscribe('my-participant.left', onMyParticipantLeft);
+    room.current?.unsubscribe('my-participant.updated', onMyParticipantUpdated);
+    room.current?.unsubscribe('participant.joined', onParticipantJoined);
+    room.current?.unsubscribe('participant.left', onParticipantLeft);
+    room.current?.unsubscribe('participant.updated', onParticipantUpdated);
+    room.current?.unsubscribe('room.error', onError);
+    room.current?.unsubscribe('room.update', onRoomUpdated);
+
+    initialized.current = false;
   }, []);
 
   const addComponent = useCallback(() => {
@@ -54,63 +120,63 @@ const RoomProvider: React.FC<{
     callbacks.current = newCallbacks;
   }, []);
 
-  const onMyParticipantJoined = useCallback((participant: any) => {
-    console.log('My participant joined');
+  const onMyParticipantJoined = useCallback((participant: Participant) => {
+    console.log('My participant joined', participant);
 
     if(callbacks.current.onMyParticipantJoined) {
       callbacks.current.onMyParticipantJoined(participant);
     }
   }, [callbacks.current]);
 
-  const onMyParticipantLeft = useCallback((participant: any) => {
-    console.log('My participant left');
+  const onMyParticipantLeft = useCallback((participant: Participant) => {
+    console.log('My participant left', participant);
 
     if(callbacks.current.onMyParticipantLeft) {
       callbacks.current.onMyParticipantLeft(participant);
     }
   }, [callbacks.current]);
 
-  const onMyParticipantUpdated = useCallback((participant: any) => {
-    console.log('My participant updated');
+  const onMyParticipantUpdated = useCallback((participant: Participant) => {
+    console.log('My participant updated', participant);
 
     if(callbacks.current.onMyParticipantUpdated) {
       callbacks.current.onMyParticipantUpdated(participant);
     }
   }, [callbacks.current]);
-  const onParticipantJoined = useCallback((participant: any) => {
-    console.log('Participant joined');
+  const onParticipantJoined = useCallback((participant: Participant) => {
+    console.log('Participant joined', participant);
 
     if(callbacks.current.onParticipantJoined) {
       callbacks.current.onParticipantJoined(participant);
     }
   }, [callbacks.current]);
 
-  const onParticipantLeft = useCallback((participant: any) => {
-    console.log('Participant left');
+  const onParticipantLeft = useCallback((participant: Participant) => {
+    console.log('Participant left', participant);
 
     if(callbacks.current.onParticipantLeft) {
       callbacks.current.onParticipantLeft(participant);
     }
   }, [callbacks.current]);
   
-  const onParticipantUpdated = useCallback((participant: any) => {
-    console.log('Participant updated');
+  const onParticipantUpdated = useCallback((participant: Participant) => {
+    console.log('Participant updated', participant);
 
     if(callbacks.current.onParticipantUpdated) {
       callbacks.current.onParticipantUpdated(participant);
     }
   }, [callbacks.current]);
   
-  const onError = useCallback((error: any) => {
-    console.log('Error');
+  const onError = useCallback((error: RoomError) => {
+    console.log('Error', error);
 
     if(callbacks.current.onError) {
       callbacks.current.onError(error);
     }
   }, [callbacks.current]);
 
-  const onRoomUpdated = useCallback((data: any) => {
-    console.log('Room updated');
+  const onRoomUpdated = useCallback((data: RoomUpdate) => {
+    console.log('Room updated', data);
 
     if(callbacks.current.onRoomUpdated) {
       callbacks.current.onRoomUpdated(data);
