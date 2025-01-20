@@ -31,6 +31,8 @@ export abstract class BaseComponent extends Observable {
    */
 
   public attach = (params: DefaultAttachComponentOptions): void => {
+    this.useStore = params.useStore.bind(this);
+
     if (Object.values(params).includes(null) || Object.values(params).includes(undefined)) {
       const message = `${this.name} @ attach - params are required`;
 
@@ -39,13 +41,7 @@ export abstract class BaseComponent extends Observable {
     }
 
     const { config: globalConfig, eventBus, ioc } = params;
-    const { isDomainWhitelisted, hasJoinedRoom } = this.useStore(StoreType.GLOBAL);
-
-    if (!isDomainWhitelisted.value) {
-      const message = `Component ${this.name} can't be used because this website's domain is not whitelisted. Please add your domain in https://dashboard.superviz.com/developer`;
-      this.logger.log(message);
-      return;
-    }
+    const { hasJoinedRoom } = this.useStore(StoreType.GLOBAL);
 
     config.setConfig(globalConfig);
 

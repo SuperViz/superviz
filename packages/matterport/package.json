@@ -1,6 +1,6 @@
 {
   "name": "@superviz/matterport-plugin",
-  "version": "1.3.0-lab.1",
+  "version": "1.3.0-beta.1",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
@@ -33,7 +33,6 @@
     "@anolilab/semantic-release-pnpm": "^1.1.3",
     "@semantic-release/release-notes-generator": "^14.0.1",
     "@superviz/eslint-config": "workspace:*",
-    "@superviz/sdk": "workspace:*",
     "@superviz/socket-client": "workspace:*",
     "@superviz/typescript-config": "workspace:*",
     "@types/debug": "^4.1.12",
@@ -51,6 +50,7 @@
   "dependencies": {
     "debug": "^4.3.5",
     "lodash": "^4.17.21",
-    "three-spritetext": "^1.8.2"
+    "three-spritetext": "^1.8.2",
+    "@superviz/sdk": "workspace:*"
   }
 }

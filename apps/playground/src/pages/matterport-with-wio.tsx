@@ -40,9 +40,9 @@ export function MatterportWithWio() {
     })
 
     const matterportPresence = new MatterportPresence3D(matterportInstance, {
-      isAvatarsEnabled: false,
-      isLaserEnabled: false,
-      isNameEnabled: false,
+      isAvatarsEnabled: true,
+      isLaserEnabled: true,
+      isNameEnabled: true,
     })
 
     const wio = new WhoIsOnline({

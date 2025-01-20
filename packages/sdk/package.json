@@ -1,6 +1,6 @@
 {
   "name": "@superviz/sdk",
-  "version": "6.8.0",
+  "version": "6.9.0-beta.2",
   "description": "SuperViz SDK",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

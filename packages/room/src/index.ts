@@ -1,10 +1,12 @@
 import debug from 'debug';
 import { z } from 'zod';
 
-import { Participant } from './common/types/participant.types';
+import { InitialParticipant, Participant } from './common/types/participant.types';
 import { Room } from './core';
+import { Callback, ParticipantEvent, RoomEvent, RoomState } from './core/types';
 import { ApiService } from './services/api';
 import config from './services/config';
+import { useStore } from './stores/common/use-store';
 import { InitializeRoomParams, InitializeRoomSchema } from './types';
 
 /**
@@ -39,10 +41,11 @@ async function setUpEnvironment({
     debug.disable();
   }
 
-  const [canAccess, waterMark, limits] = await Promise.all([
+  const [canAccess, waterMark, limits, features] = await Promise.all([
     ApiService.validateApiKey(developerToken),
     ApiService.fetchWaterMark(developerToken),
     ApiService.fetchLimits(developerToken),
+    ApiService.getFeatures(developerToken),
   ]).catch((error) => {
     console.log(error);
     throw new Error('[SuperViz | Room] Failed to load configuration from server');
@@ -54,6 +57,41 @@ async function setUpEnvironment({
 
   config.set('limits', limits);
   config.set('waterMark', waterMark);
+  config.set('features', features);
+}
+
+/**
+ * Sets up a participant by fetching their details from the API or creating
+   a new participant if they do not exist.
+ *
+ * @param {InitialParticipant} participant - The initial participant data.
+ * @returns {Promise<InitialParticipant>} - A promise that resolves to the participant data.
+ * @throws {Error} - Throws an error if the participant does not exist and no name is provided.
+ */
+async function setUpParticipant(participant: InitialParticipant): Promise<InitialParticipant> {
+  const apiParticipant = await ApiService.fetchParticipant(participant.id).catch(() => null);
+
+  if (!apiParticipant && !participant.name) {
+    throw new Error(
+      '[SuperViz | Room] - Participant does not exist, create the user in the API or add the name in the initialization to initialize the SuperViz room.',
+    );
+  }
+
+  if (!apiParticipant) {
+    await ApiService.createParticipant({
+      participantId: participant.id,
+      name: participant?.name,
+      email: participant?.email,
+      avatar: participant?.avatar?.imageUrl ?? null,
+    });
+  }
+
+  return {
+    id: participant.id,
+    name: participant.name ?? apiParticipant?.name,
+    email: participant.email ?? apiParticipant?.email,
+    avatar: participant.avatar ?? apiParticipant?.avatar,
+  };
 }
 
 /**
@@ -66,11 +104,34 @@ async function setUpEnvironment({
  */
 export async function createRoom(params: InitializeRoomParams): Promise<Room> {
   try {
-    const { developerToken, participant, roomId } = InitializeRoomSchema.parse(params);
+    const { participant: initialParticipant } = InitializeRoomSchema.parse(params);
 
     await setUpEnvironment(params);
+    const participant = await setUpParticipant(initialParticipant as InitialParticipant);
 
-    return new Room({ participant: participant as Participant });
+    if (typeof window !== 'undefined' && window.SUPERVIZ_ROOM) {
+      console.warn(`[SuperViz | Room] An existing room instance was found in the window object.
+      To prevent conflicts, please call the 'leave' method on the existing room before creating a new one.
+      Returning the previously created room instance.
+      `);
+
+      return window.SUPERVIZ_ROOM;
+    }
+
+    const room = new Room({
+      participant: {
+        id: participant.id,
+        name: participant.name,
+        avatar: participant.avatar,
+        email: participant.email,
+      },
+    });
+
+    if (typeof window !== 'undefined') {
+      window.SUPERVIZ_ROOM = room;
+    }
+
+    return room;
   } catch (error) {
     if (error instanceof z.ZodError) {
       const message = error.errors.map((err) => err.message).join('\n');
@@ -80,4 +141,28 @@ export async function createRoom(params: InitializeRoomParams): Promise<Room> {
 
     throw error;
   }
+}
+
+// Exports
+
+export type {
+  Room,
+  Participant,
+};
+
+export {
+  RoomEvent,
+  ParticipantEvent,
+  Callback,
+  RoomState,
+};
+
+if (typeof window !== 'undefined') {
+  window.SuperViz = {
+    createRoom,
+    RoomEvent,
+    ParticipantEvent,
+    RoomState,
+    useStore,
+  };
 }

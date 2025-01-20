@@ -3,6 +3,8 @@ import './web-components';
 import './common/styles/global.css';
 
 // #region enums
+import { PresenceEvents } from '@superviz/socket-client';
+
 import {
   MeetingEvent,
   RealtimeEvent,
@@ -16,19 +18,14 @@ import {
   ComponentLifeCycleEvent,
   WhoIsOnlineEvent,
 } from './common/types/events.types';
-import {
-  CamerasPosition,
-  LayoutMode,
-  LayoutPosition,
-} from './services/video-conference-manager/types';
 import { ParticipantType } from './common/types/participant.types';
-import { RealtimeComponentEvent, RealtimeComponentState } from './components/realtime/types';
-import { StoreType } from './common/types/stores.types';
-import { PresenceEvents } from '@superviz/socket-client';
-import { FieldEvents } from './components/form-elements/types';
-import { PinMode } from './web-components/comments/components/types';
 
 // #region Classes
+
+// #region Types and Interfaces
+import type { Participant, Group, Avatar } from './common/types/participant.types';
+import type { SuperVizSdkOptions, DevicesOptions } from './common/types/sdk-options.types';
+import { StoreType } from './common/types/stores.types';
 import {
   VideoConference,
   MousePointers,
@@ -39,15 +36,6 @@ import {
   WhoIsOnline,
   FormElements,
 } from './components';
-import type { Channel } from './components/realtime/channel';
-import type { Presence3DManager } from './services/presence-3d-manager';
-
-// #region Types and Interfaces
-import type { RealtimeMessage } from './components/realtime/types';
-import type { Participant, Group, Avatar } from './common/types/participant.types';
-import type { SuperVizSdkOptions, DevicesOptions } from './common/types/sdk-options.types';
-import type { BrowserStats } from './services/browser/types';
-import type { LauncherFacade } from './core/launcher/types';
 import type {
   Annotation,
   Comment,
@@ -56,7 +44,20 @@ import type {
   AnnotationPositionInfo,
   Offset,
 } from './components/comments/types';
+import { FieldEvents } from './components/form-elements/types';
 import type { Transform } from './components/presence-mouse/types';
+import type { Channel } from './components/realtime/channel';
+import type { RealtimeMessage } from './components/realtime/types';
+import { RealtimeComponentEvent, RealtimeComponentState } from './components/realtime/types';
+import type { LauncherFacade } from './core/launcher/types';
+import type { BrowserStats } from './services/browser/types';
+import { Presence3DManager } from './services/presence-3d-manager';
+import {
+  CamerasPosition,
+  LayoutMode,
+  LayoutPosition,
+} from './services/video-conference-manager/types';
+import { PinMode } from './web-components/comments/components/types';
 
 if (typeof window !== 'undefined') {
   window.SuperVizRoom = {

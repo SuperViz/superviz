@@ -5,6 +5,7 @@ import { ColorsVariables } from '../../common/types/colors.types';
 import {
   DeviceEvent,
   Dimensions,
+  EventBusEvent,
   FrameEvent,
   MeetingConnectionStatus,
   MeetingControlsEvent,
@@ -24,7 +25,7 @@ import { Logger } from '../../common/utils';
 import { BrowserService } from '../../services/browser';
 import config from '../../services/config';
 import { ConnectionService } from '../../services/connection-status';
-import { coreBridge } from '../../services/core-bridge';
+import RemoteConfigService from '../../services/remote-config-service';
 import { RoomStateService } from '../../services/room-state';
 import VideoConferenceManager from '../../services/video-conference-manager';
 import {
@@ -204,9 +205,14 @@ export class VideoConference extends BaseComponent {
    * @description start video manager
    * @returns {void}
    */
-  private startVideo = (): void => {
+  private startVideo = async (): Promise<void> => {
     const defaultAvatars =
       this.params?.userType !== ParticipantType.AUDIENCE && this.params?.defaultAvatars === true;
+
+    if (!config.get('conferenceLayerUrl')) {
+      const { conferenceLayerUrl } = await RemoteConfigService.getRemoteConfig(config.get('environment'));
+      config.set('conferenceLayerUrl', conferenceLayerUrl);
+    }
 
     this.videoConfig = {
       language: this.params?.language,
@@ -463,7 +469,7 @@ export class VideoConference extends BaseComponent {
 
     if (state !== VideoFrameState.INITIALIZED) return;
 
-    this.roomState = new RoomStateService(this.room, this.drawingRoom, this.logger);
+    this.roomState = new RoomStateService(this.room, this.drawingRoom, this.logger, this.useStore);
     this.roomState.kickParticipantObserver.subscribe(this.onKickLocalParticipant);
     this.roomState.start();
 
@@ -539,37 +545,37 @@ export class VideoConference extends BaseComponent {
     if (this.videoConfig.canUseDefaultAvatars) {
       this.roomState.updateMyProperties({
         avatar: participant.avatar,
-        name: participant.name,
+        name: newParticipantName,
         type: participant.type,
         joinedMeeting: true,
       });
 
-      coreBridge.updateLocalParticipant({
+      this.eventBus.publish(EventBusEvent.UPDATE_PARTICIPANT, {
         ...localParticipant.value,
         avatar: participant.avatar,
-        name: participant.name,
+        name: newParticipantName,
         type: this.params.userType,
       });
 
-      coreBridge.updateParticipantsList({
+      this.eventBus.publish(EventBusEvent.UPDATE_PARTICIPANT_LIST, {
         ...participants.value,
         [participant.id]: {
           ...participants.value[participant.id],
           avatar: participant.avatar,
-          name: participant.name,
+          name: newParticipantName,
         },
       });
 
       return;
     }
 
-    coreBridge.updateLocalParticipant({
+    this.eventBus.publish(EventBusEvent.UPDATE_PARTICIPANT, {
       ...localParticipant.value,
       name: newParticipantName,
       type: this.params.userType,
     });
 
-    coreBridge.updateParticipantsList({
+    this.eventBus.publish(EventBusEvent.UPDATE_PARTICIPANT_LIST, {
       ...participants.value,
       [participant.id]: {
         ...participants.value[participant.id],

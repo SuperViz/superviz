@@ -1,3 +1,4 @@
+import { FeatureFlags } from '../../common/types/feature-flag.types';
 import { Group } from '../../common/types/group.types';
 
 export interface Configuration {
@@ -9,6 +10,7 @@ export interface Configuration {
   limits: ComponentLimits;
   waterMark: boolean;
   group: Group
+  features: FeatureFlags;
 }
 
 type Paths<T> = T extends object

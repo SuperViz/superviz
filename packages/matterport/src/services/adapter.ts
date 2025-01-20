@@ -1,4 +1,4 @@
-import type { Participant, Presence3DManager, StoreType } from '@superviz/sdk';
+import { Participant, StoreType, Presence3DManager } from '@superviz/sdk';
 import type { useStore } from '@superviz/sdk/dist/common/utils/use-store';
 import type { DefaultAttachComponentOptions } from '@superviz/sdk/dist/components/base/types';
 import type { EventBus } from '@superviz/sdk/dist/services/event-bus';
@@ -149,10 +149,10 @@ export class Presence3D {
 
     this.logger.log('attached');
 
-    const { eventBus, useStore, ioc, Presence3DManagerService } = params;
+    const { eventBus, useStore, ioc } = params;
     this.useStore = useStore.bind(this);
     this.room = ioc.createRoom(this.name);
-    this.presence3DManager = new Presence3DManagerService(this.room, this.useStore);
+    this.presence3DManager = new Presence3DManager(this.room, this.useStore);
 
     const { localParticipant, hasJoinedRoom } = this.useStore(storeType.GLOBAL);
     localParticipant.subscribe();
@@ -198,7 +198,6 @@ export class Presence3D {
 
     this.presence3DManager = undefined;
 
-    this.useStore(storeType.PRESENCE_3D).destroy();
     this.useStore = undefined;
 
     this.isAttached = false;

@@ -63,13 +63,7 @@ export class SuperVizYjsProvider extends ObservableV2<Events> {
     }
 
     const { useStore, ioc, config } = params;
-    const { isDomainWhitelisted, hasJoinedRoom, localParticipant } = useStore(storeType.GLOBAL);
-
-    if (!isDomainWhitelisted.value) {
-      const message = `Component ${this.name} can't be used because this website's domain is not whitelisted. Please add your domain in https://dashboard.superviz.com/developer`;
-      this.logger.log(message);
-      return;
-    }
+    const { hasJoinedRoom, localParticipant } = useStore(storeType.GLOBAL);
 
     if (!hasJoinedRoom.value) {
       hasJoinedRoom.subscribe(() => this.attach(params));

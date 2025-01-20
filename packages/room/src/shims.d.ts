@@ -1,6 +1,8 @@
+import { Room } from './core';
+
 declare global {
   interface Window {
-    SuperVizRoom: {};
-    SUPERVIZ: {};
+    SuperViz: Record<string, unknown>;
+    SUPERVIZ_ROOM: Room;
   }
 }

@@ -49,7 +49,7 @@ function App() {
           });
         })}
       </aside>
-      <section className="flex-1">
+      <section className="flex-1 h-full overflow-hidden">
         <Outlet />
       </section>
     </main>

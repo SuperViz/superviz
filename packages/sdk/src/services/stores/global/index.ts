@@ -9,7 +9,6 @@ export class GlobalStore {
   public localParticipant = subject<Participant>({} as Participant);
   public participants = subject<Record<string, Participant>>({});
   public group = subject<Group>(null);
-  public isDomainWhitelisted = subject<boolean>(true);
   public hasJoinedRoom = subject<boolean>(false);
 
   constructor() {
@@ -24,7 +23,6 @@ export class GlobalStore {
     this.localParticipant.destroy();
     this.participants.destroy();
     this.group.destroy();
-    this.isDomainWhitelisted.destroy();
     this.hasJoinedRoom.destroy();
   }
 }
@@ -35,7 +33,6 @@ const destroy = store.destroy.bind(store);
 const group = store.group.expose();
 const participants = store.participants.expose();
 const localParticipant = store.localParticipant.expose();
-const isDomainWhitelisted = store.isDomainWhitelisted.expose();
 const hasJoinedRoom = store.hasJoinedRoom.expose();
 
 export function useGlobalStore() {
@@ -43,7 +40,6 @@ export function useGlobalStore() {
     localParticipant,
     participants,
     group,
-    isDomainWhitelisted,
     hasJoinedRoom,
     destroy,
   };
