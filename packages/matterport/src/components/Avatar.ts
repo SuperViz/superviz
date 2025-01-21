@@ -5,7 +5,6 @@ import { AVATARS_HEIGHT_ADJUST } from '../common/constants/presence';
 import { Name } from '../common/types/avatarTypes.types';
 import { Coordinates, Simple2DPoint } from '../common/types/coordinates.types';
 import type { MpSdk as Matterport } from '../common/types/matterport.types';
-import { MatterportEvents } from '../services/matterport/matterport-events';
 import type { ParticipantOn3D } from '../types';
 
 /**
@@ -27,7 +26,7 @@ function Avatar() {
     participant: null as ParticipantOn3D | null,
     avatarModel: null,
     matterportSdk: null as Matterport | null,
-    matterportEvents: null as MatterportEvents | null,
+    onCameraMove: null as ((position: any, rotation: any, sweep: any) => void) | null,
     roomParticipants: null as Record<string, Participant> | null,
   };
 
@@ -133,13 +132,24 @@ function Avatar() {
 
   // Position Management
   const positionManager = {
-    update: (position: Coordinates, currentCirclePosition: Vector3) => {
+    update: (position: Coordinates, currentCirclePosition: Vector3 | null) => {
+      if (!position) return;
+
       const addedHeight = parseFloat(this.inputs.avatarModel.obj3D?.userData?.height ?? '0');
       const addY = addedHeight - AVATARS_HEIGHT_ADJUST;
 
-      this.tempLocalPos.set(currentCirclePosition.x, 0, currentCirclePosition.z);
-      this.tempAvatarPos.set(position?.x, 0, position?.z);
-      this.tempAdjustPos.copy(this.tempAvatarPos).sub(this.tempLocalPos);
+      // If no circle position provided, use zero vector
+      const circlePos = currentCirclePosition || this.tempLocalPos.set(0, 0, 0);
+
+      this.tempLocalPos.set(circlePos.x, 0, circlePos.z);
+      this.tempAvatarPos.set(position.x, 0, position.z);
+      this.tempAdjustPos.copy(this.tempAvatarPos);
+
+      // Only subtract circle position if it was provided
+      if (currentCirclePosition) {
+        this.tempAdjustPos.sub(this.tempLocalPos);
+      }
+
       this.tempAdjustPos.y = position.y + addY;
 
       this.inputs.avatarModel.lerper.animateVector(
@@ -187,17 +197,16 @@ function Avatar() {
   // Event Management
   const eventManager = {
     handleModelLoaded: () => {
-      if (this.inputs.matterportEvents) {
+      if (this.inputs.onCameraMove) {
         this.inputs.matterportSdk.Camera.getPose().then((pose) => {
-          this.inputs.matterportEvents.onCameraMove(pose.position, pose.rotation);
+          this.inputs.onCameraMove(pose.position, pose.rotation, null);
         });
       }
       nameManager.create();
     },
 
     destroy: () => {
-      // Cleanup any event listeners if needed
-      this.inputs.matterportEvents = null;
+      this.inputs.onCameraMove = null;
     },
   };
 
@@ -379,7 +388,7 @@ function Avatar() {
       participant: null,
       avatarModel: null,
       matterportSdk: null,
-      matterportEvents: null,
+      onCameraMove: null,
       roomParticipants: null,
     };
   };

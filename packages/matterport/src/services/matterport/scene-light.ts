@@ -5,7 +5,7 @@ export class SceneLight {
   private ambientLight: Matterport.Scene.INode;
   private THREE;
 
-  constructor(private matterportSdk: Matterport) {}
+  constructor(private readonly matterportSdk: Matterport) {}
 
   public async addSceneLight(): Promise<void> {
     this.directionalLight = await this.createDirectionLight();

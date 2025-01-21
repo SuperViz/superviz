@@ -21,6 +21,7 @@ export interface PositionInfo {
   mode: Mode;
   sweep: string;
   floor: number;
+  slot?: Slot;
 }
 
 export interface AvatarConfig {

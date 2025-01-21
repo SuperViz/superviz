@@ -160,10 +160,7 @@ export interface Dictionary<ItemT> {
    * }
    * ```
    */
-  [Symbol.iterator](): IterableIterator<[
-    string,
-    ItemT
-  ]>;
+  [Symbol.iterator](): IterableIterator<[string, ItemT]>;
   /** Get an item using a specific `key`. */
   [key: string]: ItemT;
 }
@@ -184,7 +181,7 @@ export declare type ConnectOptions = {
 declare function disconnect(): void;
 export declare namespace App {
   enum Event {
-    PHASE_CHANGE = 'application.phasechange'
+    PHASE_CHANGE = 'application.phasechange',
   }
   /**
    * Application phases are returned as part of the [[state]] observable.
@@ -209,13 +206,13 @@ export declare namespace App {
     LOADING = 'appphase.loading',
     STARTING = 'appphase.starting',
     PLAYING = 'appphase.playing',
-    ERROR = 'appphase.error'
+    ERROR = 'appphase.error',
   }
   /**
    * Application
    */
   enum Application {
-    SHOWCASE = 'application.showcase'
+    SHOWCASE = 'application.showcase',
   }
   /**
    * @deprecated This type is used by deprecated functionality. Use [[state]] observable.
@@ -285,8 +282,7 @@ export interface App {
    */
   state: IObservable<App.State>;
 }
-export declare namespace Asset {
-}
+export declare namespace Asset {}
 export interface Asset {
   /**
    * Register a texture to use with subsequent calls like [[Tag.editIcon]].
@@ -312,13 +308,13 @@ export declare namespace Mode {
     OUTSIDE = 'mode.outside',
     DOLLHOUSE = 'mode.dollhouse',
     FLOORPLAN = 'mode.floorplan',
-    TRANSITIONING = 'mode.transitioning'
+    TRANSITIONING = 'mode.transitioning',
   }
   enum Event {
     /** @event */
     CHANGE_START = 'viewmode.changestart',
     /** @event */
-    CHANGE_END = 'viewmode.changeend'
+    CHANGE_END = 'viewmode.changeend',
   }
   type TransitionData = {
     from: Mode | null;
@@ -327,7 +323,7 @@ export declare namespace Mode {
   enum TransitionType {
     INSTANT = 'transition.instant',
     FLY = 'transition.fly',
-    FADEOUT = 'transition.fade'
+    FADEOUT = 'transition.fade',
   }
   type MoveToModeOptions = {
     rotation?: Rotation;
@@ -421,7 +417,7 @@ export declare namespace Camera {
   };
   enum Event {
     /** @event */
-    MOVE = 'camera.move'
+    MOVE = 'camera.move',
   }
   enum Direction {
     FORWARD = 'FORWARD',
@@ -429,7 +425,7 @@ export declare namespace Camera {
     RIGHT = 'RIGHT',
     BACK = 'BACK',
     UP = 'UP',
-    DOWN = 'DOWN'
+    DOWN = 'DOWN',
   }
   type RotateOptions = {
     /**
@@ -541,10 +537,7 @@ export interface Camera {
    * Use `mpSdk.Camera.pan({ x: 0, z: 0 });` to return to directly above the
    * very first sweep scanned.
    */
-  pan(params: {
-    x: number;
-    z: number;
-  }): Promise<void>;
+  pan(params: { x: number; z: number }): Promise<void>;
   /**
    * Rotates the camera (user’s viewpoint).
    *
@@ -706,7 +699,7 @@ export interface Camera {
    */
   zoom: IObservable<Camera.ZoomData>;
 }
-export declare namespace Conversion { }
+export declare namespace Conversion {}
 export interface Conversion {
   /**
    * Converts a position of an object in 3d to the pixel coordinate on the screen
@@ -728,7 +721,12 @@ export interface Conversion {
    * var screenCoordinate = mpSdk.Conversion.worldToScreen(mattertag.anchorPosition, cameraPose, showcaseSize)
    * ```
    */
-  worldToScreen(worldPos: Vector3, cameraPose: Camera.Pose, windowSize: Size, result?: Vector3): Vector3;
+  worldToScreen(
+    worldPos: Vector3,
+    cameraPose: Camera.Pose,
+    windowSize: Size,
+    result?: Vector3,
+  ): Vector3;
 }
 export declare namespace Floor {
   type Floors = {
@@ -750,7 +748,7 @@ export declare namespace Floor {
     /** @event */
     CHANGE_START = 'floors.changestart',
     /** @event */
-    CHANGE_END = 'floors.changeend'
+    CHANGE_END = 'floors.changeend',
   }
 }
 /**
@@ -1002,7 +1000,9 @@ export declare namespace Graph {
      * ```
      * @param vertexData A variable number of [[VertexDescriptor]]s to use to create nodes in the graph.
      */
-    addVertex(...vertexData: T extends undefined | void ? VertexIdDescriptor[] : Array<VertexDescriptor<T>>): void;
+    addVertex(
+      ...vertexData: T extends undefined | void ? VertexIdDescriptor[] : Array<VertexDescriptor<T>>
+    ): void;
     /**
      * Test if a vertex associated with `id` is present in the graph.
      *
@@ -1229,7 +1229,7 @@ export declare namespace Graph {
     /** The start vertex was not found in the graph. */
     NO_START_VERTEX = 'astar.status.no_start',
     /** The end vertex was not found in the graph. */
-    NO_END_VERTEX = 'astar.status.no_end'
+    NO_END_VERTEX = 'astar.status.no_end',
   }
   /**
    * The result of doing an A* search.
@@ -1286,7 +1286,9 @@ export declare namespace Graph {
      * subscription.cancel();
      * ```
      */
-    subscribe(observer: IObserver<Graph.IAStarRunner<T>> | ObserverCallback<Graph.IAStarRunner<T>>): ISubscription;
+    subscribe(
+      observer: IObserver<Graph.IAStarRunner<T>> | ObserverCallback<Graph.IAStarRunner<T>>,
+    ): ISubscription;
     /**
      * Release resources associated with the runner.
      * This function should be called once you are done with the runner.
@@ -1335,7 +1337,12 @@ export interface Graph {
    * @bundle
    * @introduced 3.1.55.2-34-ga9934ccd93
    */
-  createAStarRunner<T>(graph: Graph.IDirectedGraph<T>, start: Graph.Vertex<T>, end: Graph.Vertex<T>, options?: Partial<Graph.SearchOptions<T>>): Graph.IAStarRunner<T>;
+  createAStarRunner<T>(
+    graph: Graph.IDirectedGraph<T>,
+    start: Graph.Vertex<T>,
+    end: Graph.Vertex<T>,
+    options?: Partial<Graph.SearchOptions<T>>,
+  ): Graph.IAStarRunner<T>;
 }
 export declare namespace Label {
   type Label = {
@@ -1365,7 +1372,7 @@ export declare namespace Label {
   };
   enum Event {
     /** @event */
-    POSITION_UPDATED = 'label.positionupdated'
+    POSITION_UPDATED = 'label.positionupdated',
   }
 }
 export interface Label {
@@ -1410,7 +1417,7 @@ export declare namespace Link {
     /** Use the embedder's window.location as the base of the link */
     REFERRER = 'link.creationpolicy.referrer',
     /** Use the original Matterport link as the base of the link */
-    MATTERPORT = 'link.creationpolicy.matterport'
+    MATTERPORT = 'link.creationpolicy.matterport',
   }
   /**
    * The behavior to use when clicking a link
@@ -1423,7 +1430,7 @@ export declare namespace Link {
     /** Open in the current iframe */
     SAME_FRAME = 'link.openpolicy.sameframe',
     /** Navigate the window that is the current embedder of Showcase */
-    CURRENT_WINDOW = 'link.openpolicy.current'
+    CURRENT_WINDOW = 'link.openpolicy.current',
   }
   type CreateLinkOptions = {
     /** The list of URL parameters to include in the share link */
@@ -1481,7 +1488,10 @@ export interface Link {
    * @embed
    * @bundle 3.1.60.12-32-g4572017c98
    */
-  setShareLinkPolicy(policy: Link.CreationPolicy, options?: Partial<Link.CreateLinkOptions>): Promise<void>;
+  setShareLinkPolicy(
+    policy: Link.CreationPolicy,
+    options?: Partial<Link.CreateLinkOptions>,
+  ): Promise<void>;
   /**
    * Change the behavior of clicking a link to another model.
    *
@@ -1612,7 +1622,7 @@ export declare namespace Mattertag {
   enum Transition {
     INSTANT = 'transition.instant',
     FLY = 'transition.fly',
-    FADEOUT = 'transition.fade'
+    FADEOUT = 'transition.fade',
   }
   interface DescriptionChunk {
     text?: string;
@@ -1686,12 +1696,12 @@ export declare namespace Mattertag {
     /** A link to a different Matterport model */
     MODEL = 'tag.link.model',
     /** An external link */
-    EXT_LINK = 'tag.link.ext'
+    EXT_LINK = 'tag.link.ext',
   }
   enum DescriptionChunkType {
     NONE = 'tag.chunk.none',
     TEXT = 'tag.chunk.text',
-    LINK = 'tag.chunk.link'
+    LINK = 'tag.chunk.link',
   }
   enum Event {
     /** @event */
@@ -1699,13 +1709,13 @@ export declare namespace Mattertag {
     /** @event */
     CLICK = 'tag.click',
     /** @event */
-    LINK_OPEN = 'tag.linkopen'
+    LINK_OPEN = 'tag.linkopen',
   }
   enum MediaType {
     NONE = 'mattertag.media.none',
     PHOTO = 'mattertag.media.photo',
     VIDEO = 'mattertag.media.video',
-    RICH = 'mattertag.media.rich'
+    RICH = 'mattertag.media.rich',
   }
   /**
    * A subset of the MattertagData used to add Mattertags through the sdk.
@@ -1800,14 +1810,14 @@ export interface Mattertag {
    */
   navigateToTag(tagSid: string, transition: Mattertag.Transition): Promise<string>;
   /**
-    * Get the disc's (3d) position of a Mattertag.
-    * The original data only represent the point that attaches the tag to the model.
-    *
-    * ```
-    * var mattertags; // get mattertag collection from mpSdk.Mattertag.getData
-    * var tagDiscPosition = mpSdk.Mattertag.getDiscPosition(mattertags[0]);
-    * ```
-    */
+   * Get the disc's (3d) position of a Mattertag.
+   * The original data only represent the point that attaches the tag to the model.
+   *
+   * ```
+   * var mattertags; // get mattertag collection from mpSdk.Mattertag.getData
+   * var tagDiscPosition = mpSdk.Mattertag.getDiscPosition(mattertags[0]);
+   * ```
+   */
   getDiscPosition(tag: Mattertag.MattertagData, result?: Vector3): Vector3;
   /**
    * Add one or more Mattertags to Showcase.
@@ -1847,7 +1857,9 @@ export interface Mattertag {
    * @param newTagData A single or array of Mattertag templates to add.
    * @return A promise that resolves with the sids for the newly added Mattertags.
    */
-  add(newTagData: Mattertag.MattertagDescriptor | Mattertag.MattertagDescriptor[]): Promise<string[]>;
+  add(
+    newTagData: Mattertag.MattertagDescriptor | Mattertag.MattertagDescriptor[],
+  ): Promise<string[]>;
   /**
    * Edit the data in a Mattertag billboard.
    *
@@ -1953,10 +1965,13 @@ export interface Mattertag {
    * @param stemOptions What to change about the Mattertag's stem - can include stemHeight and stemVisible
    * @introduced 3.1.70.10-0-ge9cb83b28c
    */
-  editStem(tagSid: string, options: {
-    stemHeight?: number;
-    stemVisible?: boolean;
-  }): Promise<void>;
+  editStem(
+    tagSid: string,
+    options: {
+      stemHeight?: number;
+      stemVisible?: boolean;
+    },
+  ): Promise<void>;
   /**
    * Register an icon to use with subsequent [[Mattertag.editIcon]] calls.
    *
@@ -2095,7 +2110,11 @@ export interface Mattertag {
    *
    * ```
    */
-  injectHTML(tagSid: string, html: string, options: Mattertag.InjectionOptions): Promise<Mattertag.IMessenger>;
+  injectHTML(
+    tagSid: string,
+    html: string,
+    options: Mattertag.InjectionOptions,
+  ): Promise<Mattertag.IMessenger>;
 }
 export declare namespace Measurements {
   type MeasurementData = {
@@ -2171,18 +2190,18 @@ export interface Measurements {
    */
   toggleMode(activate: boolean): Promise<void>;
   /**
-     * An observable measurement mode state object.
-     *
-     * ```
-     * mpSdk.Measurements.mode.subscribe(function (measurementModeState) {
-     *  // measurement mode state has changed
-     *  console.log('Is measurement mode currently active? ', measurementModeState.active);
-     * });
-     *
-     * // output
-     * // > Is measurement mode currently active? true
-     * ```
-     */
+   * An observable measurement mode state object.
+   *
+   * ```
+   * mpSdk.Measurements.mode.subscribe(function (measurementModeState) {
+   *  // measurement mode state has changed
+   *  console.log('Is measurement mode currently active? ', measurementModeState.active);
+   * });
+   *
+   * // output
+   * // > Is measurement mode currently active? true
+   * ```
+   */
   mode: IObservable<Measurements.State>;
 }
 export declare namespace Sweep {
@@ -2250,21 +2269,21 @@ export declare namespace Sweep {
      * @event
      */
     ENTER = 'sweep.enter',
-    EXIT = 'sweep.exit'
+    EXIT = 'sweep.exit',
   }
   enum Transition {
     INSTANT = 'transition.instant',
     FLY = 'transition.fly',
-    FADEOUT = 'transition.fade'
+    FADEOUT = 'transition.fade',
   }
   enum Alignment {
     ALIGNED = 'aligned',
-    UNALIGNED = 'unaligned'
+    UNALIGNED = 'unaligned',
   }
   enum Placement {
     UNPLACED = 'unplaced',
     AUTO = 'auto',
-    MANUAL = 'manual'
+    MANUAL = 'manual',
   }
 }
 export interface Sweep {
@@ -2416,7 +2435,7 @@ export declare namespace Model {
   };
   enum Event {
     /** @event */
-    MODEL_LOADED = 'model.loaded'
+    MODEL_LOADED = 'model.loaded',
   }
 }
 export interface Model {
@@ -2512,7 +2531,10 @@ export interface OAuth {
    * The [[ITokenRefresher]] constructor
    * ```
    */
-  createTokenRefresher(token: OAuth.TokenInfo, tokenFetcher: OAuth.ITokenFetcher): OAuth.ITokenRefresher;
+  createTokenRefresher(
+    token: OAuth.TokenInfo,
+    tokenFetcher: OAuth.ITokenFetcher,
+  ): OAuth.ITokenRefresher;
 }
 export declare namespace Pointer {
   export type Intersection = {
@@ -2531,7 +2553,7 @@ export declare namespace Pointer {
     MODEL = 'intersectedobject.model',
     TAG = 'intersectedobject.tag',
     SWEEP = 'intersectedobject.sweep',
-    UNKNOWN = 'intersectedobject.unknown'
+    UNKNOWN = 'intersectedobject.unknown',
   }
   type FadeOutProps = {
     /**
@@ -2676,7 +2698,10 @@ export interface Renderer {
    * Warns if the resolution is 0 or negative.
    *
    */
-  takeScreenShot(resolution?: Renderer.Resolution, visibility?: Partial<Renderer.Visibility>): Promise<string>;
+  takeScreenShot(
+    resolution?: Renderer.Resolution,
+    visibility?: Partial<Renderer.Visibility>,
+  ): Promise<string>;
   /**
    * Takes an equirectangular screenshot (JPEG) of the currently active sweep.
    *
@@ -2740,7 +2765,11 @@ export interface Renderer {
    * Returns null position if the direction of the screen position does not intersect with the model, or if a height was given,
    * if the the direction does not intersect with the plane at the given height.
    */
-  getWorldPositionData(screenPosition: Vector2, height?: number, includeHiddenFloors?: boolean): Promise<Renderer.WorldPositionData>;
+  getWorldPositionData(
+    screenPosition: Vector2,
+    height?: number,
+    includeHiddenFloors?: boolean,
+  ): Promise<Renderer.WorldPositionData>;
   /**
    * @deprecated Use [[Conversion.worldToScreen]] to convert a 3d position to a point on screen.
    */
@@ -2815,7 +2844,7 @@ export declare namespace Scene {
     AMBIENT_LIGHT = 'mp.ambientLight',
     CAMERA = 'mp.camera',
     INPUT = 'mp.input',
-    XR = 'mp.xr'
+    XR = 'mp.xr',
   }
   export type SceneComponentName = `${ComponentType}` | (string & {});
   interface LightComponentCommonOptions {
@@ -3013,7 +3042,7 @@ export declare namespace Scene {
     PINCH = 'INTERACTION.PINCH',
     PINCH_END = 'INTERACTION.PINCH_END',
     ROTATE = 'INTERACTION.ROTATE',
-    ROTATE_END = 'INTERACTION.ROTATE_END'
+    ROTATE_END = 'INTERACTION.ROTATE_END',
   }
   /**
    * The payload for a 3D interaction event.
@@ -3032,7 +3061,7 @@ export declare namespace Scene {
     INPUT = 'input',
     OUTPUT = 'output',
     EVENT = 'event',
-    EMIT = 'emit'
+    EMIT = 'emit',
   }
   /**
    * **Scene Node**
@@ -3073,7 +3102,11 @@ export declare namespace Scene {
      *
      * @returns The newly created component.
      */
-    addComponent<T extends SceneComponentName>(name: T, initialInputs?: SceneComponentOptions[T], id?: string): IComponent;
+    addComponent<T extends SceneComponentName>(
+      name: T,
+      initialInputs?: SceneComponentOptions[T],
+      id?: string,
+    ): IComponent;
     /**
      * Returns in iterator iterating over all the components contained by this node.
      */
@@ -3447,13 +3480,11 @@ export declare namespace Scene {
   /**
    * A path to a component's event property
    */
-  export interface EventPath {
-  }
+  export interface EventPath {}
   /**
    * A path to a component's emit property
    */
-  export interface EmitPath {
-  }
+  export interface EmitPath {}
   /**
    * A spy allows for spying on events triggered on a component from outside of the component system
    */
@@ -3506,7 +3537,12 @@ export declare namespace Scene {
      * @param sourceProp The component output property name.
      * @deprecated Use [[IObject.bindPath]] instead.
      */
-    bind(targetComponent: IComponent, targetProp: string, sourceComponent: IComponent, sourceProp: string): void;
+    bind(
+      targetComponent: IComponent,
+      targetProp: string,
+      sourceComponent: IComponent,
+      sourceProp: string,
+    ): void;
     /**
      * Add a path identified by a unique string.
      * They `pathDesc.type` will determine which path type is returned.
@@ -3809,7 +3845,13 @@ export interface Scene {
    *
    * @bundle
    */
-  configure(callback: (renderer: THREE.WebGLRenderer, three: typeof THREE, effectComposer: EffectComposer | null) => void): Promise<void>;
+  configure(
+    callback: (
+      renderer: THREE.WebGLRenderer,
+      three: typeof THREE,
+      effectComposer: EffectComposer | null,
+    ) => void,
+  ): Promise<void>;
   /**
    * Creates a scene node.
    * @return A promise that resolves with the new scene node.
@@ -3917,12 +3959,12 @@ export interface Scene {
  */
 export declare namespace Sensor {
   enum SensorType {
-    CAMERA = 'sensor.sensortype.camera'
+    CAMERA = 'sensor.sensortype.camera',
   }
   enum SourceType {
     SPHERE = 'sensor.sourcetype.sphere',
     BOX = 'sensor.sourcetype.box',
-    CYLINDER = 'sensor.sourcetype.cylinder'
+    CYLINDER = 'sensor.sourcetype.cylinder',
   }
   /**
    * A Sensor that detects Sources and provides information about the reading of each.
@@ -4007,11 +4049,23 @@ export declare namespace Sensor {
    */
   interface ISensorObserver {
     /** Called when a the first `reading` is added from `source`. */
-    onAdded?(source: ISource, reading: SensorReading, collection: Map<ISource, SensorReading>): void;
+    onAdded?(
+      source: ISource,
+      reading: SensorReading,
+      collection: Map<ISource, SensorReading>,
+    ): void;
     /** Called when `source` and its `reading` is removed. */
-    onRemoved?(source: ISource, reading: SensorReading, collection: Map<ISource, SensorReading>): void;
+    onRemoved?(
+      source: ISource,
+      reading: SensorReading,
+      collection: Map<ISource, SensorReading>,
+    ): void;
     /** Called when an existing `reading` is altered from `source`. */
-    onUpdated?(source: ISource, reading: SensorReading, collection: Map<ISource, SensorReading>): void;
+    onUpdated?(
+      source: ISource,
+      reading: SensorReading,
+      collection: Map<ISource, SensorReading>,
+    ): void;
     /** Called when a set of changes happens within the `collection`. */
     onCollectionUpdated?(collection: Map<ISource, SensorReading>): void;
   }
@@ -4094,7 +4148,10 @@ export interface Sensor {
    * ```
    * @param options
    */
-  createSource(type: Sensor.SourceType.SPHERE, options: Sensor.SphereVolume & Sensor.SourceOptions): Promise<Sensor.ISource<Sensor.SphereVolume>>;
+  createSource(
+    type: Sensor.SourceType.SPHERE,
+    options: Sensor.SphereVolume & Sensor.SourceOptions,
+  ): Promise<Sensor.ISource<Sensor.SphereVolume>>;
   /**
    * Create an box shaped [[`ISource`]] which can be sensed by an [[`ISensor`]].<br>
    * A shallow copy of `options.userData` is applied to the Source upon creation.
@@ -4125,7 +4182,10 @@ export interface Sensor {
    * ```
    * @param options
    */
-  createSource(type: Sensor.SourceType.BOX, options: Sensor.BoxVolume & Sensor.SourceOptions): Promise<Sensor.ISource<Sensor.BoxVolume>>;
+  createSource(
+    type: Sensor.SourceType.BOX,
+    options: Sensor.BoxVolume & Sensor.SourceOptions,
+  ): Promise<Sensor.ISource<Sensor.BoxVolume>>;
   /**
    * Create a cylindrical [[`ISource`]] which can be sensed by an [[`ISensor`]].<br>
    * A shallow copy of `options.userData` is applied to the Source upon creation.
@@ -4155,9 +4215,12 @@ export interface Sensor {
    * sensor.addSource(...sources);
    * ```
    */
-  createSource(type: Sensor.SourceType.CYLINDER, options: Sensor.CylinderVolume & Sensor.SourceOptions): Promise<Sensor.ISource<Sensor.CylinderVolume>>;
+  createSource(
+    type: Sensor.SourceType.CYLINDER,
+    options: Sensor.CylinderVolume & Sensor.SourceOptions,
+  ): Promise<Sensor.ISource<Sensor.CylinderVolume>>;
 }
-export declare namespace Settings { }
+export declare namespace Settings {}
 export interface Settings {
   /**
    * This function returns the value of a setting if it exists, if it does not currently exist, it will return undefined.
@@ -4207,7 +4270,7 @@ export declare namespace Tag {
     VIDEO = 'tag.attachment.video',
     ZIP = 'tag.attachment.zip',
     /** The attachment is a sandbox created by a call to [[Tag.registerSandbox]] */
-    SANDBOX = 'tag.attachment.sandbox'
+    SANDBOX = 'tag.attachment.sandbox',
   }
   type TagData = {
     id: string;
@@ -4428,10 +4491,7 @@ export interface Tag {
    * @bundle
    * @introduced 3.1.70.10-0-ge9cb83b28c
    */
-  registerSandbox(html: string, options?: Tag.SandboxOptions): Promise<[
-    string,
-    Tag.IMessenger
-  ]>;
+  registerSandbox(html: string, options?: Tag.SandboxOptions): Promise<[string, Tag.IMessenger]>;
   /**
    * An observable collection of Tag data that can be subscribed to.
    *
@@ -4781,7 +4841,7 @@ export declare namespace Tour {
     /** @event */
     ENDED = 'tour.ended',
     /** @event */
-    STEPPED = 'tour.stepped'
+    STEPPED = 'tour.stepped',
   }
   type CurrentStepData = {
     step: string | null;
@@ -4789,7 +4849,7 @@ export declare namespace Tour {
   enum PlayState {
     INACTIVE = 'tour.inactive',
     ACTIVE = 'tour.active',
-    STOP_SCHEDULED = 'tour.stopscheduled'
+    STOP_SCHEDULED = 'tour.stopscheduled',
   }
   type CurrentStateData = {
     current: PlayState;
@@ -4976,17 +5036,47 @@ interface Emitter {
 declare function off(event: any, callback: (...any: any[]) => void): Emitter;
 declare function on(event: App.Event.PHASE_CHANGE, callback: (app: App.Phase) => void): Emitter;
 declare function on(event: Camera.Event.MOVE, callback: (pose: Camera.Pose) => void): Emitter;
-declare function on(event: Floor.Event.CHANGE_START, callback: (to: number, from: number) => void): Emitter;
-declare function on(event: Floor.Event.CHANGE_END, callback: (floorIndex: number, floorName: string) => void): Emitter;
-declare function on(event: Label.Event.POSITION_UPDATED, callback: (labelData: Label.Label[]) => void): Emitter;
-declare function on(event: Mattertag.Event.HOVER, callback: (tagSid: string, hovering: boolean) => void): Emitter;
+declare function on(
+  event: Floor.Event.CHANGE_START,
+  callback: (to: number, from: number) => void,
+): Emitter;
+declare function on(
+  event: Floor.Event.CHANGE_END,
+  callback: (floorIndex: number, floorName: string) => void,
+): Emitter;
+declare function on(
+  event: Label.Event.POSITION_UPDATED,
+  callback: (labelData: Label.Label[]) => void,
+): Emitter;
+declare function on(
+  event: Mattertag.Event.HOVER,
+  callback: (tagSid: string, hovering: boolean) => void,
+): Emitter;
 declare function on(event: Mattertag.Event.CLICK, callback: (tagSid: string) => void): Emitter;
-declare function on(event: Mattertag.Event.LINK_OPEN, callback: (tagSid: string, url: string) => void): Emitter;
-declare function on(event: Mode.Event.CHANGE_START, callback: (oldMode: string, newMode: string) => void): Emitter;
-declare function on(event: Mode.Event.CHANGE_END, callback: (oldMode: string, newMode: string) => void): Emitter;
-declare function on(event: Model.Event.MODEL_LOADED, callback: (model: Model.ModelData) => void): Emitter;
-declare function on(event: Sweep.Event.ENTER, callback: (oldSweep: string, newSweep: string) => void): Emitter;
-declare function on(event: Sweep.Event.EXIT, callback: (fromSweep: string, toSweep: string | undefined) => void): Emitter;
+declare function on(
+  event: Mattertag.Event.LINK_OPEN,
+  callback: (tagSid: string, url: string) => void,
+): Emitter;
+declare function on(
+  event: Mode.Event.CHANGE_START,
+  callback: (oldMode: string, newMode: string) => void,
+): Emitter;
+declare function on(
+  event: Mode.Event.CHANGE_END,
+  callback: (oldMode: string, newMode: string) => void,
+): Emitter;
+declare function on(
+  event: Model.Event.MODEL_LOADED,
+  callback: (model: Model.ModelData) => void,
+): Emitter;
+declare function on(
+  event: Sweep.Event.ENTER,
+  callback: (oldSweep: string, newSweep: string) => void,
+): Emitter;
+declare function on(
+  event: Sweep.Event.EXIT,
+  callback: (fromSweep: string, toSweep: string | undefined) => void,
+): Emitter;
 declare function on(event: Tour.Event.STARTED, callback: () => void): Emitter;
 declare function on(event: Tour.Event.STOPPED, callback: () => void): Emitter;
 declare function on(event: Tour.Event.ENDED, callback: () => void): Emitter;
@@ -5033,8 +5123,47 @@ export declare type MpSdk = {
  * ```
  */
 export declare namespace MpSdk {
-  export { Color, ConditionCallback, Dictionary, ICondition, IMapObserver, IObservable, IObservableMap, IObserver, ISubscription, ObserverCallback, Orientation, Rotation, Size, Vector2, Vector3 };
-  export { App, Asset, Camera, Conversion, Floor, Graph, Label, Link, Mattertag, Measurements, Mode, Model, OAuth, Pointer, Renderer, Room, Scene, Sensor, Settings, Sweep, Tag, Tour };
+  export {
+    Color,
+    ConditionCallback,
+    Dictionary,
+    ICondition,
+    IMapObserver,
+    IObservable,
+    IObservableMap,
+    IObserver,
+    ISubscription,
+    ObserverCallback,
+    Orientation,
+    Rotation,
+    Size,
+    Vector2,
+    Vector3,
+  };
+  export {
+    App,
+    Asset,
+    Camera,
+    Conversion,
+    Floor,
+    Graph,
+    Label,
+    Link,
+    Mattertag,
+    Measurements,
+    Mode,
+    Model,
+    OAuth,
+    Pointer,
+    Renderer,
+    Room,
+    Scene,
+    Sensor,
+    Settings,
+    Sweep,
+    Tag,
+    Tour,
+  };
 }
 /**
  * A Window type that can be used to cast the bundle's iframe's contentWindow to hint at the existance of the [[MP_SDK]] object.
@@ -5044,9 +5173,10 @@ export declare namespace MpSdk {
  * showcaseWindow.MP_SDK.connect(showcaseWindow);
  * ```
  */
-export declare type ShowcaseBundleWindow = Window & typeof globalThis & {
-  MP_SDK: MP_SDK;
-};
+export declare type ShowcaseBundleWindow = Window &
+  typeof globalThis & {
+    MP_SDK: MP_SDK;
+  };
 /**
  * The entrypoint for connecting to the SDK and creating an [[MpSdk]] interface.
  * ```typescript
