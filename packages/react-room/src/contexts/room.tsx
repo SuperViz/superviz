@@ -1,4 +1,5 @@
 import { Participant, Room, RoomState, createRoom } from '@superviz/room'
+import type { Component } from '@superviz/room/dist/common/types/component.types';
 
 import React, { 
   createContext, 
@@ -6,9 +7,7 @@ import React, {
   ReactNode, 
   useCallback, 
   useMemo, 
-  useRef, 
-  useState,
-  useEffect
+  useRef,
 } from 'react';
 
 type InitializeRoomParams = {
@@ -53,11 +52,12 @@ interface RoomCallbacks {
 type Callback = (participant: Participant | RoomError | RoomUpdate) => void;
 
 interface RoomContextInternalProps {
-  joinRoom: (options: any) => Promise<void>;
+  joinRoom: (options: InitializeRoomParams) => Promise<void>;
   leaveRoom: () => void;
-  addComponent: (component: any) => void;
-  removeComponent: (component: any) => void;
+  addComponent: (component: unknown) => void;
+  removeComponent: (component: unknown) => void;
   setCallbacks: (callbacks: RoomCallbacks) => void;
+  room: Room | null;
 }
 
 const RoomContext = createContext<RoomContextInternalProps | undefined>(undefined);
@@ -66,6 +66,7 @@ const RoomProvider: React.FC<{
   children: ReactNode 
   developerToken: string
 }> = ({ children, developerToken }) => {
+  const components = useRef<Map<string, unknown>>(new Map());
   const callbacks = useRef<Record<keyof RoomCallbacks, Callback[]>>({
     onMyParticipantJoined: [],
     onMyParticipantLeft: [],
@@ -130,12 +131,36 @@ const RoomProvider: React.FC<{
     initialized.current = false;
   }, []);
 
-  const addComponent = useCallback(() => {
-    console.log('Adding component');
+  const addComponent = useCallback((component: unknown) => {
+    if(!initialized.current) {
+      console.warn('[SuperViz] Room not initialized, cannot add component');
+      return;
+    }
+
+    if(components.current.has((component as Component).name)) {
+      console.warn('[SuperViz] Component already initialized, cannot add again');
+      return;
+    }
+
+    components.current.set((component as Component).name, component);
+
+    room.current?.addComponent(component);
   }, []);
 
-  const removeComponent = useCallback(() => {
-    console.log('Removing component');
+  const removeComponent = useCallback((component: unknown) => {
+    if(!initialized.current) {
+      console.warn('[SuperViz] Room not initialized, cannot remove component');
+      return;
+    }
+
+    if(!components.current.has((component as Component).name)) {
+      console.warn('[SuperViz] Component not initialized yet, cannot remove');
+      return;
+    }
+
+    components.current.delete((component as Component).name);
+
+    room.current?.removeComponent(component);
   }, []);
 
   const updateCallbacks = (newCallbacks: RoomCallbacks) => {
@@ -215,7 +240,8 @@ const RoomProvider: React.FC<{
         leaveRoom, 
         setCallbacks: updateCallbacks,
         addComponent,
-        removeComponent
+        removeComponent, 
+        room: room.current
       }}
     >
       {children}
@@ -240,7 +266,8 @@ const useRoom = (callbacks: RoomCallbacks) => {
     joinRoom: context.joinRoom,
     leaveRoom: context.leaveRoom,
     addComponent: context.addComponent,
-    removeComponent: context.removeComponent
+    removeComponent: context.removeComponent,
+    room: context.room
   }
 };
 

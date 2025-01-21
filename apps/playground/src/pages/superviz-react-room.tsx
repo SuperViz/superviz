@@ -1,15 +1,17 @@
 
 import { RoomProvider, useRoom } from '@superviz/react'
+import { VideoConference } from '@superviz/sdk';
 import { getConfig } from '../config';
 
 import { v4 as generateId } from "uuid";
+import { useEffect } from 'react';
 const SUPERVIZ_KEY = getConfig<string>("keys.superviz");
 const SUPERVIZ_ROOM_PREFIX = getConfig<string>("roomPrefix");
 const componentName = "new-room-react";
 const uuid = generateId();
 
 export const Children = () => {
-  const { joinRoom, leaveRoom } = useRoom({
+  const { room, joinRoom, leaveRoom, addComponent } = useRoom({
     onMyParticipantJoined: (participant) => console.log('Component: My participant joined', participant),
     onMyParticipantLeft: (participant) => console.log('Component: My participant left', participant),
     onMyParticipantUpdated: (participant) => console.log('Component: My participant updated', participant),
@@ -39,16 +41,28 @@ export const Children = () => {
       debug: true, 
       environment: 'dev',
     });
+
+    const video = new VideoConference({ 
+      collaborationMode: { enabled: false }, 
+      participantType: 'host'
+    });
+
+    addComponent(video);
   };
+
+  useEffect(() => { 
+    handleJoin();
+
+    return () => leaveRoom();
+  }, [])
 
   return (
     <div>
-      <button onClick={handleJoin}>Join Room</button>
-      <button onClick={leaveRoom}>Leave Room</button>
+      <button disabled={!!room} onClick={handleJoin}>Join Room</button>
+      <br />
+      <button disabled={!room} onClick={leaveRoom}>Leave Room</button>
     </div>
   );
-
-  return <></>
 };
 
 export function SupervizReactRoom() {
