@@ -35,9 +35,7 @@ export class MatterportEvents {
   }
 
   public _onLocalCameraMoveObserver = ({ position, rotation }): void => {
-    console.log('this.presence3DManager', this.presence3DManager);
     const localParticipantId = this.getLocalParticipantId();
-    console.log('localParticipantId', localParticipantId);
 
     if (!this.presence3DManager || !localParticipantId) return;
 
