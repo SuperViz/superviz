@@ -7,7 +7,8 @@ import React, {
   useCallback, 
   useMemo, 
   useRef, 
-  useState
+  useState,
+  useEffect
 } from 'react';
 
 type InitializeRoomParams = {
@@ -49,6 +50,8 @@ interface RoomCallbacks {
   onRoomUpdated?: (data: RoomUpdate) => void;
 }
 
+type Callback = (participant: Participant | RoomError | RoomUpdate) => void;
+
 interface RoomContextInternalProps {
   joinRoom: (options: any) => Promise<void>;
   leaveRoom: () => void;
@@ -63,7 +66,16 @@ const RoomProvider: React.FC<{
   children: ReactNode 
   developerToken: string
 }> = ({ children, developerToken }) => {
-  const callbacks = useRef<RoomCallbacks>({});
+  const callbacks = useRef<Record<keyof RoomCallbacks, Callback[]>>({
+    onMyParticipantJoined: [],
+    onMyParticipantLeft: [],
+    onMyParticipantUpdated: [],
+    onParticipantJoined: [],
+    onParticipantLeft: [],
+    onParticipantUpdated: [],
+    onError: [],
+    onRoomUpdated: [],
+  });
   const room = useRef<Room | null>(null);
   const initialized = useRef<boolean>(false);
 
@@ -104,6 +116,16 @@ const RoomProvider: React.FC<{
     room.current?.unsubscribe('participant.updated', onParticipantUpdated);
     room.current?.unsubscribe('room.error', onError);
     room.current?.unsubscribe('room.update', onRoomUpdated);
+    callbacks.current = {
+      onMyParticipantJoined: [],
+      onMyParticipantLeft: [],
+      onMyParticipantUpdated: [],
+      onParticipantJoined: [],
+      onParticipantLeft: [],
+      onParticipantUpdated: [],
+      onError: [],
+      onRoomUpdated: [],
+    }
 
     initialized.current = false;
   }, []);
@@ -116,70 +138,73 @@ const RoomProvider: React.FC<{
     console.log('Removing component');
   }, []);
 
-  const updateCallbacks = useCallback((newCallbacks: RoomCallbacks) => {
-    callbacks.current = newCallbacks;
-  }, []);
+  const updateCallbacks = (newCallbacks: RoomCallbacks) => {
+    Object.keys(newCallbacks).forEach((key) => {
+      const callbackKey = key as keyof RoomCallbacks;
+  
+      if (callbacks.current[callbackKey]) {
+        const existingCallbacks = callbacks.current[callbackKey];
+  
+        const callbackMap: Map<string, Callback> = new Map(
+          existingCallbacks.map((cb) => [cb.toString(), cb])
+        );
+  
+        const newCallback = newCallbacks[callbackKey] as Callback;
+  
+        if (newCallback && !callbackMap.has(newCallback.toString())) {
+          callbackMap.set(newCallback.toString(), newCallback);
+          callbacks.current[callbackKey] = Array.from(callbackMap.values());
+        }
+      }
+    });
+  
+  };
 
   const onMyParticipantJoined = useCallback((participant: Participant) => {
-    console.log('My participant joined', participant);
-
     if(callbacks.current.onMyParticipantJoined) {
-      callbacks.current.onMyParticipantJoined(participant);
+      callbacks.current.onMyParticipantJoined.forEach(cb => cb(participant));
     }
   }, [callbacks.current]);
 
   const onMyParticipantLeft = useCallback((participant: Participant) => {
-    console.log('My participant left', participant);
-
     if(callbacks.current.onMyParticipantLeft) {
-      callbacks.current.onMyParticipantLeft(participant);
+      callbacks.current.onMyParticipantLeft.forEach(cb => cb(participant));
     }
   }, [callbacks.current]);
 
   const onMyParticipantUpdated = useCallback((participant: Participant) => {
-    console.log('My participant updated', participant);
-
     if(callbacks.current.onMyParticipantUpdated) {
-      callbacks.current.onMyParticipantUpdated(participant);
+      callbacks.current.onMyParticipantUpdated.forEach(cb => cb(participant));
     }
   }, [callbacks.current]);
-  const onParticipantJoined = useCallback((participant: Participant) => {
-    console.log('Participant joined', participant);
 
+  const onParticipantJoined = useCallback((participant: Participant) => {
     if(callbacks.current.onParticipantJoined) {
-      callbacks.current.onParticipantJoined(participant);
+      callbacks.current.onParticipantJoined.forEach(cb => cb(participant));
     }
   }, [callbacks.current]);
 
   const onParticipantLeft = useCallback((participant: Participant) => {
-    console.log('Participant left', participant);
-
     if(callbacks.current.onParticipantLeft) {
-      callbacks.current.onParticipantLeft(participant);
+      callbacks.current.onParticipantLeft.forEach(cb => cb(participant));
     }
   }, [callbacks.current]);
   
   const onParticipantUpdated = useCallback((participant: Participant) => {
-    console.log('Participant updated', participant);
-
     if(callbacks.current.onParticipantUpdated) {
-      callbacks.current.onParticipantUpdated(participant);
+      callbacks.current.onParticipantUpdated.forEach(cb => cb(participant));
     }
   }, [callbacks.current]);
   
   const onError = useCallback((error: RoomError) => {
-    console.log('Error', error);
-
     if(callbacks.current.onError) {
-      callbacks.current.onError(error);
+      callbacks.current.onError.forEach(cb => cb(error));
     }
   }, [callbacks.current]);
 
   const onRoomUpdated = useCallback((data: RoomUpdate) => {
-    console.log('Room updated', data);
-
     if(callbacks.current.onRoomUpdated) {
-      callbacks.current.onRoomUpdated(data);
+      callbacks.current.onRoomUpdated.forEach(cb => cb(data));
     }
   }, [callbacks.current]);
 
@@ -205,18 +230,18 @@ const useRoom = (callbacks: RoomCallbacks) => {
     throw new Error('useRoom must be used within a RoomProvider');
   }
 
-  if(Object.keys(callbacks).length) {
-    context.setCallbacks(callbacks);
-  }
-
-  return useMemo(() => {
-    return { 
-      joinRoom: context.joinRoom,
-      leaveRoom: context.leaveRoom,
-      addComponent: context.addComponent,
-      removeComponent: context.removeComponent
+  useMemo(() => { 
+    if(Object.keys(callbacks).length) {
+      context.setCallbacks(callbacks);
     }
-  }, [context]);
+  }, [callbacks])
+
+  return { 
+    joinRoom: context.joinRoom,
+    leaveRoom: context.leaveRoom,
+    addComponent: context.addComponent,
+    removeComponent: context.removeComponent
+  }
 };
 
 export { RoomProvider, useRoom };
