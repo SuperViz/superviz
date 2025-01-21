@@ -8,6 +8,9 @@ import { DEFAULT_AVATAR_URL } from '../common/constants/presence';
 import { STORE_TYPES } from '../common/constants/store';
 import { MatterportComponentOptions, ParticipantOn3D, PositionInfo } from '../types';
 
+/**
+ * Manages participants in a 3D environment, handling their creation, updates, and removal
+ */
 export class ParticipantManager {
   private useStore: typeof useStore;
   private localParticipant: Participant;
@@ -17,22 +20,46 @@ export class ParticipantManager {
   private positionInfos: Record<string, PositionInfo> = {};
   private presence3DManager: Presence3DManager;
   private localFollowParticipantId?: string;
+  private isPrivate: boolean;
+  private createCircleOfPositions: () => void;
 
-  constructor(config: MatterportComponentOptions) {
+  /**
+   * Creates a new ParticipantManager instance
+   * @param config - Configuration options for the Matterport component
+   * @param isPrivate - Whether the session is private
+   * @param createCircleOfPositions - Function to create circular positions for participants
+   * @param presence3DManager - Manager handling 3D presence
+   */
+  constructor(
+    config: MatterportComponentOptions,
+    isPrivate: boolean,
+    createCircleOfPositions: () => void,
+    presence3DManager: Presence3DManager,
+  ) {
     this.config = config;
+    this.isPrivate = isPrivate;
+    this.createCircleOfPositions = createCircleOfPositions;
+    this.presence3DManager = presence3DManager;
+
+    console.log('MANAGER: presence3DManager', this.presence3DManager);
   }
 
-  // Participant Management
-  private createParticipantList = () => {
+  /**
+   * Creates a list of participants from the store
+   */
+  public createParticipantList(): void {
     const list = this.useStore(STORE_TYPES.PRESENCE_3D).participants.value;
-
     Object.values(list).forEach((participant: ParticipantDataInput) => {
-      if (participant.isPrivate) return;
-      this.addParticipant(participant);
+      if (!participant.isPrivate) this.addParticipant(participant);
     });
-  };
+  }
 
-  private createParticipantOn3D = ({
+  /**
+   * Creates a new ParticipantOn3D object
+   * @param params - Parameters for creating the participant
+   * @returns ParticipantOn3D object
+   */
+  public createParticipantOn3D = ({
     id,
     name,
     avatar,
@@ -61,271 +88,185 @@ export class ParticipantManager {
     return participant;
   };
 
-  private addParticipant = async (participant): Promise<void> => {
-    if (!participant || !participant.id || participant.type === 'audience') return;
+  /**
+   * Adds a new participant to the environment
+   * @param participant - Participant data to add
+   * @returns Promise resolving to the created ParticipantOn3D or null
+   */
+  public async addParticipant(participant): Promise<ParticipantOn3D | null> {
+    if (!participant || !participant.id || participant.type === 'audience') return null;
+
     const participantOn3D = this.createParticipantOn3D(participant);
+    console.log('MANAGER: addParticipant', participantOn3D);
 
-    console.log(
-      'MANAGER: this.participants: ',
-      this.participants,
-      'participantOn3D: ',
-      participantOn3D,
-    );
-
-    if (this.participants.find((p) => p.id === participantOn3D.id)) {
-      console.log('MANAGER: participant already exists');
+    if (this.participants.some((p) => p.id === participantOn3D.id)) {
       this.onParticipantUpdated(participant);
-      return;
+      console.log('MANAGER: addParticipant - already exists');
+      return null;
     }
 
-    this.participants.push(participantOn3D);
+    this.addParticipantToList(participantOn3D);
     this.roomParticipants[participant.id] = participant;
+    this.presence3DManager.subscribeToUpdates(participantOn3D.id, this.onParticipantUpdated);
+    return participantOn3D;
+  }
 
-    // TODO :: THIS is broken ::
-    // this.presence3DManager.subscribeToUpdates(participantOn3D.id, this.onParticipantUpdated);
+  /**
+   * Adds a participant to the internal participants list
+   * @param participantOn3D - Participant to add to the list
+   */
+  private addParticipantToList(participantOn3D: ParticipantOn3D): void {
+    this.participants.push(participantOn3D);
+  }
 
-    if (this.localParticipantId === participantOn3D.id) return;
+  /**
+   * Handles participant leave events
+   * @param event - Presence event containing participant data
+   */
+  public onParticipantLeave(event: PresenceEvent<Participant>): void {
+    const participantToRemove = this.participants.find((p) => p.id === event.id);
+    if (participantToRemove) this.removeParticipant(participantToRemove, true);
+  }
 
-    // TODO:: dispatch event to create avatar and laser ::
-
-    // TODO:: dispatch event to create circle of positions ::
-  };
-
-  private onParticipantLeave = (event: PresenceEvent<Participant>): void => {
-    console.log('onParticipantLeave :!', event.data);
-    const participantToRemove = this.participants.find(
-      (participantOnlist) => participantOnlist.id === event.id,
+  /**
+   * Updates the state when multiple participants are updated
+   * @param participants - Array of updated participants
+   */
+  public onParticipantsUpdated(participants: ParticipantOn3D[]): void {
+    this.roomParticipants = participants.reduce(
+      (acc, p) => {
+        acc[p.id] = p;
+        return acc;
+      },
+      {} as Record<string, Participant>,
     );
 
-    if (!participantToRemove) return;
-
-    this.removeParticipant(participantToRemove, true);
-  };
-
-  private onParticipantsUpdated = (participants) => {
-    // only recieve this if attached ::
-
-    this.roomParticipants = {};
-
-    participants.forEach((participant) => {
-      this.roomParticipants[participant.id] = participant;
+    participants.forEach(({ id, position, rotation, sweep, floor, mode }) => {
+      if (id !== this.localParticipantId) {
+        this.positionInfos[id] = { position, rotation, mode, sweep, floor };
+      }
     });
+  }
 
-    Object.values(participants).forEach((participant: ParticipantOn3D) => {
-      if (participant.id === this.localParticipantId) return;
-      const participantId = participant.id;
-      const { position, rotation, sweep, floor, mode, isPrivate } = participant;
+  /**
+   * Handles updates to a single participant
+   * @param participant - Updated participant data
+   */
+  public onParticipantUpdated(participant: ParticipantDataInput): void {
+    console.log('Participant updated:', participant);
+  }
 
-      this.positionInfos[participantId] = {
-        position,
-        rotation,
-        mode,
-        sweep,
-        floor,
-      };
-
-      // TODO:: FIGURE OUT HOW TO HANDLE THIS ::
-      /*
-      if (isPrivate && this.avatars[participantId]) {
-        this.removeParticipant(participant, true);
-      }
-
-      if (!isPrivate && !this.avatars[participantId]) {
-        this.addParticipant(participant);
-      }
-        */
-
-      // Update avatar if it exists
-      /*
-      if (this.avatars[participantId] && position && rotation && this.isAttached) {
-        const avatarModel = this.avatars[participantId];
-        avatarModel.avatar.update(
-          position,
-          rotation,
-          null, // Don't pass circle position for remote avatars
-        );
-
-      }
-        */
-
-      // Update laser independently
-      /*
-      const remoteLaser = this.lasers[participantId];
-      if (remoteLaser && position) {
-        this.laserManager.startLaserUpdate(
-          participantId,
-          this.avatars[participantId],
-          remoteLaser,
-          participant,
-        );
-      }
-        */
-    });
-  };
-
-  private onParticipantUpdated = (participant): void => {
-    const { id, name, avatar, avatarConfig, position, rotation, type, slot } =
-      participant.data ?? participant;
-
-    this.updateParticipant({
-      position,
-      rotation,
-      id,
-      name,
-      avatar,
-      avatarConfig,
-      type,
-      slot,
-    });
-
-    // TODO:: dispatch event to move to participant ::
-    /*
-    if (this.localFollowParticipantId || this.followParticipantId) {
-      this.moveToAnotherParticipant(this.localFollowParticipantId ?? this.followParticipantId);
-    }
-      */
-  };
-
-  private updateParticipant = async (participant): Promise<void> => {
-    if (
-      !this.participants ||
-      this.participants.length === 0 ||
-      !participant ||
-      !participant.id ||
-      participant.id === this.localParticipantId
-    ) {
-      return;
-    }
-
-    const participantToBeUpdated = this.participants.find(
-      (oldParticipant) => oldParticipant.id === participant.id,
-    );
-
-    if (!participantToBeUpdated) {
-      this.addParticipant(participant);
-      return;
-    }
-
-    if (
-      participantToBeUpdated.avatar?.model3DUrl !== participant.avatar?.model3DUrl ||
-      !isEqual(participantToBeUpdated.avatarConfig, participant.avatarConfig) ||
-      participantToBeUpdated.name !== participant.name
-    ) {
-      this.removeParticipant(participant, false);
-      const participantOn3D = this.createParticipantOn3D(participant);
-      this.participants.push(participantOn3D);
-
-      // TODO:: dispatch event to create avatar and laser ::
-      /*
-      if (!this.isEmbedMode) {
-        this.config.isAvatarsEnabled && this.createAvatar(participantOn3D);
-        this.config.isLaserEnabled && this.createLaser(participantOn3D);
-      }
-        */
-
-      // TODO:: Call createName through the avatar's component ::
-      /*
-      if (this.config.isNameEnabled && this.avatars[participant.id]) {
-        const avatarModel = this.avatars[participant.id];
-        avatarModel.avatar.createName(participantOn3D, avatarModel);
-      }
-        */
-    } else {
-      const index = this.participants.findIndex((u) => u.id === participant.id);
-      if (index !== -1) {
-        this.participants[index] = participant;
-      }
-    }
-  };
-
-  public onParticipantJoined = (participant): void => {
-    console.log('MANAGER onParticipantJoined :!', participant);
+  /**
+   * Handles participant join events
+   * @param participant - Joined participant data
+   */
+  public onParticipantJoined(participant): void {
+    console.log('MANAGER onParticipantJoined:', participant);
 
     if (!participant.data) return;
-
-    const { id, name, avatar, avatarConfig, type, slot } = participant.data;
+    const { id } = participant.data;
 
     if (id === this.localParticipantId) {
       this.onLocalParticipantJoined(participant.data);
-
-      return;
+    } else {
+      this.addParticipant(participant.data);
     }
+  }
 
-    this.addParticipant({
-      id,
-      name,
-      avatar,
-      avatarConfig,
-      type,
-      slot,
-    });
-  };
-
-  private onLocalParticipantJoined = (participant): void => {
+  /**
+   * Handles when the local participant joins
+   * @param participant - Local participant data
+   */
+  private onLocalParticipantJoined(participant): void {
     this.createParticipantList();
 
-    if (this.config.avatarConfig) {
-      this.presence3DManager.setParticipantData({
-        avatarConfig: this.config.avatarConfig,
-      } as ParticipantDataInput);
-    }
+    const avatarData = participant.avatar?.model3DUrl
+      ? { model3DUrl: participant.avatar.model3DUrl, imageUrl: participant.avatar.imageUrl }
+      : { model3DUrl: DEFAULT_AVATAR_URL, imageUrl: participant.avatar?.imageUrl };
 
-    if (participant.avatar?.model3DUrl) {
-      this.presence3DManager.setParticipantData({
-        avatar: {
-          model3DUrl: participant?.avatar.model3DUrl,
-          imageUrl: participant?.avatar?.imageUrl,
-        },
-      } as ParticipantDataInput);
-    }
+    this.presence3DManager.setParticipantData({ avatar: avatarData } as ParticipantDataInput);
+  }
 
-    if (!participant.avatar?.model3DUrl) {
-      this.presence3DManager.setParticipantData({
-        avatar: {
-          model3DUrl: DEFAULT_AVATAR_URL,
-          imageUrl: participant?.avatar?.imageUrl,
-        },
-      } as ParticipantDataInput);
-    }
-  };
+  /**
+   * Removes a participant from the environment
+   * @param participant - Participant to remove
+   * @param unsubscribe - Whether to unsubscribe from participant updates
+   */
+  public removeParticipant(participant: ParticipantOn3D, unsubscribe: boolean): void {
+    console.log('Removing participant:', participant);
 
-  private removeParticipant = (participant: ParticipantOn3D, unsubscribe: boolean): void => {
-    console.log('removeParticipant :!', participant);
-
-    this.participants = this.participants.filter(
-      (participantOnlist) => participantOnlist.id !== participant.id,
-    );
-
+    this.participants = this.participants.filter((p) => p.id !== participant.id);
     delete this.roomParticipants[participant.id];
 
-    // TODO:: dispatch event to destroy avatar and laser and name ::
-    /*
-    this.destroyAvatar(participant);
-    this.destroyLaser(participant);
-    //this.nameService?.destroyName(participant.id);
-
-    if (this.names[participant.id]) {
-      this.names[participant.id].stop();
-      delete this.names[participant.id];
-    }
-
-    if (this.laserLerpers[participant.id]) {
-      this.laserLerpers[participant.id].node.stop();
-      delete this.laserLerpers[participant.id];
-    }
-        */
-
     if (unsubscribe) {
-      this.presence3DManager?.unsubscribeFromUpdates(participant.id, this.onParticipantUpdated);
+      this.presence3DManager.unsubscribeFromUpdates(participant.id, this.onParticipantUpdated);
+    }
+  }
+
+  /**
+   * Updates a participant at the specified index
+   * @param index - Index of the participant to update
+   * @param participant - New participant data
+   */
+  public setParticipant(index: number, participant: ParticipantOn3D): void {
+    this.participants[index] = participant;
+  }
+
+  /**
+   * Gets the list of all participants
+   */
+  public get getParticipants(): ParticipantOn3D[] {
+    return this.participants;
+  }
+
+  /**
+   * Gets the ID of the local participant
+   */
+  public get localParticipantId(): string {
+    return this.localParticipant?.id;
+  }
+
+  /**
+   * Sets the store utility object
+   * @param useStore - Store utility function
+   */
+  public setUseStoreObject(useStore): void {
+    this.useStore = useStore;
+  }
+
+  /**
+   * Sets the presence 3D manager instance
+   * @param presence3DManager - Presence3DManager instance
+   */
+  public setPresence3DManager(presence3DManager: Presence3DManager): void {
+    this.presence3DManager = presence3DManager;
+  }
+
+  /**
+   * Determines if a participant should be updated
+   * @param participant - Participant to check
+   * @returns Boolean indicating if the participant should be updated
+   */
+  public shouldUpdateParticipant(participant: ParticipantOn3D): boolean {
+    if (!this.participants.length || !participant || participant.id === this.localParticipantId) {
+      return false;
     }
 
-    // TODO:: dispatch event to destroy circle of positions ::
-    /*
-    this.createCircleOfPositions();
-      */
-  };
+    const existingParticipant = this.getOldParticipant(participant);
+    if (!existingParticipant) {
+      this.addParticipant(participant);
+      return false;
+    }
 
-  private get localParticipantId(): string {
-    return this.localParticipant?.id;
+    return true;
+  }
+
+  /**
+   * Gets the existing participant data for a given participant
+   * @param participant - Participant to look up
+   * @returns Existing participant data or undefined
+   */
+  private getOldParticipant(participant: ParticipantOn3D): ParticipantOn3D | undefined {
+    return this.participants.find((p) => p.id === participant.id);
   }
 }

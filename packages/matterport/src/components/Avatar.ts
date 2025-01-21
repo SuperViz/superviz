@@ -279,6 +279,7 @@ function Avatar() {
       const scale: number = this.inputs.participant?.avatarConfig?.scale || 0.55;
       const height: number = this.inputs.participant?.avatarConfig?.height || 0.25;
 
+      console.log('MODEL MANAGER - initialize - scale ', scale);
       this.inputs.avatarModel.obj3D.rotation.set(0, 0, 0);
       this.inputs.avatarModel.obj3D.userData = {
         uuid: this.inputs.participant?.id,
@@ -295,6 +296,8 @@ function Avatar() {
     load: (scale: number) => {
       stateManager.transition(AvatarState.LOADING_MODEL);
       const localScale = { x: scale, y: scale, z: scale };
+
+      console.log('MODEL MANAGER - load - localScale ', localScale);
 
       this.inputs.avatarModel.addComponent('mp.gltfLoader', {
         url: this.inputs.url,
@@ -353,7 +356,7 @@ function Avatar() {
       console.warn(`Cannot update avatar in ${this.state.current} state`);
       return;
     }
-
+    console.log('update avatar');
     rotationManager.update(rotation);
     positionManager.update(position, currentCirclePosition);
   };
