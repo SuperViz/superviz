@@ -1,0 +1,47 @@
+{
+  "branches": [
+    "main",
+    {
+      "name": "beta",
+      "channel": "beta",
+      "prerelease": true
+    },
+    {
+      "name": "lab",
+      "channel": "lab",
+      "prerelease": true
+    }
+  ],
+  "tagFormat": "@superviz/react/${version}",
+  "plugins": [
+    "@semantic-release/commit-analyzer",
+    [
+      "@semantic-release/release-notes-generator",
+      {
+        "preset": "angular",
+        "parserOpts": {
+          "noteKeywords": [
+            "BREAKING CHANGE",
+            "BREAKING CHANGES",
+            "BREAKING"
+          ]
+        },
+        "writerOpts": {
+          "commitsSort": [
+            "subject",
+            "scope"
+          ]
+        }
+      }
+    ],
+    "@anolilab/semantic-release-pnpm",
+    [
+      "@semantic-release/github",
+      {
+        "successComment": ":tada: This issue has been resolved in version @superviz/react/${nextRelease.version} :tada:\n\nThe release is available on [GitHub release](<github_release_url>)"
+      } 
+    ]
+    
+  ],
+  "preset": "angular"
+}
