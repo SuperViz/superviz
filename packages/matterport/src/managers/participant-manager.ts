@@ -19,26 +19,16 @@ export class ParticipantManager {
   private roomParticipants: Record<string, Participant> = {};
   private positionInfos: Record<string, PositionInfo> = {};
   private presence3DManager: Presence3DManager;
+  private followParticipantId?: string;
   private localFollowParticipantId?: string;
-  private isPrivate: boolean;
-  private createCircleOfPositions: () => void;
 
   /**
    * Creates a new ParticipantManager instance
    * @param config - Configuration options for the Matterport component
-   * @param isPrivate - Whether the session is private
-   * @param createCircleOfPositions - Function to create circular positions for participants
    * @param presence3DManager - Manager handling 3D presence
    */
-  constructor(
-    config: MatterportComponentOptions,
-    isPrivate: boolean,
-    createCircleOfPositions: () => void,
-    presence3DManager: Presence3DManager,
-  ) {
+  constructor(config: MatterportComponentOptions, presence3DManager: Presence3DManager) {
     this.config = config;
-    this.isPrivate = isPrivate;
-    this.createCircleOfPositions = createCircleOfPositions;
     this.presence3DManager = presence3DManager;
 
     console.log('MANAGER: presence3DManager', this.presence3DManager);
@@ -72,7 +62,7 @@ export class ParticipantManager {
       name,
       avatar,
       isAudience: type === 'audience',
-      avatarConfig: id === this.localParticipantId ? this.config.avatarConfig : avatarConfig,
+      avatarConfig: id === this.getLocalParticipantId ? this.config.avatarConfig : avatarConfig,
       position: {
         x: 0,
         y: 0,
@@ -96,15 +86,15 @@ export class ParticipantManager {
   public async addParticipant(participant): Promise<ParticipantOn3D | null> {
     if (!participant || !participant.id || participant.type === 'audience') return null;
 
-    const participantOn3D = this.createParticipantOn3D(participant);
-    console.log('MANAGER: addParticipant', participantOn3D);
-
-    if (this.participants.some((p) => p.id === participantOn3D.id)) {
-      this.onParticipantUpdated(participant);
-      console.log('MANAGER: addParticipant - already exists');
+    // Check if participant already exists
+    const existingParticipant = this.participants.find((p) => p.id === participant.id);
+    if (existingParticipant) {
+      console.log('Participant already exists:', participant.id);
+      // this.onParticipantUpdated(participant);
       return null;
     }
-
+    console.log('MANAGER addParticipant:', participant);
+    const participantOn3D = this.createParticipantOn3D(participant);
     this.addParticipantToList(participantOn3D);
     this.roomParticipants[participant.id] = participant;
     this.presence3DManager.subscribeToUpdates(participantOn3D.id, this.onParticipantUpdated);
@@ -116,7 +106,12 @@ export class ParticipantManager {
    * @param participantOn3D - Participant to add to the list
    */
   private addParticipantToList(participantOn3D: ParticipantOn3D): void {
-    this.participants.push(participantOn3D);
+    console.log('MANAGER addParticipantToList:', participantOn3D);
+    // Additional check to prevent duplicates
+    if (!this.participants.some((p) => p.id === participantOn3D.id)) {
+      console.log('MANAGER addParticipantToList - push:', participantOn3D);
+      this.participants.push(participantOn3D);
+    }
   }
 
   /**
@@ -124,8 +119,13 @@ export class ParticipantManager {
    * @param event - Presence event containing participant data
    */
   public onParticipantLeave(event: PresenceEvent<Participant>): void {
-    const participantToRemove = this.participants.find((p) => p.id === event.id);
-    if (participantToRemove) this.removeParticipant(participantToRemove, true);
+    //const participantToRemove = this.participants.find(
+    //  (participantOnlist) => participantOnlist.id === event.id,
+    // );
+
+    // const participantToRemove = this.participants.find((p) => p.id === event.id);
+    console.log('MANAGER onParticipantLeave:', this.participants);
+    //if (participantToRemove) this.removeParticipant(participantToRemove, true);
   }
 
   /**
@@ -142,7 +142,7 @@ export class ParticipantManager {
     );
 
     participants.forEach(({ id, position, rotation, sweep, floor, mode }) => {
-      if (id !== this.localParticipantId) {
+      if (id !== this.getLocalParticipantId) {
         this.positionInfos[id] = { position, rotation, mode, sweep, floor };
       }
     });
@@ -152,26 +152,44 @@ export class ParticipantManager {
    * Handles updates to a single participant
    * @param participant - Updated participant data
    */
-  public onParticipantUpdated(participant: ParticipantDataInput): void {
-    console.log('Participant updated:', participant);
+  public onParticipantUpdated(participant): void {
+    // const { id, name, avatar, avatarConfig, position, rotation, type, slot } =
+    //   participant.data ?? participant;
+    /* this.updateParticipant({
+      position,
+      rotation,
+      id,
+      name,
+      avatar,
+      avatarConfig,
+      type,
+      slot,
+    });*/
+    /*
+    TODO::
+    if (this.localFollowParticipantId || this.followParticipantId) {
+      this.moveToAnotherParticipant(this.localFollowParticipantId ?? this.followParticipantId);
+    }
+    */
   }
 
   /**
    * Handles participant join events
    * @param participant - Joined participant data
    */
-  public onParticipantJoined(participant): void {
+  public onParticipantJoined = (participant): void => {
     console.log('MANAGER onParticipantJoined:', participant);
 
     if (!participant.data) return;
     const { id } = participant.data;
 
-    if (id === this.localParticipantId) {
+    if (id === this.getLocalParticipantId) {
       this.onLocalParticipantJoined(participant.data);
     } else {
+      console.log('MANAGER onParticipantJoined - addParticipant:', participant.data);
       this.addParticipant(participant.data);
     }
-  }
+  };
 
   /**
    * Handles when the local participant joins
@@ -220,10 +238,20 @@ export class ParticipantManager {
   }
 
   /**
-   * Gets the ID of the local participant
+   * Gets the the local participant
    */
-  public get localParticipantId(): string {
-    return this.localParticipant?.id;
+
+  public get getLocalParticipant(): Participant {
+    return this.localParticipant;
+  }
+
+  public setLocalParticipant(participant: Participant): void {
+    this.localParticipant = participant;
+    // Any additional logic needed when local participant changes
+  }
+
+  public get getRoomParticipants(): Record<string, Participant> {
+    return this.roomParticipants;
   }
 
   /**
@@ -248,12 +276,17 @@ export class ParticipantManager {
    * @returns Boolean indicating if the participant should be updated
    */
   public shouldUpdateParticipant(participant: ParticipantOn3D): boolean {
-    if (!this.participants.length || !participant || participant.id === this.localParticipantId) {
+    if (
+      !this.participants.length ||
+      !participant ||
+      participant.id === this.getLocalParticipantId
+    ) {
       return false;
     }
 
     const existingParticipant = this.getOldParticipant(participant);
     if (!existingParticipant) {
+      console.log('MANAGER shouldUpdateParticipant - addParticipant:', participant);
       this.addParticipant(participant);
       return false;
     }
@@ -268,5 +301,38 @@ export class ParticipantManager {
    */
   private getOldParticipant(participant: ParticipantOn3D): ParticipantOn3D | undefined {
     return this.participants.find((p) => p.id === participant.id);
+  }
+
+  public getFollowParticipantId(): string | undefined {
+    return this.followParticipantId;
+  }
+
+  public setFollowParticipantId(id?: string): void {
+    this.followParticipantId = id;
+  }
+
+  public getLocalFollowParticipantId(): string | undefined {
+    return this.localFollowParticipantId;
+  }
+
+  public setLocalFollowParticipantId(id?: string): void {
+    this.localFollowParticipantId = id;
+  }
+
+  public getPositionInfos(): Record<string, PositionInfo> {
+    return this.positionInfos;
+  }
+
+  public getPositionInfo(participantId: string): PositionInfo | undefined {
+    return this.positionInfos[participantId];
+  }
+
+  public updatePositionInfo(participantId: string, info: PositionInfo): void {
+    this.positionInfos[participantId] = info;
+  }
+
+  // Add a safe getter for local participant id
+  public get getLocalParticipantId(): string | undefined {
+    return this.localParticipant?.id;
   }
 }

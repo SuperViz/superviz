@@ -167,16 +167,34 @@ function Avatar() {
 
   // Rotation Management
   const rotationManager = {
-    update: (rotation: Simple2DPoint) => {
-      this.tempQuaternionX.setFromAxisAngle(
-        this.tempXAxis,
-        this.THREE.MathUtils.degToRad(-rotation.x),
-      );
+    update: (rotation: Simple2DPoint, currentCirclePosition: Vector3 | null) => {
+      // If we have a circle position, we need to adjust the rotation relative to it
+      if (currentCirclePosition) {
+        // Calculate angle from circle position to center
+        const angleToCenter = Math.atan2(currentCirclePosition.z, currentCirclePosition.x);
 
-      this.tempQuaternionY.setFromAxisAngle(
-        this.tempYAxis,
-        this.THREE.MathUtils.degToRad(rotation?.y) + Math.PI,
-      );
+        // Adjust Y rotation by the angle to center
+        const adjustedYRotation =
+          this.THREE.MathUtils.degToRad(rotation?.y) + Math.PI + angleToCenter;
+
+        this.tempQuaternionX.setFromAxisAngle(
+          this.tempXAxis,
+          this.THREE.MathUtils.degToRad(-rotation.x),
+        );
+
+        this.tempQuaternionY.setFromAxisAngle(this.tempYAxis, adjustedYRotation);
+      } else {
+        // Original rotation calculation when no circle position
+        this.tempQuaternionX.setFromAxisAngle(
+          this.tempXAxis,
+          this.THREE.MathUtils.degToRad(-rotation.x),
+        );
+
+        this.tempQuaternionY.setFromAxisAngle(
+          this.tempYAxis,
+          this.THREE.MathUtils.degToRad(rotation?.y) + Math.PI,
+        );
+      }
 
       this.tempFinalQuaternion.copy(this.tempQuaternionY).multiply(this.tempQuaternionX);
 
@@ -297,8 +315,6 @@ function Avatar() {
       stateManager.transition(AvatarState.LOADING_MODEL);
       const localScale = { x: scale, y: scale, z: scale };
 
-      console.log('MODEL MANAGER - load - localScale ', localScale);
-
       this.inputs.avatarModel.addComponent('mp.gltfLoader', {
         url: this.inputs.url,
         localScale,
@@ -356,8 +372,7 @@ function Avatar() {
       console.warn(`Cannot update avatar in ${this.state.current} state`);
       return;
     }
-    console.log('update avatar');
-    rotationManager.update(rotation);
+    rotationManager.update(rotation, currentCirclePosition);
     positionManager.update(position, currentCirclePosition);
   };
 

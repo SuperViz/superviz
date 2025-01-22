@@ -10,10 +10,10 @@ export const DEFAULT_AVATAR_IMAGE_URL =
   'https://production.cdn.superviz.com/static/default-avatars/1.png';
 
 /** Distance between avatars */
-export const DISTANCE_BETWEEN_AVATARS = 0.13;
+export const DISTANCE_BETWEEN_AVATARS = 0.2;
 
 /** Avatars height adjust */
-export const AVATARS_HEIGHT_ADJUST = 0.62;
+export const AVATARS_HEIGHT_ADJUST = 0.8;
 
 /** Avatars radius */
 export const AVATARS_RADIUS = 0.3;
@@ -28,7 +28,7 @@ export const DEFAULT_AVATAR = 'default';
 export const NO_AVATAR_LASER_HEIGHT = 1.2;
 
 /** Height offset for laser pointer when using avatars */
-export const AVATAR_LASER_HEIGHT_OFFSET = 0.2;
+export const AVATAR_LASER_HEIGHT_OFFSET = 0.15;
 
 /** Name height offset */
 export const NAME_HEIGHT_OFFSET = -0.25;
