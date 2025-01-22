@@ -92,6 +92,21 @@
     "@superviz/room#test:unit:ci": {
       "dependsOn": ["@superviz/socket-client#build"]
     },
+    "@superviz/video#build": {
+      "dependsOn": ["@superviz/socket-client#build"]
+    },
+    "@superviz/video#test:unit": {
+      "dependsOn": ["@superviz/socket-client#build"]
+    },
+    "@superviz/video#test:unit:watch": {
+      "dependsOn": ["@superviz/socket-client#build"]
+    },
+    "@superviz/video#test:unit:coverage": {
+      "dependsOn": ["@superviz/socket-client#build"]
+    },
+    "@superviz/video#test:unit:ci": {
+      "dependsOn": ["@superviz/socket-client#build"]
+    },
     "@superviz/yjs#build": {
       "dependsOn": ["@superviz/sdk#build"]
     },

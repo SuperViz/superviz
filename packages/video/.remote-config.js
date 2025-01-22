@@ -1,0 +1,1 @@
+{"apiUrl":"https://localhost:3000","conferenceLayerUrl":"https://localhost:8080"}
