@@ -63,7 +63,7 @@ function subscribeTo<T>(
  * });
  * myStore.publish('newValue');
  */
-export function useStore<T extends StoreType>(name: T): Store<T> {
+export function useStore<T extends StoreType | `${StoreType}`>(name: T): Store<T> {
   const storeData = stores[name as StoreType]();
   const bindedSubscribeTo = subscribeTo.bind(this);
 

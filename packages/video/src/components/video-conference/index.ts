@@ -5,7 +5,7 @@ import { VideoConferenceProps } from './types';
 
 export class VideoConference extends BaseComponent {
   private config: VideoConferenceProps;
-  private logger: Logger;
+  protected logger: Logger;
 
   constructor(props?: VideoConferenceProps) {
     super();

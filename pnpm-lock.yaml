@@ -50,6 +50,9 @@ importers:
       '@superviz/threejs-plugin':
         specifier: workspace:*
         version: link:../../packages/three
+      '@superviz/video':
+        specifier: workspace:*
+        version: link:../../packages/video
       '@superviz/yjs':
         specifier: workspace:*
         version: link:../../packages/yjs
@@ -995,6 +998,9 @@ importers:
 
   packages/video:
     dependencies:
+      '@superviz/room':
+        specifier: workspace:*
+        version: link:../room
       '@superviz/socket-client':
         specifier: workspace:*
         version: link:../socket-client

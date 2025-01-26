@@ -69,6 +69,7 @@
   },
   "dependencies": {
     "@superviz/socket-client": "workspace:*",
+    "@superviz/room": "workspace:*",
     "debug": "^4.3.4",
     "lodash": "^4.17.21",
     "rxjs": "^7.8.1",
