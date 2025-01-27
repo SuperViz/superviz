@@ -93,7 +93,7 @@
       "dependsOn": ["@superviz/socket-client#build"]
     },
     "@superviz/video#build": {
-      "dependsOn": ["@superviz/socket-client#build"]
+      "dependsOn": ["@superviz/socket-client#build", "@superviz/room#build"]
     },
     "@superviz/video#test:unit": {
       "dependsOn": ["@superviz/socket-client#build"]
