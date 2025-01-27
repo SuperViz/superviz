@@ -2,10 +2,13 @@ import type { Room } from '@superviz/socket-client';
 import { Subject } from 'rxjs';
 
 import { Logger } from '../../common/utils/logger';
+import { VideoManagerOptions } from '../../services/video-manager/types';
 
 import { BaseComponent } from './index';
 
 class TestComponent extends BaseComponent {
+  protected videoManagerConfig: VideoManagerOptions;
+
   protected logger = new Logger('dummy');
   protected destroy() {}
   protected start() {}

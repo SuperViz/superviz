@@ -1,23 +1,24 @@
-import { ParticipantType } from '../../common/types/participant.types';
 import { Logger } from '../../common/utils/logger';
-import VideoManager from '../../services/video-manager';
+import { RemoteConfigService } from '../../services/remote-config';
+import { EnvironmentTypes } from '../../services/remote-config/types';
 import { CamerasPosition, LayoutMode, LayoutPosition, VideoFrameState, VideoManagerOptions } from '../../services/video-manager/types';
 import { BaseComponent } from '../base';
 
 import { VideoConferenceProps } from './types';
 
 export class VideoConference extends BaseComponent {
-  private videoManager: VideoManager;
   private config: VideoConferenceProps;
+
   protected logger: Logger;
+  protected videoManagerConfig: VideoManagerOptions;
 
   constructor(props?: VideoConferenceProps) {
     super();
     this.logger = new Logger('@superviz/video/video-conference');
-    this.validateProps(props);
+    this.setup(props);
   }
 
-  private validateProps(props: VideoConferenceProps) {
+  private setup(props: VideoConferenceProps) {
     if (props?.brand?.logoUrl) {
       const urlPattern = /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/;
       if (!urlPattern.test(props.brand.logoUrl)) {
@@ -35,6 +36,7 @@ export class VideoConference extends BaseComponent {
       styles: props?.styles || '',
       brand: props?.brand || { logoUrl: undefined },
       participantType: props?.participantType || 'guest',
+      i18n: props?.i18n || { language: 'en', locales: [] },
       permissions: {
         toggleCamera: props?.permissions?.toggleCamera || true,
         toggleMic: props?.permissions?.toggleMic || true,
@@ -46,22 +48,19 @@ export class VideoConference extends BaseComponent {
     };
   }
 
-  protected start() {
-    this.startVideo();
-  }
+  protected async start() {
+    const { conferenceLayerUrl } = await RemoteConfigService.getRemoteConfig(
+      this.globalConfig.environment as EnvironmentTypes,
+    );
 
-  protected destroy() {}
-
-  private startVideo() {
-    const config: VideoManagerOptions = {
+    this.videoManagerConfig = {
+      conferenceLayerUrl,
       group: this.globalConfig.group,
       apiKey: this.globalConfig.apiKey,
       apiUrl: this.globalConfig.apiUrl,
-      conferenceLayerUrl: 'https://video-frame.superviz.com/lab/index.html',
       debug: this.globalConfig.debug,
       limits: this.globalConfig.limits,
       roomId: this.globalConfig.roomId,
-      language: undefined,
       canUseRecording: this.config.permissions.toggleRecording,
       canShowAudienceList: true,
       canUseChat: this.config.permissions.toggleChat,
@@ -85,7 +84,8 @@ export class VideoConference extends BaseComponent {
         right: 0,
         top: 0,
       },
-      locales: [],
+      language: this.config.i18n?.language,
+      locales: this.config.i18n?.locales,
       avatars: [],
       waterMark: this.globalConfig.waterMark,
       styles: this.config?.styles,
@@ -95,16 +95,8 @@ export class VideoConference extends BaseComponent {
       callbacks: undefined,
     };
 
-    this.videoManager = new VideoManager(config);
-    this.videoManager.frameStateObserver.subscribe((state) => {
-      if (state !== VideoFrameState.INITIALIZED) return;
-
-      this.videoManager.start({
-        participant: {
-          ...this.localParticipant,
-          type: ParticipantType.HOST,
-        },
-      });
-    });
+    this.startVideoManager();
   }
+
+  protected destroy() {}
 }

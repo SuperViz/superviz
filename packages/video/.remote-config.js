@@ -1,1 +1,6 @@
-{"apiUrl":"https://localhost:3000","conferenceLayerUrl":"https://localhost:8080"}
+export default {
+  remoteConfig: {
+    apiUrl: 'https://dev.nodeapi.superviz.com',
+    conferenceLayerUrl: 'https://video-frame.superviz.com/lab/index.html',
+  },
+};

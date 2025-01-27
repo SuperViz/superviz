@@ -7,14 +7,17 @@ import type { useStore } from '@superviz/room/dist/stores/common/use-store';
 import type { Room } from '@superviz/socket-client';
 import { Subject, Subscription } from 'rxjs';
 
-import { Participant } from '../../common/types/participant.types';
+import { Participant, ParticipantType } from '../../common/types/participant.types';
 import { Logger } from '../../common/utils/logger';
+import VideoManager from '../../services/video-manager';
+import { VideoFrameState, VideoManagerOptions } from '../../services/video-manager/types';
 
 import { Callback, EventOptions, EventPayload, GeneralEvent } from './types';
 
 export abstract class BaseComponent {
   public name: 'videoConference' = 'videoConference';
   protected abstract logger: Logger;
+  protected abstract videoManagerConfig: VideoManagerOptions
   protected connectionLimit: number | 'unlimited';
   protected group: Group;
   protected ioc: IOC;
@@ -28,6 +31,8 @@ export abstract class BaseComponent {
 
   protected subscriptions: Map<Callback<GeneralEvent>, Subscription> = new Map();
   protected observers: Map<string, Subject<unknown>> = new Map();
+
+  protected videoManager: VideoManager;
 
   attach(params: AttachComponentOptions) {
     this.useStore = params.useStore.bind(this);
@@ -157,4 +162,18 @@ export abstract class BaseComponent {
 
   protected abstract destroy(): void;
   protected abstract start(): void;
+
+  protected startVideoManager() {
+    this.videoManager = new VideoManager(this.videoManagerConfig);
+    this.videoManager.frameStateObserver.subscribe((state) => {
+      if (state !== VideoFrameState.INITIALIZED) return;
+
+      this.videoManager.start({
+        participant: {
+          ...this.localParticipant,
+          type: ParticipantType.HOST,
+        },
+      });
+    });
+  }
 }
