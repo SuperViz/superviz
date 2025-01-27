@@ -17,7 +17,7 @@ export class Observer {
   private throttle: number;
 
   constructor({ logger, throttleTime }: ObserverOptions = {}) {
-    this.logger = logger ?? new Logger('@superviz/sdk/observer-helper');
+    this.logger = logger ?? new Logger('@superviz/video/observer');
     this.throttle = throttleTime || 0;
 
     if (this.throttle) {

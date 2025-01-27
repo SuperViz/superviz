@@ -7,6 +7,7 @@ import type { useStore } from '@superviz/room/dist/stores/common/use-store';
 import type { Room } from '@superviz/socket-client';
 import { Subject, Subscription } from 'rxjs';
 
+import { Participant } from '../../common/types/participant.types';
 import { Logger } from '../../common/utils/logger';
 
 import { Callback, EventOptions, EventPayload, GeneralEvent } from './types';
@@ -23,6 +24,7 @@ export abstract class BaseComponent {
   protected room: Room;
   protected unsubscribeFrom: Array<(id: unknown) => void> = [];
   protected globalConfig: Partial<Configuration>;
+  protected localParticipant: Participant;
 
   protected subscriptions: Map<Callback<GeneralEvent>, Subscription> = new Map();
   protected observers: Map<string, Subject<unknown>> = new Map();
@@ -38,7 +40,8 @@ export abstract class BaseComponent {
     }
 
     const { config: globalConfig, eventBus, ioc } = params;
-    const { hasJoinedRoom } = this.useStore('global-store');
+    const { hasJoinedRoom, localParticipant } = this.useStore('global-store');
+    localParticipant.subscribe();
 
     this.globalConfig = globalConfig;
     this.eventBus = eventBus;

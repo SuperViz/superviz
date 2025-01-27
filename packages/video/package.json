@@ -68,8 +68,9 @@
     "yargs": "^17.7.2"
   },
   "dependencies": {
-    "@superviz/socket-client": "workspace:*",
     "@superviz/room": "workspace:*",
+    "@superviz/socket-client": "workspace:*",
+    "bowser": "^2.11.0",
     "debug": "^4.3.4",
     "lodash": "^4.17.21",
     "rxjs": "^7.8.1",
