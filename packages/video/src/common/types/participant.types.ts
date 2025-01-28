@@ -13,6 +13,14 @@ export type Participant = {
   activeComponents: string[]
 }
 
+export interface VideoParticipant extends Participant {
+  participantId?: string;
+  color?: string;
+  joinedMeeting?: boolean;
+  timestamp: number;
+  isHost: boolean
+}
+
 export type Slot = {
   index: number | null;
   color: string;

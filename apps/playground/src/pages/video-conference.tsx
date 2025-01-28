@@ -24,6 +24,7 @@ export function NewVideoConference() {
       participant: {
         name: "Participant",
         id: uuid,
+        email: "carlos@superviz.com"
       },
       group: {
         name: SUPERVIZ_ROOM_PREFIX,

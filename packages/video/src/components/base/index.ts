@@ -4,15 +4,17 @@ import type { Configuration } from '@superviz/room/dist/services/config/types';
 import type { EventBus } from '@superviz/room/dist/services/event-bus';
 import type { IOC } from '@superviz/room/dist/services/io';
 import type { useStore } from '@superviz/room/dist/stores/common/use-store';
-import type { Room } from '@superviz/socket-client';
+import type { PresenceEvent, Room } from '@superviz/socket-client';
 import { Subject, Subscription } from 'rxjs';
 
-import { Participant, ParticipantType } from '../../common/types/participant.types';
+import { EventBusEvent, RealtimeEvent } from '../../common/types/events.types';
+import { Participant, ParticipantType, VideoParticipant } from '../../common/types/participant.types';
 import { Logger } from '../../common/utils/logger';
+import { ConnectionService } from '../../services/connection-status';
 import VideoManager from '../../services/video-manager';
 import { VideoFrameState, VideoManagerOptions } from '../../services/video-manager/types';
 
-import { Callback, EventOptions, EventPayload, GeneralEvent } from './types';
+import { Callback, EventOptions, EventPayload, GeneralEvent, ParticipantToFrame } from './types';
 
 export abstract class BaseComponent {
   public name: 'videoConference' = 'videoConference';
@@ -25,14 +27,25 @@ export abstract class BaseComponent {
   protected isAttached = false;
   protected useStore: typeof useStore;
   protected room: Room;
+  protected drawingRoom: Room;
   protected unsubscribeFrom: Array<(id: unknown) => void> = [];
   protected globalConfig: Partial<Configuration>;
+  protected participantType: ParticipantType;
+
   protected localParticipant: Participant;
+  protected participantsOnMeeting: VideoParticipant[] = [];
+  protected participants: Participant[] = [];
 
   protected subscriptions: Map<Callback<GeneralEvent>, Subscription> = new Map();
   protected observers: Map<string, Subject<unknown>> = new Map();
 
   protected videoManager: VideoManager;
+  protected connectionService: ConnectionService;
+
+  constructor() {
+    this.connectionService = new ConnectionService();
+    this.connectionService.addListeners();
+  }
 
   attach(params: AttachComponentOptions) {
     this.useStore = params.useStore.bind(this);
@@ -53,7 +66,10 @@ export abstract class BaseComponent {
     this.isAttached = true;
     this.ioc = ioc;
     this.connectionLimit = params.connectionLimit ?? 50;
+
     this.room = ioc.createRoom(this.name, this.connectionLimit);
+    this.drawingRoom = ioc.createRoom(this.name, this.connectionLimit);
+    this.subscribeToRealtimeEvents();
 
     if (!hasJoinedRoom.value) {
       this.logger.log(`${this.name} @ attach - not joined yet`);
@@ -82,6 +98,8 @@ export abstract class BaseComponent {
     this.destroy();
     this.room.disconnect();
     this.room = undefined;
+    this.videoManager?.leave();
+    this.connectionService.removeListeners();
 
     this.unsubscribeFrom.forEach((unsubscribe) => unsubscribe(this));
     this.isAttached = false;
@@ -96,6 +114,9 @@ export abstract class BaseComponent {
 
     this.subscriptions.clear();
     this.observers.clear();
+
+    this.unsubscribeFromVideoEvents();
+    this.unsubscribeToRealtimeEvents();
   };
 
   /**
@@ -165,15 +186,177 @@ export abstract class BaseComponent {
 
   protected startVideoManager() {
     this.videoManager = new VideoManager(this.videoManagerConfig);
-    this.videoManager.frameStateObserver.subscribe((state) => {
-      if (state !== VideoFrameState.INITIALIZED) return;
+    this.subscribeToVideoEvents();
+  }
 
-      this.videoManager.start({
-        participant: {
-          ...this.localParticipant,
-          type: ParticipantType.HOST,
-        },
+  protected updateParticipant(data: Participant) {
+    const props = Object.assign(this.localParticipant, data);
+
+    this.room.presence.update(props);
+    this.localParticipant = props;
+  }
+
+  private createFrameParticipant(participant: Participant) {
+    return {
+      id: participant.id,
+      participantId: participant.id,
+      color: participant.slot?.color || '#878291',
+      name: participant.name,
+      isHost: false,
+      avatar: participant.avatar,
+      type: participant.type,
+      slot: participant.slot,
+    };
+  }
+
+  private subscribeToRealtimeEvents() {
+    this.room.presence.on('presence.joined-room', this.onPresenceJoinedRoom);
+    this.room.presence.on('presence.update', this.onPresenceUpdate);
+    this.room.presence.on('presence.leave', this.onPresenceLeave);
+  }
+
+  private unsubscribeToRealtimeEvents() {
+    this.room.presence.off('presence.joined-room');
+    this.room.presence.off('presence.update');
+    this.room.presence.off('presence.leave');
+  }
+
+  private onPresenceJoinedRoom = (presence: PresenceEvent<Participant>): void => {
+    if (presence.id !== this.localParticipant.id) return;
+
+    this.room.presence.get((data: PresenceEvent<Participant>[]) => {
+      this.participants = data.map((presence) => {
+        if (this.localParticipant.id === presence.id) {
+          return this.localParticipant;
+        }
+
+        return presence.data;
       });
     });
+
+    this.room.presence.update(this.localParticipant);
+  };
+
+  private onPresenceUpdate = (presence: PresenceEvent<Participant>) => {
+    if (!this.participants.some((p) => p.id === presence.id)) {
+      this.participants.push(presence.data);
+    } else {
+      this.participants = this.participants.map((participant) => {
+        if (participant.id === presence.id) {
+          return presence.data;
+        }
+
+        return participant;
+      });
+    }
+
+    const event = this.participants.map(this.createFrameParticipant);
+
+    this.videoManager?.publishMessageToFrame(
+      RealtimeEvent.REALTIME_PARTICIPANT_LIST_UPDATE,
+      event,
+    );
+  };
+
+  private onPresenceLeave = (presence: PresenceEvent<Participant>): void => {
+    this.participants = this.participants.filter((p) => p.id !== presence.id);
+  };
+
+  private subscribeToVideoEvents() {
+    this.videoManager.meetingConnectionObserver.subscribe(
+      this.connectionService.updateMeetingConnectionStatus,
+    );
+    this.videoManager.participantListObserver.subscribe(this.onParticipantListUpdate);
+    this.videoManager.frameStateObserver.subscribe(this.onFrameStateChange);
+    this.videoManager.participantJoinedObserver.subscribe(this.onParticipantJoined);
+    this.videoManager.participantLeftObserver.subscribe(this.onParticipantLeft);
   }
+
+  private unsubscribeFromVideoEvents = (): void => {
+    if (!this.videoManager) return;
+
+    this.logger.log('video conference @ unsubscribe from video events');
+
+    this.videoManager.meetingConnectionObserver.unsubscribe(
+      this.connectionService.updateMeetingConnectionStatus,
+    );
+    this.videoManager.participantListObserver.unsubscribe(this.onParticipantListUpdate);
+    this.videoManager.frameStateObserver.unsubscribe(this.onFrameStateChange);
+    this.videoManager.participantJoinedObserver.unsubscribe(this.onParticipantJoined);
+    this.videoManager.participantLeftObserver.unsubscribe(this.onParticipantLeft);
+  };
+
+  private onParticipantListUpdate = (participants: Record<string, VideoParticipant>) => {
+    const list: VideoParticipant[] = Object.values(participants).map((participant) => ({
+      id: participant.id,
+      slot: participant.slot,
+      avatar: participant.avatar,
+      name: participant.name,
+      type: participant.type,
+      isHost: participant.isHost ?? false,
+      timestamp: participant.timestamp,
+      color: participant.slot?.color || '#878291',
+      activeComponents: participant.activeComponents,
+      participantId: participant.id,
+      email: participant.email,
+      joinedMeeting: participant.joinedMeeting,
+    }));
+
+    this.participantsOnMeeting = list;
+  };
+
+  private onFrameStateChange = (state: VideoFrameState): void => {
+    this.logger.log('video conference @ on frame state change', state);
+
+    if (state !== VideoFrameState.INITIALIZED) return;
+
+    if (this.participantType !== ParticipantType.GUEST) {
+      this.updateParticipant(Object.assign(this.localParticipant, {
+        type: this.participantType,
+      }));
+    }
+
+    this.videoManager.start({
+      participant: this.localParticipant,
+    });
+  };
+
+  private onParticipantJoined = (participant: VideoParticipant) => {
+    const { localParticipant, participants } = this.useStore('global-store');
+
+    const updated: Participant = Object.assign({}, localParticipant.value, {
+      name: participant.name,
+      type: participant.type,
+    });
+
+    if (this.videoManagerConfig.canUseDefaultAvatars) {
+      updated.avatar = participant.avatar;
+    }
+
+    this.eventBus.publish(EventBusEvent.UPDATE_PARTICIPANT, updated);
+    this.eventBus.publish(EventBusEvent.UPDATE_PARTICIPANT_LIST, {
+      ...participants.value,
+      [participant.id]: updated,
+    });
+
+    this.updateParticipant(updated);
+  };
+
+  private onParticipantLeft = (participant: VideoParticipant) => {
+    const { localParticipant, participants } = this.useStore('global-store');
+
+    const updated = Object.assign({}, localParticipant.value, {
+      activeComponents: localParticipant.value.activeComponents?.filter(
+        (ac) => ac !== 'videoConference',
+      ) ?? [],
+    }) as Participant;
+
+    this.eventBus.publish(EventBusEvent.UPDATE_PARTICIPANT, updated);
+    this.eventBus.publish(EventBusEvent.UPDATE_PARTICIPANT_LIST, {
+      ...participants.value,
+      [participant.id]: updated,
+    });
+
+    this.detach();
+  };
 }

@@ -1,3 +1,4 @@
+import { ParticipantType } from '../../common/types/participant.types';
 import { Logger } from '../../common/utils/logger';
 import { RemoteConfigService } from '../../services/remote-config';
 import { EnvironmentTypes } from '../../services/remote-config/types';
@@ -46,6 +47,8 @@ export class VideoConference extends BaseComponent {
         toggleScreenShare: props?.permissions?.toggleScreenShare || true,
       },
     };
+
+    this.participantType = this.config.participantType as ParticipantType;
   }
 
   protected async start() {
