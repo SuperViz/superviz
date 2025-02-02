@@ -3,7 +3,8 @@ import type { useStore } from '@superviz/sdk/dist/common/utils/use-store';
 import type { DefaultAttachComponentOptions } from '@superviz/sdk/dist/components/base/types';
 import type { EventBus } from '@superviz/sdk/dist/services/event-bus';
 import type { ParticipantDataInput } from '@superviz/sdk/dist/services/presence-3d-manager/types';
-import type { PresenceEvent, PresenceEvents, Room, SocketEvent } from '@superviz/socket-client';
+import type { Room, SocketEvent } from '@superviz/socket-client';
+import { Vector3 } from 'three';
 
 import { DEFAULT_AVATAR_URL } from '../common/constants/presence';
 import { STORE_TYPES } from '../common/constants/store';
@@ -22,11 +23,11 @@ import { IntervalManager } from '../managers/interval-manager';
 import { LaserManager } from '../managers/laser-manager';
 import { MatterportMovementManager } from '../managers/matterport-movement-manager';
 import { ParticipantManager } from '../managers/participant-manager';
-import { SceneLight } from '../services/matterport/scene-light';
-import { MatterportComponentOptions, ParticipantOn3D, PositionInfo } from '../types';
+import { MatterportComponentOptions, ParticipantOn3D } from '../types';
 import { VectorCache } from '../utils/vector-cache';
+
+import { SceneLight } from './matterport/scene-light';
 import { Presence3dEvents } from './types';
-import { Vector3 } from 'three';
 
 export class Presence3D {
   // Core Dependencies
@@ -42,7 +43,9 @@ export class Presence3D {
   private mpInputComponent: Matterport.Scene.IComponent;
   private readonly movementManager: MatterportMovementManager;
 
-  //#Configuration and State
+  private gotUpdated: boolean = false;
+
+  // #Configuration and State
   private config: MatterportComponentOptions;
   private isEmbedMode: boolean = false;
   private isAttached = false;
@@ -50,25 +53,25 @@ export class Presence3D {
   private hasJoinedRoom: boolean = false;
   private hasJoined3D: boolean = false;
   private maxDistanceSquared: number;
-  //#endregion
+  // #endregion
 
-  //#region Participant State
+  // #region Participant State
   private localSlot: number = -1;
-  //#endregion
+  // #endregion
 
-  //#region Visual Components
+  // #region Visual Components
   private avatars: Record<string, AvatarTypes> = {};
   private lasers: Record<string, Laser> = {};
   private names: Record<string, any> = {};
   private laserLerpers: Record<string, any> = {};
-  //#endregion
+  // #endregion
 
-  //#region Performance Optimization
+  // #region Performance Optimization
   private readonly vectorCache: VectorCache;
   private unsubscribeFrom: Array<(id: unknown) => void> = [];
-  //#endregion
+  // #endregion
 
-  //#Managers
+  // #Managers
   private intervalManager: IntervalManager;
   private laserManager: LaserManager;
   private readonly circlePositionManager: CirclePositionManager;
@@ -160,53 +163,51 @@ export class Presence3D {
       this.vectorCache,
       this.participantManager.getPositionInfos(),
     );
-
-    this.createCircleOfPositions();
   }
-
   /*
   Participant Management
   */
-  private onParticipantsUpdated = (participants) => {
+
+  private onParticipantsUpdated = (participants: ParticipantOn3D[]) => {
     if (!this.isAttached) return;
 
-    // Only create circle positions when participant list changes
-    const currentParticipantIds = Object.keys(participants).sort().join(',');
-    const previousParticipantIds = this.participantManager.getParticipants
-      .map((p) => p.id)
-      .sort()
-      .join(',');
+    // 1. Get the old participants before updating.
+    const oldParticipants = this.participantManager.getRoomParticipants;
 
-    if (currentParticipantIds !== previousParticipantIds) {
-      this.createCircleOfPositions();
-    }
+    // 2. Build a set of new participant IDs from the incoming update.
+    const newParticipantIds = new Set(participants.map((p) => p.id));
 
-    // Update position infos first
-    Object.values(participants).forEach((participant: ParticipantOn3D) => {
+    // 3. Compare the old participant IDs against the new ones.
+    // Delete participants that are not in the new participants list.
+    Object.keys(oldParticipants).forEach((id) => {
+      if (!newParticipantIds.has(id)) {
+        const participantLeft = oldParticipants[id];
+        this.handleParticipantLeft(participantLeft);
+      }
+    });
+
+    // 4. Clear the room participants.
+    this.participantManager.clearRoomParticipants();
+
+    // 5. Set the new participants.
+    this.participantManager.setRoomParticipants(participants);
+
+    participants.forEach((participant: ParticipantOn3D) => {
+      // Skip local participant
       if (participant.id === this.participantManager.getLocalParticipantId) return;
 
       const participantId = participant.id;
-      const { position, rotation, sweep, floor, mode } = participant;
+      const { position, rotation, sweep, floor, mode, isPrivate } = participant;
 
       // Update position info through manager
       this.participantManager.updatePositionInfo(participantId, {
         position,
         rotation,
-        mode,
         sweep,
         floor,
+        mode,
+        isPrivate,
       });
-    });
-
-    // Then update participant manager
-    this.participantManager.onParticipantsUpdated(participants);
-
-    // Handle visual updates
-    Object.values(participants).forEach((participant: ParticipantOn3D) => {
-      if (participant.id === this.participantManager.getLocalParticipantId) return;
-
-      const participantId = participant.id;
-      const { position, rotation, isPrivate } = participant;
 
       // Update avatar if it exists
       if (this.avatars[participantId] && position && rotation && this.isAttached) {
@@ -242,24 +243,51 @@ export class Presence3D {
         );
       }
 
-      // Handle visibility
-      if (isPrivate && this.avatars[participantId]) {
-        this.removeParticipant(participant, true);
-      }
-
-      if (!isPrivate && !this.avatars[participantId]) {
-        this.addParticipant(participant);
+      // Add participant if they are not in the list
+      if (!this.participantManager.participantExists(participant.id)) {
+        this.addParticipant(participant as ParticipantOn3D);
       }
     });
   };
 
-  private removeParticipant = (participant: ParticipantOn3D, unsubscribe: boolean): void => {
-    console.log('removeParticipant :!', participant);
+  private addParticipant = (participant): void => {
+    this.participantManager
+      .addParticipant(participant)
+      .then((participantOn3D) => {
+        if (!participantOn3D) {
+          console.log('ADAPTER: Participant already exists - return:');
+          return;
+        }
+
+        if (this.participantManager.getLocalParticipantId === participantOn3D.id) return;
+
+        if (!this.isEmbedMode) {
+          if (this.config.isAvatarsEnabled) {
+            this.createAvatar(participantOn3D);
+          }
+
+          if (this.config.isLaserEnabled) {
+            this.createLaser(participantOn3D);
+          }
+        }
+
+        this.createCircleOfPositions();
+      })
+      .catch((error) => {
+        console.error('Error adding participant:', error);
+      });
+  };
+
+  private handleParticipantLeft = (participant: Participant): void => {
+    this.removeParticipant(participant, true);
+  };
+
+  private removeParticipant = (participant: Participant, unsubscribe: boolean): void => {
     this.logger.log('matterport component @ removeParticipant', { participant, unsubscribe });
 
     this.destroyAvatar(participant);
     this.destroyLaser(participant);
-    //this.nameService?.destroyName(participant.id);
+    // this.nameService?.destroyName(participant.id);
 
     if (this.names[participant.id]) {
       this.names[participant.id].stop();
@@ -272,10 +300,16 @@ export class Presence3D {
     }
 
     if (unsubscribe) {
-      this.participantManager.removeParticipant(participant, unsubscribe);
+      // Chain the promise so that createCircleOfPositions runs afterward
+      this.participantManager
+        .removeParticipant(participant, unsubscribe)
+        .then(() => {
+          this.createCircleOfPositions();
+        })
+        .catch((error) => {
+          console.error('Error removing participant:', error);
+        });
     }
-
-    this.createCircleOfPositions();
   };
 
   // Public Methods
@@ -294,6 +328,8 @@ export class Presence3D {
     this.room = ioc.createRoom(this.name);
     this.presence3DManager = new Presence3DManager(this.room, this.useStore);
     this.matterportEvents.setPresence3DManager(this.presence3DManager);
+    this.participantManager.setUseStoreObject(this.useStore);
+    this.participantManager.setPresence3DManager(this.presence3DManager);
 
     const { localParticipant, hasJoinedRoom } = this.useStore(STORE_TYPES.GLOBAL);
     localParticipant.subscribe((participant) => {
@@ -307,9 +343,6 @@ export class Presence3D {
 
     this.isAttached = true;
     this.eventBus = eventBus;
-
-    this.participantManager.setUseStoreObject(this.useStore);
-    this.participantManager.setPresence3DManager(this.presence3DManager);
 
     this.start();
   };
@@ -346,26 +379,6 @@ export class Presence3D {
 
   public localFollow = (participantId?: string): void => {
     this.participantManager.setLocalFollowParticipantId(participantId);
-  };
-
-  private addParticipant = async (participant): Promise<void> => {
-    const participantOn3D = await this.participantManager.addParticipant(participant);
-
-    console.log('ADAPTER addParticipant:', participantOn3D);
-    if (!participantOn3D) {
-      console.log('ADAPTER Already exists - run method:');
-      return;
-    }
-
-    if (this.participantManager.getLocalParticipantId === participantOn3D.id) return;
-
-    if (!this.isEmbedMode) {
-      // IF AVATARS ARE ENABLED, CREATE THE AVATAR
-      this.config.isAvatarsEnabled && this.createAvatar(participantOn3D);
-
-      // IF LASER IS ENABLED, CREATE THE LASER
-      this.config.isLaserEnabled && this.createLaser(participantOn3D);
-    }
   };
 
   /*
@@ -416,9 +429,10 @@ export class Presence3D {
       return;
     }
 
+    console.log('ADAPTER: start');
+
     this.subscribeToRealtimeEvents();
     this.subscribeToEventBusEvents();
-    this.participantManager.createParticipantList();
   };
 
   private destroy = (): void => {
@@ -426,9 +440,6 @@ export class Presence3D {
     this.unsubscribeToEventBusEvents();
     this.room.disconnect();
     this.room = undefined;
-    this.participantManager.getParticipants.forEach((participant) => {
-      this.participantManager.removeParticipant(participant, true);
-    });
 
     this.presence3DManager = undefined;
 
@@ -478,14 +489,13 @@ export class Presence3D {
     });
   }
 
-  private async destroyAvatar(participant: ParticipantOn3D) {
+  private async destroyAvatar(participant: Participant) {
     this.logger.log('matterport component @ destroyAvatar', participant);
 
     if (this.avatars[participant.id]) {
       const avatar = this.avatars[participant.id];
-      if (avatar.avatar) {
-        avatar.avatar.destroy();
-      }
+      // TODO: destroy avatar
+      // if (avatar.avatar) avatar.avatar.destroy();
       avatar.stop();
       delete this.avatars[participant.id];
     }
@@ -511,7 +521,7 @@ export class Presence3D {
     }
   }
 
-  private async destroyLaser(participant: ParticipantOn3D) {
+  private async destroyLaser(participant: Participant) {
     this.logger.log('matterport component @ destroyLaser', participant);
 
     if (this.lasers[participant.id]) {
@@ -529,6 +539,8 @@ export class Presence3D {
   };
 
   private createCircleOfPositions(): void {
+    console.log('createCircleOfPositions');
+
     // Check if local participant is already in the participants list
     const participantsList = this.participantManager.getParticipants;
     const localParticipant = this.participantManager.getLocalParticipant;
@@ -536,6 +548,8 @@ export class Presence3D {
     const allParticipants = participantsList.some((p) => p.id === localParticipant?.id)
       ? participantsList
       : [...participantsList, localParticipant].filter(Boolean);
+
+    console.log('allParticipants', allParticipants);
 
     this.circlePositionManager.createCircleOfPositions(allParticipants);
     if (this.matterportEvents.getCurrentPosition()) {
@@ -569,22 +583,12 @@ export class Presence3D {
   */
   private subscribeToRealtimeEvents = (): void => {
     this.logger.log('matterport component @ subscribeToRealtimeEvents');
-    this.room.on<Participant>(
-      Presence3dEvents.PARTICIPANT_JOINED,
-      this.participantManager.onParticipantJoined,
-    );
-    this.room.presence.on(
-      'presence.leave' as PresenceEvents,
-      this.participantManager.onParticipantLeave,
-    );
     this.room.on<{ id?: string }>(Presence3dEvents.GATHER, this.onGatherUpdate);
     this.room.on<{ id?: string }>(Presence3dEvents.FOLLOW_ME, this.onFollowParticipantUpdate);
   };
 
   private unsubscribeToRealtimeEvents = (): void => {
     this.logger.log('matterport component @ unsubscribeToRealtimeEvents');
-    this.room.presence.off('presence.leave' as PresenceEvents);
-    this.room.off(Presence3dEvents.PARTICIPANT_JOINED, this.participantManager.onParticipantJoined);
     this.room.off(Presence3dEvents.GATHER, this.onGatherUpdate);
     this.room.off(Presence3dEvents.FOLLOW_ME, this.onFollowParticipantUpdate);
   };

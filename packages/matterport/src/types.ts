@@ -22,6 +22,7 @@ export interface PositionInfo {
   sweep: string;
   floor: number;
   slot?: Slot;
+  isPrivate?: boolean;
 }
 
 export interface AvatarConfig {

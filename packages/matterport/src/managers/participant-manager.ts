@@ -1,11 +1,7 @@
 import { Participant, Presence3DManager } from '@superviz/sdk';
 import type { useStore } from '@superviz/sdk/dist/common/utils/use-store';
-import type { ParticipantDataInput } from '@superviz/sdk/dist/services/presence-3d-manager/types';
 import type { PresenceEvent } from '@superviz/socket-client';
-import { isEqual } from 'lodash';
 
-import { DEFAULT_AVATAR_URL } from '../common/constants/presence';
-import { STORE_TYPES } from '../common/constants/store';
 import { MatterportComponentOptions, ParticipantOn3D, PositionInfo } from '../types';
 
 /**
@@ -37,12 +33,15 @@ export class ParticipantManager {
   /**
    * Creates a list of participants from the store
    */
+  /*
   public createParticipantList(): void {
     const list = this.useStore(STORE_TYPES.PRESENCE_3D).participants.value;
+    console.log('MANAGER createParticipantList:', list);
     Object.values(list).forEach((participant: ParticipantDataInput) => {
       if (!participant.isPrivate) this.addParticipant(participant);
     });
   }
+  */
 
   /**
    * Creates a new ParticipantOn3D object
@@ -87,8 +86,7 @@ export class ParticipantManager {
     if (!participant || !participant.id || participant.type === 'audience') return null;
 
     // Check if participant already exists
-    const existingParticipant = this.participants.find((p) => p.id === participant.id);
-    if (existingParticipant) {
+    if (this.participantExists(participant.id)) {
       console.log('Participant already exists:', participant.id);
       // this.onParticipantUpdated(participant);
       return null;
@@ -98,7 +96,11 @@ export class ParticipantManager {
     this.addParticipantToList(participantOn3D);
     this.roomParticipants[participant.id] = participant;
     this.presence3DManager.subscribeToUpdates(participantOn3D.id, this.onParticipantUpdated);
-    return participantOn3D;
+    return Promise.resolve(participantOn3D);
+  }
+
+  public participantExists(participantId: string): boolean {
+    return this.participants.some((p) => p.id === participantId);
   }
 
   /**
@@ -112,21 +114,19 @@ export class ParticipantManager {
       console.log('MANAGER addParticipantToList - push:', participantOn3D);
       this.participants.push(participantOn3D);
     }
+
+    console.log('MANAGER addParticipantToList - participants:', this.participants);
   }
 
   /**
    * Handles participant leave events
    * @param event - Presence event containing participant data
    */
-  public onParticipantLeave(event: PresenceEvent<Participant>): void {
-    //const participantToRemove = this.participants.find(
-    //  (participantOnlist) => participantOnlist.id === event.id,
-    // );
-
-    // const participantToRemove = this.participants.find((p) => p.id === event.id);
-    console.log('MANAGER onParticipantLeave:', this.participants);
-    //if (participantToRemove) this.removeParticipant(participantToRemove, true);
-  }
+  public onParticipantLeave = (event: PresenceEvent<Participant>): void => {
+    const participantToRemove = this.participants.find((p) => p.id === event.id);
+    console.log('MANAGER onParticipantLeave:', participantToRemove);
+    if (participantToRemove) this.removeParticipant(participantToRemove, true);
+  };
 
   /**
    * Updates the state when multiple participants are updated
@@ -178,7 +178,7 @@ export class ParticipantManager {
    * @param participant - Joined participant data
    */
   public onParticipantJoined = (participant): void => {
-    console.log('MANAGER onParticipantJoined:', participant);
+    /*console.log('MANAGER onParticipantJoined:', participant);
 
     if (!participant.data) return;
     const { id } = participant.data;
@@ -188,7 +188,7 @@ export class ParticipantManager {
     } else {
       console.log('MANAGER onParticipantJoined - addParticipant:', participant.data);
       this.addParticipant(participant.data);
-    }
+    }*/
   };
 
   /**
@@ -196,6 +196,9 @@ export class ParticipantManager {
    * @param participant - Local participant data
    */
   private onLocalParticipantJoined(participant): void {
+    console.log('ALERT!!!! MANAGER - onLocalParticipantJoined:', participant);
+
+    /*
     this.createParticipantList();
 
     const avatarData = participant.avatar?.model3DUrl
@@ -203,6 +206,7 @@ export class ParticipantManager {
       : { model3DUrl: DEFAULT_AVATAR_URL, imageUrl: participant.avatar?.imageUrl };
 
     this.presence3DManager.setParticipantData({ avatar: avatarData } as ParticipantDataInput);
+    */
   }
 
   /**
@@ -210,15 +214,32 @@ export class ParticipantManager {
    * @param participant - Participant to remove
    * @param unsubscribe - Whether to unsubscribe from participant updates
    */
-  public removeParticipant(participant: ParticipantOn3D, unsubscribe: boolean): void {
-    console.log('Removing participant:', participant);
 
-    this.participants = this.participants.filter((p) => p.id !== participant.id);
-    delete this.roomParticipants[participant.id];
+  public async removeParticipant(participant: Participant, unsubscribe: boolean): Promise<void> {
+    // First, remove the participant from the array by its index.
+    const index = this.participants.findIndex((p) => p.id === participant.id);
+    if (index !== -1) {
+      this.participants.splice(index, 1);
+      console.log(
+        `Removed participant at array index ${index}. New length: ${this.participants.length}`,
+      );
+    } else {
+      console.log('Participant not found in the array.');
+    }
+
+    // Then, delete the property keyed by participant.id in case it was set on the array.
+    if (this.participants.hasOwnProperty(participant.id)) {
+      delete this.participants[participant.id];
+      console.log(`Deleted array property with key ${participant.id}`);
+    }
+
+    console.log('MANAGER removeParticipant:', this.participants);
 
     if (unsubscribe) {
       this.presence3DManager.unsubscribeFromUpdates(participant.id, this.onParticipantUpdated);
     }
+
+    return Promise.resolve();
   }
 
   /**
@@ -227,7 +248,7 @@ export class ParticipantManager {
    * @param participant - New participant data
    */
   public setParticipant(index: number, participant: ParticipantOn3D): void {
-    this.participants[index] = participant;
+    // this.participants[index] = participant;
   }
 
   /**
@@ -286,8 +307,10 @@ export class ParticipantManager {
 
     const existingParticipant = this.getOldParticipant(participant);
     if (!existingParticipant) {
-      console.log('MANAGER shouldUpdateParticipant - addParticipant:', participant);
-      this.addParticipant(participant);
+      console.log('ALERT!! - MANAGER shouldUpdateParticipant - addParticipant:', participant);
+
+      // this.addParticipant(participant);
+
       return false;
     }
 
@@ -329,6 +352,21 @@ export class ParticipantManager {
 
   public updatePositionInfo(participantId: string, info: PositionInfo): void {
     this.positionInfos[participantId] = info;
+  }
+
+  public setRoomParticipants = (participants) => {
+    participants.forEach((participant) => {
+      this.roomParticipants[participant.id] = participant;
+    });
+  };
+
+  public clearRoomParticipants = () => {
+    this.roomParticipants = {};
+  };
+
+  public roomParticipantExists(participantId: string) {
+    console.log(this.roomParticipants[participantId]);
+    //return this.roomParticipants[participantId] ? true : false;
   }
 
   // Add a safe getter for local participant id
