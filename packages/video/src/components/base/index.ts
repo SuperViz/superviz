@@ -216,9 +216,9 @@ export abstract class BaseComponent {
   }
 
   private unsubscribeToRealtimeEvents() {
-    this.room.presence.off('presence.joined-room');
-    this.room.presence.off('presence.update');
-    this.room.presence.off('presence.leave');
+    this.room?.presence.off('presence.joined-room');
+    this.room?.presence.off('presence.update');
+    this.room?.presence.off('presence.leave');
   }
 
   private onPresenceJoinedRoom = (presence: PresenceEvent<Participant>): void => {

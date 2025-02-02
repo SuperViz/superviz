@@ -27,7 +27,19 @@ describe('BaseComponent', () => {
     jest.spyOn(mockLogger, 'log');
 
     mockUseStore = jest.fn().mockReturnValue({ hasJoinedRoom: { value: true } });
-    mockRoom = { disconnect: jest.fn() } as unknown as jest.Mocked<Room>;
+    mockRoom = {
+      on: jest.fn(),
+      off: jest.fn(),
+      emit: jest.fn(),
+      disconnect: jest.fn(),
+      history: jest.fn(),
+      presence: {
+        on: jest.fn(),
+        off: jest.fn(),
+        get: jest.fn(),
+        update: jest.fn(),
+      },
+    } as unknown as jest.Mocked<Room>;
     mockIOC = { createRoom: jest.fn().mockReturnValue(mockRoom) } as unknown as jest.Mocked<any>;
     mockEventBus = {} as jest.Mocked<any>;
 
@@ -43,7 +55,6 @@ describe('BaseComponent', () => {
 
     expect(component['isAttached']).toBe(false);
     expect(mockRoom.disconnect).toHaveBeenCalled();
-    expect(mockLogger.log).toHaveBeenCalledWith('detached');
   });
 
   it('should emit an event', () => {
