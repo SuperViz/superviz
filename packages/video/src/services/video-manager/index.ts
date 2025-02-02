@@ -93,6 +93,7 @@ export default class VideoManager {
     const wrapper = document.createElement('div');
 
     this.frameConfig = {
+      provider: 'video-package',
       group,
       apiKey,
       apiUrl,

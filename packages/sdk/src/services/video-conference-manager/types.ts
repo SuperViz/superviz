@@ -62,6 +62,7 @@ export interface FrameLocale {
 }
 
 export interface FrameConfig {
+  provider: 'sdk-package';
   apiKey: string;
   apiUrl: string;
   roomId: string;

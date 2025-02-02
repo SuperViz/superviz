@@ -47,7 +47,7 @@ export abstract class BaseComponent {
     this.connectionService.addListeners();
   }
 
-  attach(params: AttachComponentOptions) {
+  public attach(params: AttachComponentOptions) {
     this.useStore = params.useStore.bind(this);
 
     if (Object.values(params).includes(null) || Object.values(params).includes(undefined)) {

@@ -67,6 +67,7 @@ export interface FrameLocale {
 }
 
 export interface FrameConfig {
+  provider: 'video-package'
   apiKey: string;
   apiUrl: string;
   roomId: string;
