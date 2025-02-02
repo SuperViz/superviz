@@ -19,7 +19,7 @@ export const InitializeRoomSchema = z.object({
     name: z.string(),
   }),
   debug: z.boolean().optional(),
-  environment: z.enum(['dev', 'prod'], { message: '[SuperViz | Room] Environment must be either "dev" or "prod"' }).optional(),
+  environment: z.enum(['dev', 'prod', 'local'], { message: '[SuperViz | Room] Environment must be either "dev", "prod" or "local"' }).optional(),
 });
 
 export type InitializeRoomParams = z.infer<typeof InitializeRoomSchema>;
