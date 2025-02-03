@@ -199,7 +199,7 @@ export class Presence3D {
       const participantId = participant.id;
       const { position, rotation, sweep, floor, mode, isPrivate } = participant;
 
-      // Update position info through manager
+      // Store complete position info including slot
       this.participantManager.updatePositionInfo(participantId, {
         position,
         rotation,
@@ -207,29 +207,37 @@ export class Presence3D {
         floor,
         mode,
         isPrivate,
+        slot: participant.slot,
       });
 
       // Update avatar if it exists
       if (this.avatars[participantId] && position && rotation && this.isAttached) {
         const avatarModel = this.avatars[participantId];
+
+        // Get the participant's actual position info
+        const positionInfo = this.participantManager.getPositionInfo(participantId);
+        const participantSlotIndex = positionInfo?.slot?.index;
+
+        // Find circle position using the actual slot index
         const circlePosition = this.circlePositionManager
           .getCirclePositions()
-          .find(
-            (pos) =>
-              pos.slot === this.participantManager.getPositionInfo(participantId)?.slot?.index,
-          );
+          .find((pos) => pos.slot === participantSlotIndex);
 
+        // Convert to THREE.Vector3 with fallback to (0,0,0)
         const circleVector = circlePosition
           ? this.vectorCache
               .get<Vector3>('tempCircleVector')
               .set(circlePosition.x, 0, circlePosition.z)
-          : null;
+          : this.vectorCache.get<Vector3>('tempCircleVector').set(0, 0, 0);
 
-        avatarModel.avatar.update(
-          position,
-          rotation,
-          circleVector, // Pass the calculated circle position
-        );
+        /*console.log('Updating avatar with circle position:', {
+          participantId,
+          slotIndex: participantSlotIndex,
+          circlePosition,
+          circleVector,
+        });*/
+
+        avatarModel.avatar.update(position, rotation, circleVector, participantSlotIndex);
       }
 
       // Update laser
@@ -539,8 +547,6 @@ export class Presence3D {
   };
 
   private createCircleOfPositions(): void {
-    console.log('createCircleOfPositions');
-
     // Check if local participant is already in the participants list
     const participantsList = this.participantManager.getParticipants;
     const localParticipant = this.participantManager.getLocalParticipant;
@@ -548,8 +554,6 @@ export class Presence3D {
     const allParticipants = participantsList.some((p) => p.id === localParticipant?.id)
       ? participantsList
       : [...participantsList, localParticipant].filter(Boolean);
-
-    console.log('allParticipants', allParticipants);
 
     this.circlePositionManager.createCircleOfPositions(allParticipants);
     if (this.matterportEvents.getCurrentPosition()) {

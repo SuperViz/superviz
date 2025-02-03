@@ -26,8 +26,6 @@ export class ParticipantManager {
   constructor(config: MatterportComponentOptions, presence3DManager: Presence3DManager) {
     this.config = config;
     this.presence3DManager = presence3DManager;
-
-    console.log('MANAGER: presence3DManager', this.presence3DManager);
   }
 
   /**
@@ -91,7 +89,6 @@ export class ParticipantManager {
       // this.onParticipantUpdated(participant);
       return null;
     }
-    console.log('MANAGER addParticipant:', participant);
     const participantOn3D = this.createParticipantOn3D(participant);
     this.addParticipantToList(participantOn3D);
     this.roomParticipants[participant.id] = participant;
@@ -111,11 +108,8 @@ export class ParticipantManager {
     console.log('MANAGER addParticipantToList:', participantOn3D);
     // Additional check to prevent duplicates
     if (!this.participants.some((p) => p.id === participantOn3D.id)) {
-      console.log('MANAGER addParticipantToList - push:', participantOn3D);
       this.participants.push(participantOn3D);
     }
-
-    console.log('MANAGER addParticipantToList - participants:', this.participants);
   }
 
   /**
@@ -124,7 +118,6 @@ export class ParticipantManager {
    */
   public onParticipantLeave = (event: PresenceEvent<Participant>): void => {
     const participantToRemove = this.participants.find((p) => p.id === event.id);
-    console.log('MANAGER onParticipantLeave:', participantToRemove);
     if (participantToRemove) this.removeParticipant(participantToRemove, true);
   };
 
@@ -196,8 +189,6 @@ export class ParticipantManager {
    * @param participant - Local participant data
    */
   private onLocalParticipantJoined(participant): void {
-    console.log('ALERT!!!! MANAGER - onLocalParticipantJoined:', participant);
-
     /*
     this.createParticipantList();
 
@@ -220,9 +211,6 @@ export class ParticipantManager {
     const index = this.participants.findIndex((p) => p.id === participant.id);
     if (index !== -1) {
       this.participants.splice(index, 1);
-      console.log(
-        `Removed participant at array index ${index}. New length: ${this.participants.length}`,
-      );
     } else {
       console.log('Participant not found in the array.');
     }
@@ -230,10 +218,7 @@ export class ParticipantManager {
     // Then, delete the property keyed by participant.id in case it was set on the array.
     if (this.participants.hasOwnProperty(participant.id)) {
       delete this.participants[participant.id];
-      console.log(`Deleted array property with key ${participant.id}`);
     }
-
-    console.log('MANAGER removeParticipant:', this.participants);
 
     if (unsubscribe) {
       this.presence3DManager.unsubscribeFromUpdates(participant.id, this.onParticipantUpdated);

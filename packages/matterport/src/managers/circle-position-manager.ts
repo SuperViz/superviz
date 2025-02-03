@@ -20,6 +20,7 @@ export class CirclePositionManager {
   }
 
   public createCircleOfPositions(participants: (ParticipantOn3D | Participant)[]): void {
+    console.log('Creating circle positions for participants:', participants);
     this.circlePositions = [];
     const sortedParticipants = [...participants].sort((a, b) => {
       return (a.slot?.index || 0) - (b.slot?.index || 0);
@@ -33,12 +34,13 @@ export class CirclePositionManager {
     circleCache.angleStep = (2 * Math.PI) / participantCount;
 
     for (let i = 0; i < participantCount; i++) {
+      const participant = sortedParticipants[i];
       const angle = i * circleCache.angleStep;
       const x = circleCache.radius * Math.cos(angle);
       const z = circleCache.radius * Math.sin(angle);
-      this.circlePositions.push({ x, y: 0, z, slot: sortedParticipants[i]?.slot?.index ?? -1 });
+      this.circlePositions.push({ x, y: 0, z, slot: participant?.slot?.index ?? -1 });
     }
-    this.logger.log('Updated circle positions:', this.circlePositions);
+    console.log('Final circle positions:', this.circlePositions);
   }
 
   public adjustPositionToCircle(position: Coordinates | undefined, localSlot: number): Coordinates {
@@ -79,6 +81,7 @@ export class CirclePositionManager {
   }
 
   public getCirclePositions(): CirclePosition[] {
+    console.log('Current circle positions:', this.circlePositions);
     return this.circlePositions;
   }
 }

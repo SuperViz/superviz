@@ -1,5 +1,5 @@
 import { Participant } from '@superviz/sdk';
-import { Box3, Vector3 } from 'three';
+import { Box3, Vector3, Quaternion } from 'three';
 
 import { AVATARS_HEIGHT_ADJUST } from '../common/constants/presence';
 import { Name } from '../common/types/avatarTypes.types';
@@ -101,7 +101,7 @@ function Avatar() {
 
       nameInstance.createName(
         this.inputs.avatarModel.obj3D,
-        this.inputs.participant?.name,
+        this.inputs.participant?.slot?.index,
         this.inputs.participant?.slot?.color || '#FF0000',
         nameHeight,
       );
@@ -167,15 +167,40 @@ function Avatar() {
 
   // Rotation Management
   const rotationManager = {
-    update: (rotation: Simple2DPoint, currentCirclePosition: Vector3 | null) => {
-      // If we have a circle position, we need to adjust the rotation relative to it
-      if (currentCirclePosition) {
-        // Calculate angle from circle position to center
-        const angleToCenter = Math.atan2(currentCirclePosition.z, currentCirclePosition.x);
+    update: (
+      rotation: Simple2DPoint,
+      currentCirclePosition: Vector3 | null,
+      participantSlotIndex: number,
+    ) => {
+      console.log('this is the rotation', rotation, ' of the participant', participantSlotIndex);
 
-        // Adjust Y rotation by the angle to center
-        const adjustedYRotation =
-          this.THREE.MathUtils.degToRad(rotation?.y) + Math.PI + angleToCenter;
+      const XVector3: Vector3 = new this.THREE.Vector3(1, 0, 0);
+      const YVector3: Vector3 = new this.THREE.Vector3(0, 1, 0);
+      const quaternionX: Quaternion = new this.THREE.Quaternion().setFromAxisAngle(
+        XVector3,
+        this.THREE.MathUtils.degToRad(-rotation.x),
+      );
+
+      const quaternionY: Quaternion = new this.THREE.Quaternion().setFromAxisAngle(
+        YVector3,
+        this.THREE.MathUtils.degToRad(rotation?.y) + Math.PI,
+      );
+
+      this.inputs.avatarModel.lerper.animateQuaternion(
+        this.inputs.avatarModel.obj3D.quaternion,
+        quaternionY.multiply(quaternionX),
+      );
+
+      /*
+      if (currentCirclePosition) {
+        // Calculate circle angle from center (where the avatar was placed)
+        const angleFromCenter = Math.atan2(currentCirclePosition.z, currentCirclePosition.x);
+
+        // Convert Matterport rotation to radians:
+        const matterportRotation = this.THREE.MathUtils.degToRad(rotation?.y);
+
+        // Final rotation: matterport rotation + π (for model correction) minus circle angle.
+        const adjustedYRotation = matterportRotation + Math.PI - angleFromCenter;
 
         this.tempQuaternionX.setFromAxisAngle(
           this.tempXAxis,
@@ -184,7 +209,7 @@ function Avatar() {
 
         this.tempQuaternionY.setFromAxisAngle(this.tempYAxis, adjustedYRotation);
       } else {
-        // Original rotation calculation when no circle position
+        // Original non-circle calculation
         this.tempQuaternionX.setFromAxisAngle(
           this.tempXAxis,
           this.THREE.MathUtils.degToRad(-rotation.x),
@@ -202,6 +227,7 @@ function Avatar() {
         this.inputs.avatarModel.obj3D.quaternion,
         this.tempFinalQuaternion,
       );
+      */
     },
 
     destroy: () => {
@@ -367,12 +393,13 @@ function Avatar() {
     position: Coordinates,
     rotation: Simple2DPoint,
     currentCirclePosition: Vector3,
+    participantSlotIndex: number,
   ) => {
     if (!stateManager.canUpdate()) {
       console.warn(`Cannot update avatar in ${this.state.current} state`);
       return;
     }
-    rotationManager.update(rotation, currentCirclePosition);
+    rotationManager.update(rotation, currentCirclePosition, participantSlotIndex);
     positionManager.update(position, currentCirclePosition);
   };
 
