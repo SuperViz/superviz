@@ -17,7 +17,6 @@ export type Callback<T extends GeneralEvent> = (event: EventPayload<T>) => void;
 
 export type ParticipantToFrame = {
   id: string;
-  timestamp: number;
   participantId: string;
   color: string;
   name: string;

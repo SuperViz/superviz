@@ -5,4 +5,5 @@ export type Permissions = {
   toggleRecording?: boolean;
   toggleChat?: boolean;
   toggleParticipantList?: boolean;
+  allowGuests?: boolean
 };

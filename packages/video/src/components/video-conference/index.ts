@@ -45,9 +45,11 @@ export class VideoConference extends BaseComponent {
         toggleParticipantList: props?.permissions?.toggleParticipantList || true,
         toggleRecording: props?.permissions?.toggleRecording || true,
         toggleScreenShare: props?.permissions?.toggleScreenShare || true,
+        allowGuests: props?.permissions?.allowGuests || false,
       },
     };
 
+    this.kickParticipantsOnHostLeave = !this.config.permissions.allowGuests;
     this.participantType = this.config.participantType as ParticipantType;
   }
 

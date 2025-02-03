@@ -16,8 +16,6 @@ export type Participant = {
 export interface VideoParticipant extends Participant {
   participantId?: string;
   color?: string;
-  joinedMeeting?: boolean;
-  timestamp: number;
   isHost: boolean
 }
 
