@@ -4,10 +4,10 @@ import type { Configuration } from '@superviz/room/dist/services/config/types';
 import type { EventBus } from '@superviz/room/dist/services/event-bus';
 import type { IOC } from '@superviz/room/dist/services/io';
 import type { useStore } from '@superviz/room/dist/stores/common/use-store';
-import type { PresenceEvent, Room } from '@superviz/socket-client';
+import type { PresenceEvent, Room, SocketEvent } from '@superviz/socket-client';
 import { Subject, Subscription } from 'rxjs';
 
-import { EventBusEvent, RealtimeEvent } from '../../common/types/events.types';
+import { EventBusEvent, MeetingEvent, RealtimeEvent } from '../../common/types/events.types';
 import { Participant, ParticipantType, VideoParticipant } from '../../common/types/participant.types';
 import { Logger } from '../../common/utils/logger';
 import { ConnectionService } from '../../services/connection-status';
@@ -110,7 +110,7 @@ export abstract class BaseComponent {
     this.room = undefined;
     this.videoManager?.leave();
     this.connectionService.removeListeners();
-    this.roomState.stop();
+    this.roomState?.stop();
 
     this.unsubscribeFrom.forEach((unsubscribe) => unsubscribe(this));
     this.isAttached = false;
@@ -220,26 +220,7 @@ export abstract class BaseComponent {
     };
   }
 
-  private subscribeToRealtimeEvents() {
-    this.room.presence.on('presence.joined-room', this.onPresenceJoinedRoom);
-    this.room.presence.on('presence.update', this.onPresenceUpdate);
-    this.room.presence.on('presence.leave', this.onPresenceLeave);
-  }
-
-  private unsubscribeToRealtimeEvents() {
-    this.room?.presence.off('presence.joined-room');
-    this.room?.presence.off('presence.update');
-    this.room?.presence.off('presence.leave');
-  }
-
-  private subscribeToStateEvents() {
-    this.roomState?.hostObserver.subscribe((hostId) => {
-      console.log('here', hostId);
-      this.videoManager.publishMessageToFrame(RealtimeEvent.REALTIME_HOST_CHANGE, hostId);
-    });
-  }
-
-  private validateIfInTheRoomHasHost = async (): Promise<void> => {
+  private async validateIfInTheRoomHasHost(): Promise<void> {
     const { hostId } = this.roomState.state;
 
     const participantsList = await new Promise<PresenceEvent<VideoParticipant>[]>(
@@ -292,7 +273,7 @@ export abstract class BaseComponent {
         this.logger.log(
           'video conference @ validate if in the room has host - kick all participants',
         );
-        this.onKickLocalParticipant();
+        this.kickLocalParticipant();
       }, KICK_PARTICIPANTS_TIME);
     }
 
@@ -343,12 +324,65 @@ export abstract class BaseComponent {
 
     this.roomState.update({ hostId: host.id });
     this.videoManager.publishMessageToFrame(RealtimeEvent.REALTIME_HOST_CHANGE, host.id);
-  };
+  }
 
-  private onKickLocalParticipant = (): void => {
+  private removeVideoComponentFromGlobalParticipant() {
+    const { localParticipant, participants } = this.useStore('global-store');
+
+    const participantUpdated = Object.assign({}, localParticipant.value, {
+      activeComponents: localParticipant.value.activeComponents?.filter(
+        (ac) => ac !== 'videoConference',
+      ) ?? [],
+    }) as Participant;
+
+    this.eventBus.publish(EventBusEvent.UPDATE_PARTICIPANT, participantUpdated);
+    this.eventBus.publish(EventBusEvent.UPDATE_PARTICIPANT_LIST, {
+      ...participants.value,
+      [this.localParticipant.id]: participantUpdated,
+    });
+  }
+
+  private kickLocalParticipant = (): void => {
     this.logger.log('video conference @ on kick local participant');
 
+    this.removeVideoComponentFromGlobalParticipant();
     this.detach();
+  };
+
+  /**
+   * State listeners
+   */
+
+  private subscribeToStateEvents() {
+    this.roomState?.hostObserver.subscribe((hostId) => {
+      this.videoManager.publishMessageToFrame(RealtimeEvent.REALTIME_HOST_CHANGE, hostId);
+    });
+  }
+
+  /**
+   * IO Listenres
+   */
+
+  private subscribeToRealtimeEvents() {
+    this.room.presence.on('presence.joined-room', this.onPresenceJoinedRoom);
+    this.room.presence.on('presence.update', this.onPresenceUpdate);
+    this.room.presence.on('presence.leave', this.onPresenceLeave);
+
+    this.room.on(MeetingEvent.MEETING_KICK_PARTICIPANT, this.onKickParticipant);
+  }
+
+  private unsubscribeToRealtimeEvents() {
+    this.room?.presence.off('presence.joined-room');
+    this.room?.presence.off('presence.update');
+    this.room?.presence.off('presence.leave');
+
+    this.room?.off(MeetingEvent.MEETING_KICK_PARTICIPANT);
+  }
+
+  private onKickParticipant = (event: SocketEvent<string>) => {
+    if (event.data !== this.localParticipant.id) return;
+
+    this.kickLocalParticipant();
   };
 
   private onPresenceJoinedRoom = (presence: PresenceEvent<Participant>): void => {
@@ -393,6 +427,10 @@ export abstract class BaseComponent {
     this.participants = this.participants.filter((p) => p.id !== presence.id);
   };
 
+  /**
+   * Frame listeners
+   */
+
   private subscribeToVideoEvents() {
     this.videoManager.meetingConnectionObserver.subscribe(
       this.connectionService.updateMeetingConnectionStatus,
@@ -426,6 +464,9 @@ export abstract class BaseComponent {
       [RealtimeEvent.REALTIME_HOST_CHANGE]: (hostId: string) => this.roomState.update({
         hostId,
       }),
+      [MeetingEvent.MEETING_KICK_PARTICIPANT]: (participantId: string) => {
+        this.room.emit(MeetingEvent.MEETING_KICK_PARTICIPANT, participantId);
+      },
     }[event](data);
   };
 
@@ -484,21 +525,8 @@ export abstract class BaseComponent {
     this.updateParticipant(updated);
   };
 
-  private onParticipantLeft = (participant: VideoParticipant) => {
-    const { localParticipant, participants } = this.useStore('global-store');
-
-    const updated = Object.assign({}, localParticipant.value, {
-      activeComponents: localParticipant.value.activeComponents?.filter(
-        (ac) => ac !== 'videoConference',
-      ) ?? [],
-    }) as Participant;
-
-    this.eventBus.publish(EventBusEvent.UPDATE_PARTICIPANT, updated);
-    this.eventBus.publish(EventBusEvent.UPDATE_PARTICIPANT_LIST, {
-      ...participants.value,
-      [participant.id]: updated,
-    });
-
+  private onParticipantLeft = (_: VideoParticipant) => {
+    this.removeVideoComponentFromGlobalParticipant();
     this.detach();
   };
 }
