@@ -1,16 +1,14 @@
-import { AvatarTypes, Name } from '../common/types/avatarTypes.types';
-import { IntervalManager } from '../managers/interval-manager';
-import { VectorCache } from '../utils/vector-cache';
-import { Laser } from '../common/types/lasers.types';
-import { Coordinates } from '../common/types/coordinates.types';
 import { Vector3, Quaternion } from 'three';
-import { AVATAR_LASER_HEIGHT_OFFSET, NO_AVATAR_LASER_HEIGHT } from '../common/constants/presence';
-import { ParticipantOn3D } from '../types';
-import { PositionInfo } from '../types';
-import { Slot } from '../types';
-import { MatterportComponentOptions } from '../types';
+
+import { AVATAR_LASER_HEIGHT_OFFSET, NO_AVATAR_LASER_HEIGHT, MIN_NAME_HEIGHT } from '../common/constants/presence';
+import { AvatarTypes, Name } from '../common/types/avatarTypes.types';
+import { Coordinates } from '../common/types/coordinates.types';
+import { Laser } from '../common/types/lasers.types';
 import type { MpSdk as Matterport, Rotation } from '../common/types/matterport.types';
-import { MIN_NAME_HEIGHT } from '../common/constants/presence';
+import { ParticipantOn3D, PositionInfo, Slot, MatterportComponentOptions } from '../types';
+import { VectorCache } from '../utils/vector-cache';
+
+import { IntervalManager } from './interval-manager';
 
 export class LaserManager {
   private readonly intervalManager: IntervalManager;
@@ -41,7 +39,7 @@ export class LaserManager {
       this.laserLerpers[participantId] = {
         curVector: new Vector3(startPos.x, NO_AVATAR_LASER_HEIGHT, startPos.z),
         speed: 0.95,
-        animateVector: function (current: Vector3, target: Vector3) {
+        animateVector(current: Vector3, target: Vector3) {
           current.lerp(target, this.speed);
         },
       };
@@ -103,7 +101,9 @@ export class LaserManager {
           position,
           this.vectorCache.get<Vector3>('lastCameraPosition'),
         );
-        remoteLaser.nameLabel.updateHeight(nameHeight);
+        //  remoteLaser.nameLabel.updateHeight(nameHeight);
+
+        remoteLaser.nameLabel.updateHeight(0.05);
       }
     } catch (error) {
       console.error('Error updating laser:', error);

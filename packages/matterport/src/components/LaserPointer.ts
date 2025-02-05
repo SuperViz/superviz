@@ -17,7 +17,7 @@ const TUBE_RADIUS = 0.003;
 const TUBE_RADIAL_SEGMENTS = 1;
 const DEFAULT_COLOR = '#878291';
 const MATERIAL_SHININESS = 60;
-const LERP_SPEED = 0.95;
+const LERP_SPEED = 3.45;
 const INITIAL_POSITION = { x: 1000, y: 1000, z: 1000 };
 
 /**
@@ -118,7 +118,7 @@ function LaserPointer() {
     doUpdateGeometry(isOn, shouldRenderAvatars, slot, quat, startPos, destPos);
 
     if (this.avatarName?.updateHeight && nameHeight !== undefined) {
-      this.avatarName.updateHeight(nameHeight);
+      // this.avatarName.updateHeight(nameHeight);
     }
   };
 

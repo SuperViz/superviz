@@ -17,7 +17,7 @@ type WindowWithMP_SDK = Window & {
 
 export function Matterport() {
   const containerId = "matterport-container";
-  const modelId = "EbGfUeJG6q2";
+  const modelId = "5m4i274y1aV";
   const room = useRef<LauncherFacade | null>(null);
   const mpSdk = useRef<any | null>(null);
 
@@ -27,7 +27,7 @@ export function Matterport() {
     room.current = await Room(SUPERVIZ_KEY, {
       roomId: `${SUPERVIZ_ROOM_PREFIX}-presence-3d`,
       participant: {
-        name: "Participant",
+        name: "Peter",
         id: uuid,
       },
       group: {
@@ -39,7 +39,7 @@ export function Matterport() {
     });
 
     const matterportPresence = new MatterportPresence3D(matterportInstance, {
-      isAvatarsEnabled: true,
+      isAvatarsEnabled: false,
       isLaserEnabled: true,
       isNameEnabled: true,
     });
