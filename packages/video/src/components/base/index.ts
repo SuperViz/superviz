@@ -355,7 +355,7 @@ export abstract class BaseComponent {
 
   private subscribeToStateEvents() {
     this.roomState?.hostObserver.subscribe((hostId) => {
-      this.videoManager.publishMessageToFrame(RealtimeEvent.REALTIME_HOST_CHANGE, hostId);
+      this.videoManager?.publishMessageToFrame(RealtimeEvent.REALTIME_HOST_CHANGE, hostId);
     });
   }
 

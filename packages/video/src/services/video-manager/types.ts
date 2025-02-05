@@ -55,10 +55,10 @@ export interface WindowSize {
 }
 
 export interface Offset {
-  top: number;
-  bottom: number;
-  left: number;
-  right: number;
+  top?: number;
+  bottom?: number;
+  left?: number;
+  right?: number;
 }
 
 export interface FrameLocale {

@@ -2,7 +2,7 @@
 
 import { v4 as generateId } from "uuid";
 import { createRoom, Room } from '@superviz/room'
-import { VideoConference } from "@superviz/video";
+import { VideoHuddle } from "@superviz/video";
 
 import { useCallback, useEffect, useRef } from "react";
 import { getConfig } from "../config";
@@ -10,9 +10,9 @@ import { getConfig } from "../config";
 const SUPERVIZ_KEY = getConfig<string>("keys.superviz");
 const SUPERVIZ_ROOM_PREFIX = getConfig<string>("roomPrefix");
 
-const componentName = "video-with-new-room";
+const componentName = "video-huddle-new-room";
 
-export function NewVideoConference() {
+export function NewVideoHuddle() {
   const room = useRef<Room | null>(null);
 
   const initializeSuperViz = useCallback(async () => {
@@ -34,8 +34,13 @@ export function NewVideoConference() {
       debug: true,
     });
 
-    const video = new VideoConference({
-      participantType: 'host'
+    const video = new VideoHuddle({
+      participantType: 'host',
+      permissions: { 
+        toggleFollow: false, 
+        toggleGoTo: false, 
+        toggleGather: false, 
+      }
     });
     room.current.addComponent(video);
 
