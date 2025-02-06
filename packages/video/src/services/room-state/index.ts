@@ -2,12 +2,15 @@ import type { Room, SocketEvent } from '@superviz/socket-client';
 import { BehaviorSubject } from 'rxjs';
 
 import { Logger } from '../../common/utils/logger';
+import { LayoutMode } from '../video-manager/types';
 
 import { RoomPropertiesEvents, State } from './types';
 
 export class RoomState {
   public state: State;
   public hostObserver: BehaviorSubject<string | null>;
+  public followObserver: BehaviorSubject<string | null>;
+  public cameraModeObserver: BehaviorSubject<LayoutMode>;
 
   private logger: Logger;
 
@@ -18,9 +21,13 @@ export class RoomState {
 
     this.state = {
       hostId: null,
+      followParticipantId: null,
+      cameraMode: LayoutMode.LIST,
     };
 
-    this.hostObserver = new BehaviorSubject<string>(null);
+    this.hostObserver = new BehaviorSubject<string>(this.state.hostId);
+    this.followObserver = new BehaviorSubject<string>(this.state.followParticipantId);
+    this.cameraModeObserver = new BehaviorSubject<LayoutMode>(this.state.cameraMode);
   }
 
   public start = async (): Promise<void> => {
@@ -32,6 +39,8 @@ export class RoomState {
       this.state = state;
       this.notify();
     }
+
+    console.log(state, this.state);
 
     this.room.on(RoomPropertiesEvents.UPDATE, this.onUpdate);
   };
@@ -77,13 +86,13 @@ export class RoomState {
 
     if (!lastMessage?.data || messageIsTooOld) return null;
 
-    console.log(lastMessage);
-
     return lastMessage.data as State;
   }
 
-  private notify() {
+  public notify() {
     this.hostObserver.next(this.state.hostId);
+    this.followObserver.next(this.state.followParticipantId);
+    this.cameraModeObserver.next(this.state.cameraMode);
   }
 
   private onUpdate = ({ data }: SocketEvent<State>) => {

@@ -1,8 +1,9 @@
+import { RealtimeEvent } from '../../common/types/events.types';
 import { ParticipantType } from '../../common/types/participant.types';
 import { Logger } from '../../common/utils/logger';
 import { RemoteConfigService } from '../../services/remote-config';
 import { EnvironmentTypes } from '../../services/remote-config/types';
-import { CamerasPosition, LayoutMode, LayoutPosition, VideoFrameState, VideoManagerOptions } from '../../services/video-manager/types';
+import { CamerasPosition, LayoutMode, LayoutPosition, RealtimeObserverPayload, VideoFrameState, VideoManagerOptions } from '../../services/video-manager/types';
 import { BaseComponent } from '../base';
 
 import { VideoHuddleProps } from './types';
@@ -45,9 +46,9 @@ export class VideoHuddle extends BaseComponent {
         toggleParticipantList: props?.permissions?.toggleParticipantList ?? true,
         toggleRecording: props?.permissions?.toggleRecording ?? true,
         toggleScreenShare: props?.permissions?.toggleScreenShare ?? true,
-        toggleFollow: props?.permissions?.toggleFollow ?? true,
-        toggleGoTo: props?.permissions?.toggleGoTo ?? true,
-        toggleGather: props?.permissions?.toggleGather ?? true,
+        enableFollow: props?.permissions?.enableFollow ?? true,
+        enableGoTo: props?.permissions?.enableGoTo ?? true,
+        enableGather: props?.permissions?.enableGather ?? true,
         allowGuests: props?.permissions?.allowGuests ?? false,
       },
       offset: props?.offset ?? {
@@ -82,9 +83,9 @@ export class VideoHuddle extends BaseComponent {
       canUseCams: this.config.permissions.toggleCamera,
       canUseScreenshare: this.config.permissions.toggleScreenShare,
       canUseDefaultAvatars: false,
-      canUseGather: this.config.permissions.toggleGather,
-      canUseFollow: this.config.permissions.toggleFollow,
-      canUseGoTo: this.config.permissions.toggleGoTo,
+      canUseGather: this.config.permissions.enableGather,
+      canUseFollow: this.config.permissions.enableFollow,
+      canUseGoTo: this.config.permissions.enableGoTo,
       canUseDefaultToolbar: true,
       camerasPosition: this.config.camerasPosition as CamerasPosition,
       devices: {
@@ -106,7 +107,93 @@ export class VideoHuddle extends BaseComponent {
     };
 
     this.startVideoManager();
+    this.subscribeToParticularVideoManagerEvents();
+    this.subscribeToParticularStateObservers();
+    this.subscribeToParticularRealtimeEvents();
   }
 
-  protected destroy() {}
+  protected destroy() {
+    this.unsubscribeToParticularVideoManagerEvents();
+    this.unsubscribeToParticularRealtimeEvents();
+  }
+
+  /**
+   * Video Manager events
+   */
+
+  private subscribeToParticularVideoManagerEvents() {
+    this.videoManager.realtimeEventsObserver.subscribe(this.onRealtimeEventFromVideoManager);
+  }
+
+  private unsubscribeToParticularVideoManagerEvents() {
+    this.videoManager.realtimeEventsObserver.unsubscribe(this.onRealtimeEventFromVideoManager);
+  }
+
+  private onRealtimeEventFromVideoManager = ({ event, data }: RealtimeObserverPayload): void => {
+    this.logger.log('video conference @ on realtime event from frame', event, data);
+
+    const map = {
+      [RealtimeEvent.REALTIME_GATHER]: (participantId: boolean) => {
+        this.room.emit(RealtimeEvent.REALTIME_GATHER, participantId);
+      },
+      [RealtimeEvent.REALTIME_GRID_MODE_CHANGE]: (isGrid: boolean) => {
+        this.roomState.update({ cameraMode: isGrid ? LayoutMode.GRID : LayoutMode.LIST });
+      },
+      [RealtimeEvent.REALTIME_FOLLOW_PARTICIPANT]: (followParticipantId: string) => {
+        this.roomState.update({ followParticipantId });
+      },
+      [RealtimeEvent.REALTIME_GO_TO_PARTICIPANT]: (data: string) => {
+        this.eventBus.publish(RealtimeEvent.REALTIME_GO_TO_PARTICIPANT, data);
+      },
+    };
+
+    if (!map[event]) return;
+
+    map[event](data);
+  };
+
+  /**
+   * State observers
+   */
+
+  private subscribeToParticularStateObservers() {
+    this.roomState?.followObserver.subscribe((followParticipantId) => {
+      this.videoManager?.publishMessageToFrame(
+        RealtimeEvent.REALTIME_FOLLOW_PARTICIPANT,
+        followParticipantId,
+      );
+
+      this.eventBus.publish(RealtimeEvent.REALTIME_FOLLOW_PARTICIPANT, followParticipantId);
+    });
+
+    this.roomState?.cameraModeObserver?.subscribe((mode) => {
+      this.videoManager?.publishMessageToFrame(
+        RealtimeEvent.REALTIME_GRID_MODE_CHANGE,
+        mode === LayoutMode.GRID,
+      );
+    });
+  }
+
+  /**
+   * Realtime Events
+   */
+
+  private subscribeToParticularRealtimeEvents = () => {
+    this.room.on(RealtimeEvent.REALTIME_GATHER, this.onGather);
+  };
+
+  private unsubscribeToParticularRealtimeEvents = () => {
+    this.room.off(RealtimeEvent.REALTIME_GATHER, this.onGather);
+  };
+
+  private onGather = () => {
+    if (!this.roomState?.state?.hostId) return;
+
+    if (this.roomState.state.hostId !== this.localParticipant.id) {
+      this.eventBus.publish(RealtimeEvent.REALTIME_GO_TO_PARTICIPANT, this.roomState.state.hostId);
+      return;
+    }
+
+    this.videoManager.publishMessageToFrame(RealtimeEvent.REALTIME_GATHER, true);
+  };
 }

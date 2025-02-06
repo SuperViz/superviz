@@ -8,9 +8,9 @@ export type VideoHuddleProps = {
   brand?: Brand;
   participantType?: ParticipantType | `${ParticipantType}`;
   permissions?: Permissions & {
-    toggleFollow?: boolean
-    toggleGoTo?: boolean
-    toggleGather?: boolean
+    enableFollow?: boolean
+    enableGoTo?: boolean
+    enableGather?: boolean
   };
   styles?: string;
   offset?: Offset;

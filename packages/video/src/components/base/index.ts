@@ -460,14 +460,18 @@ export abstract class BaseComponent {
   private onRealtimeEventFromFrame = ({ event, data }: RealtimeObserverPayload): void => {
     this.logger.log('video conference @ on realtime event from frame', event, data);
 
-    const _ = {
+    const map = {
       [RealtimeEvent.REALTIME_HOST_CHANGE]: (hostId: string) => this.roomState.update({
         hostId,
       }),
       [MeetingEvent.MEETING_KICK_PARTICIPANT]: (participantId: string) => {
         this.room.emit(MeetingEvent.MEETING_KICK_PARTICIPANT, participantId);
       },
-    }[event](data);
+    };
+
+    if (!map[event]) return;
+
+    map[event](data);
   };
 
   private onParticipantListUpdate = (participants: Record<string, VideoParticipant>) => {
@@ -523,6 +527,7 @@ export abstract class BaseComponent {
     });
 
     this.updateParticipant(updated);
+    this.roomState?.notify();
   };
 
   private onParticipantLeft = (_: VideoParticipant) => {
