@@ -1,6 +1,5 @@
 import {
   FrameEvent,
-  DeviceEvent,
   MeetingEvent,
   RealtimeEvent,
 } from '../../common/types/events.types';
@@ -14,4 +13,4 @@ export interface MessageBridgeOptions {
   sourceBlockList?: Array<string>;
 }
 
-export type Message = FrameEvent | DeviceEvent | MeetingEvent | RealtimeEvent | string;
+export type Message = FrameEvent | MeetingEvent | RealtimeEvent | string;
