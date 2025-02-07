@@ -13,7 +13,7 @@ import { Logger } from '../../common/utils/logger';
 import { ConnectionService } from '../../services/connection-status';
 import { RoomState } from '../../services/room-state';
 import VideoManager from '../../services/video-manager';
-import { RealtimeObserverPayload, VideoFrameState, VideoManagerOptions } from '../../services/video-manager/types';
+import { DrawingData, RealtimeObserverPayload, VideoFrameState, VideoManagerOptions } from '../../services/video-manager/types';
 
 import { Callback, EventOptions, EventPayload, GeneralEvent } from './types';
 
@@ -78,7 +78,7 @@ export abstract class BaseComponent {
     this.drawingRoom = ioc.createRoom(this.name, this.connectionLimit);
     this.subscribeToRealtimeEvents();
 
-    this.roomState = new RoomState(this.room);
+    this.roomState = new RoomState(this.room, this.drawingRoom, this.localParticipant);
     this.subscribeToStateEvents();
 
     if (!hasJoinedRoom.value) {
@@ -357,6 +357,10 @@ export abstract class BaseComponent {
     this.roomState?.hostObserver.subscribe((hostId) => {
       this.videoManager?.publishMessageToFrame(RealtimeEvent.REALTIME_HOST_CHANGE, hostId);
     });
+
+    this.roomState?.drawingObserver.subscribe((drawing) => {
+      this.videoManager?.publishMessageToFrame(RealtimeEvent.REALTIME_DRAWING_CHANGE, drawing);
+    });
   }
 
   /**
@@ -461,9 +465,12 @@ export abstract class BaseComponent {
     this.logger.log('video conference @ on realtime event from frame', event, data);
 
     const map = {
-      [RealtimeEvent.REALTIME_HOST_CHANGE]: (hostId: string) => this.roomState.update({
-        hostId,
-      }),
+      [RealtimeEvent.REALTIME_DRAWING_CHANGE]: (drawing: DrawingData) => {
+        this.roomState.setDrawing(drawing);
+      },
+      [RealtimeEvent.REALTIME_HOST_CHANGE]: (hostId: string) => {
+        this.roomState.update({ hostId });
+      },
       [MeetingEvent.MEETING_KICK_PARTICIPANT]: (participantId: string) => {
         this.room.emit(MeetingEvent.MEETING_KICK_PARTICIPANT, participantId);
       },
