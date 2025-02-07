@@ -1,6 +1,6 @@
 import { Brand } from '../../common/types/brand.types';
 import { i18n } from '../../common/types/i18n.types';
-import { ParticipantType } from '../../common/types/participant.types';
+import { Avatar, ParticipantType } from '../../common/types/participant.types';
 import { Permissions } from '../../common/types/permissions.types';
 import { CamerasPosition, Offset } from '../../services/video-manager/types';
 
@@ -11,7 +11,9 @@ export type VideoHuddleProps = {
     enableFollow?: boolean
     enableGoTo?: boolean
     enableGather?: boolean
+    enableDefaultAvatars?: boolean;
   };
+  avatars?: Avatar[];
   styles?: string;
   offset?: Offset;
   camerasPosition?: CamerasPosition | `${CamerasPosition}`

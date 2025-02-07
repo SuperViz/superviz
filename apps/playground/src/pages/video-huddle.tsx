@@ -48,9 +48,10 @@ export function NewVideoHuddle() {
     const video = new VideoHuddle({
       participantType: 'host',
       permissions: { 
-        toggleFollow: true, 
-        toggleGoTo: true, 
-        toggleGather: true, 
+        enableFollow: true, 
+        enableGoTo: true, 
+        enableGather: true,
+        enableDefaultAvatars: true,
       }
     });
     

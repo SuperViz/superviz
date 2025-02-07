@@ -50,6 +50,7 @@ export class VideoHuddle extends BaseComponent {
         enableGoTo: props?.permissions?.enableGoTo ?? true,
         enableGather: props?.permissions?.enableGather ?? true,
         allowGuests: props?.permissions?.allowGuests ?? false,
+        enableDefaultAvatars: props?.permissions?.enableDefaultAvatars ?? false,
       },
       offset: props?.offset ?? {
         bottom: 0,
@@ -58,6 +59,7 @@ export class VideoHuddle extends BaseComponent {
         top: 0,
       },
       camerasPosition: props?.camerasPosition ?? CamerasPosition.RIGHT,
+      avatars: props?.avatars ?? [],
     };
 
     this.kickParticipantsOnHostLeave = !this.config.permissions.allowGuests;
@@ -82,7 +84,7 @@ export class VideoHuddle extends BaseComponent {
       canUseChat: this.config.permissions.toggleChat,
       canUseCams: this.config.permissions.toggleCamera,
       canUseScreenshare: this.config.permissions.toggleScreenShare,
-      canUseDefaultAvatars: false,
+      canUseDefaultAvatars: this.config.permissions.enableDefaultAvatars,
       canUseGather: this.config.permissions.enableGather,
       canUseFollow: this.config.permissions.enableFollow,
       canUseGoTo: this.config.permissions.enableGoTo,
@@ -97,7 +99,7 @@ export class VideoHuddle extends BaseComponent {
       offset: this.config.offset,
       language: this.config.i18n?.language,
       locales: this.config.i18n?.locales,
-      avatars: [],
+      avatars: this.config.avatars,
       waterMark: this.globalConfig.waterMark,
       styles: this.config?.styles,
       collaborationMode: true,
