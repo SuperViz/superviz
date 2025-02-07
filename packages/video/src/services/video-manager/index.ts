@@ -1,4 +1,4 @@
-import { DeviceEvent, FrameEvent, MeetingConnectionStatus, MeetingControlsEvent, MeetingEvent, MeetingState, RealtimeEvent } from '../../common/types/events.types';
+import { FrameEvent, MeetingConnectionStatus, MeetingControlsEvent, MeetingEvent, MeetingState, RealtimeEvent } from '../../common/types/events.types';
 import { Avatar, Participant } from '../../common/types/participant.types';
 import { Logger } from '../../common/utils/logger';
 import { Observer } from '../../common/utils/observer';
@@ -40,11 +40,8 @@ export default class VideoManager {
   public readonly frameStateObserver = new Observer({ logger: this.logger });
   public readonly frameSizeObserver = new Observer({ logger: this.logger });
 
-  public readonly waitingForHostObserver = new Observer({ logger: this.logger });
   public readonly realtimeEventsObserver = new Observer({ logger: this.logger });
 
-  public readonly sameAccountErrorObserver = new Observer({ logger: this.logger });
-  public readonly devicesObserver = new Observer({ logger: this.logger });
   public readonly meetingStateObserver = new Observer({ logger: this.logger });
   public readonly meetingConnectionObserver = new Observer({ logger: this.logger });
 
@@ -243,12 +240,6 @@ export default class VideoManager {
    * @returns {void}
    */
   private addMessagesListeners(): void {
-    // @TODO: create option on MessageBridge to destroy all these listens.
-
-    this.messageBridge.listen(
-      MeetingEvent.MEETING_WAITING_FOR_HOST,
-      this.onWaitingForHostDidChange,
-    );
     this.messageBridge.listen(MeetingEvent.MEETING_PARTICIPANT_JOINED, this.onParticipantJoined);
     this.messageBridge.listen(
       MeetingEvent.MEETING_PARTICIPANT_LIST_UPDATE,
@@ -257,13 +248,11 @@ export default class VideoManager {
     this.messageBridge.listen(MeetingEvent.MEETING_PARTICIPANT_LEFT, this.onParticipantLeft);
     this.messageBridge.listen(MeetingEvent.MEETING_HOST_CHANGE, this.onMeetingHostChange);
     this.messageBridge.listen(MeetingEvent.MEETING_KICK_PARTICIPANT, this.onMeetingKickParticipant);
-    this.messageBridge.listen(MeetingEvent.MEETING_SAME_PARTICIPANT_ERROR, this.onSameAccountError);
     this.messageBridge.listen(MeetingEvent.MEETING_STATE_UPDATE, this.meetingStateUpdate);
     this.messageBridge.listen(
       MeetingEvent.MEETING_CONNECTION_STATUS_CHANGE,
       this.onConnectionStatusChange,
     );
-    this.messageBridge.listen(MeetingEvent.MEETING_DEVICES_CHANGE, this.onDevicesChange);
     this.messageBridge.listen(RealtimeEvent.REALTIME_GRID_MODE_CHANGE, this.onGridModeChange);
     this.messageBridge.listen(RealtimeEvent.REALTIME_DRAWING_CHANGE, this.onDrawingChange);
 
@@ -552,24 +541,6 @@ export default class VideoManager {
   };
 
   /**
-   * @function onSameAccountError
-   * @param {string} error
-   * @returns {void}
-   */
-  private onSameAccountError = (error: string): void => {
-    this.sameAccountErrorObserver.publish(error);
-  };
-
-  /**
-   * @function onDevicesChange
-   * @param {DeviceEvent} state
-   * @returns {void}
-   */
-  private onDevicesChange = (state: DeviceEvent): void => {
-    this.devicesObserver.publish(state);
-  };
-
-  /**
    * @function meetingStateUpdate
    * @param {MeetingState} newState
    * @returns {void}
@@ -585,10 +556,6 @@ export default class VideoManager {
    */
   private onConnectionStatusChange = (newStatus: MeetingConnectionStatus): void => {
     this.meetingConnectionObserver.publish(newStatus);
-  };
-
-  private onWaitingForHostDidChange = (isWaitingForHost: boolean): void => {
-    this.waitingForHostObserver.publish(isWaitingForHost);
   };
 
   private onParticipantListUpdate = (participants: Partial<Participant>[]): void => {
@@ -629,8 +596,6 @@ export default class VideoManager {
 
     this.frameSizeObserver?.destroy();
     this.realtimeEventsObserver?.destroy();
-    this.sameAccountErrorObserver?.destroy();
-    this.devicesObserver?.destroy();
     this.meetingStateObserver?.destroy();
     this.meetingConnectionObserver?.destroy();
     this.participantJoinedObserver?.destroy();

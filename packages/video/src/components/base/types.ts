@@ -1,7 +1,7 @@
 import { Avatar, ParticipantType, Slot } from '../../common/types/participant.types';
 
 export enum VideoEvent {
-  MY_PARTICIPANT_JOINED = 'MY_PARTICIPANT_JOINED',
+  PARTICIPANT_JOINED = 'participant.joined',
 }
 
 export interface VideoEventPayloads {}
