@@ -7,7 +7,7 @@ import type { useStore } from '@superviz/room/dist/stores/common/use-store';
 import type { PresenceEvent, Room, SocketEvent } from '@superviz/socket-client';
 import { Subject, Subscription } from 'rxjs';
 
-import { EventBusEvent, MeetingEvent, RealtimeEvent } from '../../common/types/events.types';
+import { EventBusEvent, MeetingControlsEvent, MeetingEvent, RealtimeEvent } from '../../common/types/events.types';
 import { Participant, ParticipantType, VideoParticipant } from '../../common/types/participant.types';
 import { Logger } from '../../common/utils/logger';
 import { ConnectionService } from '../../services/connection-status';
@@ -52,6 +52,89 @@ export abstract class BaseComponent {
   constructor() {
     this.connectionService = new ConnectionService();
     this.connectionService.addListeners();
+  }
+
+  /**
+   * @function toggleMeetingSetup
+   * @description open/close meeting setup
+   * @returns {void}
+   */
+  public toggleMeetingSetup(): void {
+    return this.videoManager?.publishMessageToFrame(MeetingControlsEvent.TOGGLE_MEETING_SETUP);
+  }
+
+  /**
+   * @function toggleMicrophone
+   * @description mute/unmute user's microphone
+   * @returns {void}
+   */
+  public toggleMicrophone(): void {
+    if (this.localParticipant.type === ParticipantType.AUDIENCE) {
+      console.warn('[SuperViz] Audience cannot toggle microphone');
+      return;
+    }
+
+    return this.videoManager?.publishMessageToFrame(MeetingControlsEvent.TOGGLE_MICROPHONE);
+  }
+
+  /**
+   * @function toggleCam
+   * @description enable/disable user's camera
+   * @returns {void}
+   */
+  public toggleCam(): void {
+    if (this.localParticipant.type === ParticipantType.AUDIENCE) {
+      console.warn('[SuperViz] Audience cannot toggle camera');
+      return;
+    }
+
+    this.videoManager?.publishMessageToFrame(MeetingControlsEvent.TOGGLE_CAM);
+  }
+
+  /**
+   * @function toggleScreenShare
+   * @description enable/disable user's screen share
+   * @returns {void}
+   */
+  public toggleScreenShare(): void {
+    if (this.localParticipant.type === ParticipantType.AUDIENCE) {
+      console.warn('[SuperViz] Audience cannot toggle screen share');
+      return;
+    }
+
+    return this.videoManager?.publishMessageToFrame(MeetingControlsEvent.TOGGLE_SCREENSHARE);
+  }
+
+  /**
+   * @function toggleChat
+   * @description open/close meeting chat
+   * @returns {void}
+   */
+  public toggleChat(): void {
+    return this.videoManager?.publishMessageToFrame(MeetingControlsEvent.TOGGLE_MEETING_CHAT);
+  }
+
+  /**
+   * @function toggleRecording
+   * @description open/close meeting recording
+   * @returns {void}
+   */
+  public toggleRecording(): void {
+    if (this.localParticipant.id !== this.roomState.state.hostId) {
+      console.warn('[SuperViz] Only host can toggle recording');
+      return;
+    }
+
+    return this.videoManager?.publishMessageToFrame(MeetingControlsEvent.TOGGLE_RECORDING);
+  }
+
+  /**
+   * @function hangUp
+   * @description hang up user's call
+   * @returns {void}
+   * */
+  public hangUp(): void {
+    this.videoManager?.publishMessageToFrame(MeetingControlsEvent.HANG_UP);
   }
 
   public attach(params: AttachComponentOptions) {
