@@ -1,5 +1,4 @@
 import {
-  DeviceEvent,
   FrameEvent,
   MeetingConnectionStatus,
   MeetingControlsEvent,
@@ -144,14 +143,6 @@ describe('VideoConferenceManager', () => {
         VideoConferenceManagerInstance.realtimeEventsObserver,
         'destroy',
       );
-      const sameAccountErrorSpy = jest.spyOn(
-        VideoConferenceManagerInstance.sameAccountErrorObserver,
-        'destroy',
-      );
-      const devicesObserverSpy = jest.spyOn(
-        VideoConferenceManagerInstance.devicesObserver,
-        'destroy',
-      );
       const meetingStateObserverSpy = jest.spyOn(
         VideoConferenceManagerInstance.meetingStateObserver,
         'destroy',
@@ -173,8 +164,6 @@ describe('VideoConferenceManager', () => {
 
       expect(frameSizeObserverSpy).toBeCalled();
       expect(realtimeEventsObserverSpy).toBeCalled();
-      expect(sameAccountErrorSpy).toBeCalled();
-      expect(devicesObserverSpy).toBeCalled();
       expect(meetingStateObserverSpy).toBeCalled();
       expect(meetingConnectionObserverSpy).toBeCalled();
       expect(participantJoinedSpy).toBeCalled();
@@ -576,28 +565,6 @@ describe('VideoConferenceManager', () => {
         event: RealtimeEvent.REALTIME_GRID_MODE_CHANGE,
         data: isGridModeEnabled,
       });
-    });
-  });
-
-  describe('onSameAccountError', () => {
-    test('should publish the error message', () => {
-      const error = 'Same account error';
-      const spy = jest.spyOn(VideoConferenceManagerInstance.sameAccountErrorObserver, 'publish');
-
-      VideoConferenceManagerInstance['onSameAccountError'](error);
-
-      expect(spy).toHaveBeenCalledWith(error);
-    });
-  });
-
-  describe('onDevicesChange', () => {
-    test('should publish the new device state', () => {
-      const state: DeviceEvent = DeviceEvent.DEVICES_BLOCKED;
-      const spy = jest.spyOn(VideoConferenceManagerInstance.devicesObserver, 'publish');
-
-      VideoConferenceManagerInstance['onDevicesChange'](state);
-
-      expect(spy).toHaveBeenCalledWith(state);
     });
   });
 

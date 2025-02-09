@@ -5,6 +5,7 @@ import { Logger } from '../../common/utils/logger';
 import { VideoManagerOptions } from '../../services/video-manager/types';
 
 import { BaseComponent } from './index';
+import { VideoEvent } from './types';
 
 class TestComponent extends BaseComponent {
   protected videoManagerConfig: VideoManagerOptions;
@@ -58,7 +59,7 @@ describe('BaseComponent', () => {
   });
 
   it('should emit an event', () => {
-    const event = 'MY_PARTICIPANT_JOINED';
+    const event = VideoEvent.PARTICIPANT_JOINED;
     const data = { key: 'value' };
     const subject = new Subject();
 
@@ -71,7 +72,7 @@ describe('BaseComponent', () => {
   });
 
   it('should subscribe to an event', () => {
-    const event = 'MY_PARTICIPANT_JOINED';
+    const event = VideoEvent.PARTICIPANT_JOINED;
     const callback = jest.fn();
 
     component.subscribe(event, callback);
@@ -81,7 +82,7 @@ describe('BaseComponent', () => {
   });
 
   it('should unsubscribe from an event', () => {
-    const event = 'MY_PARTICIPANT_JOINED';
+    const event = VideoEvent.PARTICIPANT_JOINED;
     const callback = jest.fn();
     const subject = new Subject();
 
