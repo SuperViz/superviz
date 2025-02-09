@@ -7,7 +7,7 @@ import type { useStore } from '@superviz/room/dist/stores/common/use-store';
 import type { PresenceEvent, Room, SocketEvent } from '@superviz/socket-client';
 import { Subject, Subscription } from 'rxjs';
 
-import { EventBusEvent, MeetingControlsEvent, MeetingEvent, RealtimeEvent } from '../../common/types/events.types';
+import { EventBusEvent, MeetingControlsEvent, MeetingEvent, MeetingState, RealtimeEvent } from '../../common/types/events.types';
 import { Participant, ParticipantType, VideoParticipant } from '../../common/types/participant.types';
 import { Logger } from '../../common/utils/logger';
 import { ConnectionService } from '../../services/connection-status';
@@ -15,7 +15,7 @@ import { RoomState } from '../../services/room-state';
 import VideoManager from '../../services/video-manager';
 import { DrawingData, RealtimeObserverPayload, VideoFrameState, VideoManagerOptions } from '../../services/video-manager/types';
 
-import { Callback, EventOptions, EventPayload, GeneralEvent } from './types';
+import { Callback, EventOptions, EventPayload, GeneralEvent, VideoEvent } from './types';
 
 const KICK_PARTICIPANTS_TIME = 1000 * 60;
 let KICK_PARTICIPANTS_TIMEOUT: ReturnType<typeof setTimeout> | null = null;
@@ -296,7 +296,7 @@ export abstract class BaseComponent {
       participantId: participant.id,
       color: participant.slot?.color || '#878291',
       name: participant.name,
-      isHost: false,
+      isHost: participant.id === this.roomState.state.hostId,
       avatar: participant.avatar,
       type: participant.type,
       slot: participant.slot,
@@ -439,6 +439,10 @@ export abstract class BaseComponent {
   private subscribeToStateEvents() {
     this.roomState?.hostObserver.subscribe((hostId) => {
       this.videoManager?.publishMessageToFrame(RealtimeEvent.REALTIME_HOST_CHANGE, hostId);
+
+      const { participants } = this.useStore('global-store');
+
+      this.emit(VideoEvent.HOST_CHANGED, (participants.value?.[hostId] ?? null) as Participant | null);
     });
 
     this.roomState?.drawingObserver.subscribe((drawing) => {
@@ -527,6 +531,7 @@ export abstract class BaseComponent {
     this.videoManager.participantJoinedObserver.subscribe(this.onParticipantJoined);
     this.videoManager.participantLeftObserver.subscribe(this.onParticipantLeft);
     this.videoManager.realtimeEventsObserver.subscribe(this.onRealtimeEventFromFrame);
+    this.videoManager.meetingStateObserver.subscribe(this.onMeetingStateChange);
   }
 
   private unsubscribeFromVideoEvents = (): void => {
@@ -542,7 +547,12 @@ export abstract class BaseComponent {
     this.videoManager.participantJoinedObserver.unsubscribe(this.onParticipantJoined);
     this.videoManager.participantLeftObserver.unsubscribe(this.onParticipantLeft);
     this.videoManager.realtimeEventsObserver.unsubscribe(this.onRealtimeEventFromFrame);
+    this.videoManager.meetingStateObserver.unsubscribe(this.onMeetingStateChange);
   };
+
+  private onMeetingStateChange = (state: MeetingState): void => {
+    this.emit(VideoEvent.MEETING_STATE_UPDATE, state);
+  }
 
   private onRealtimeEventFromFrame = ({ event, data }: RealtimeObserverPayload): void => {
     this.logger.log('video conference @ on realtime event from frame', event, data);
@@ -580,6 +590,9 @@ export abstract class BaseComponent {
 
     this.participantsOnMeeting = list;
     this.validateIfInTheRoomHasHost();
+
+    const { participants: participantList } = this.useStore('global-store');
+    this.emit(VideoEvent.PARTICIPANT_LIST_UPDATE, participantList.value as Record<string, Participant>);
   };
 
   private onFrameStateChange = (state: VideoFrameState): void => {
@@ -618,9 +631,13 @@ export abstract class BaseComponent {
 
     this.updateParticipant(updated);
     this.roomState?.notify();
+
+    this.emit(VideoEvent.PARTICIPANT_JOINED, this.localParticipant);
   };
 
   private onParticipantLeft = (_: VideoParticipant) => {
+    this.emit(VideoEvent.PARTICIPANT_LEFT, this.localParticipant);
+
     this.removeVideoComponentFromGlobalParticipant();
     this.detach();
   };

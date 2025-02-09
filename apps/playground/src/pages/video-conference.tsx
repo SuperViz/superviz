@@ -37,11 +37,28 @@ export function NewVideoConference() {
     const video = new VideoConference({
       participantType: 'host'
     });
-    room.current.addComponent(video);
 
-    room.current.subscribe('participant.updated', (p) => { 
-      console.log('participant.updated', p);
+    video.subscribe('host.changed', (host) => { 
+      console.log('host.changed', host);
     })
+
+    video.subscribe('participant.joined', (participant) => { 
+      console.log('participant.joined', participant);
+    })
+
+    video.subscribe('participant.left', (participant) => { 
+      console.log('participant.left', participant);
+    })
+
+    video.subscribe('participant.list.update', (participants) => { 
+      console.log('participant.list.update', participants);
+    })
+
+    video.subscribe('meeting.state.update', (state) => { 
+      console.log('meeting.state.update', state);
+    })
+    
+    room.current.addComponent(video);
   }, []);
 
 
