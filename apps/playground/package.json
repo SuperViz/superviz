@@ -20,6 +20,7 @@
     "@superviz/threejs-plugin": "workspace:*",
     "@superviz/yjs": "workspace:*",
     "@superviz/react": "workspace:*",
+    "@superviz/video": "workspace:*",
     "@types/three": "^0.167.1",
     "lib0": "^0.2.98",
     "lodash": "^4.17.21",

@@ -1,10 +1,17 @@
-import { ColorsVariables } from '../../common/types/colors.types';
-import { MeetingEvent, RealtimeEvent } from '../../common/types/events.types';
-import type { Avatar } from '../../common/types/participant.types';
-import { BrowserService } from '../browser';
-import { ComponentLimits } from '../limits/types';
+import type { Group } from '@superviz/room/dist/common/types/group.types';
+import type { ComponentLimits } from '@superviz/room/dist/services/config/types';
+
+import type { MeetingEvent, RealtimeEvent } from '../../common/types/events.types';
+import type { Avatar, Participant } from '../../common/types/participant.types';
 
 export interface VideoManagerOptions {
+  group: Group;
+  conferenceLayerUrl: string,
+  apiKey: string
+  apiUrl: string
+  debug: boolean
+  roomId: string
+  limits: ComponentLimits
   language?: string;
   canUseChat: boolean;
   canUseCams: boolean;
@@ -24,12 +31,10 @@ export interface VideoManagerOptions {
     videoInput: boolean;
   };
   skipMeetingSettings: boolean;
-  browserService: BrowserService;
   collaborationMode: boolean;
   offset?: Offset;
   locales?: Locale[];
   avatars?: Avatar[];
-  customColors?: ColorsVariables;
   waterMark?: boolean;
   layoutPosition?: LayoutPosition;
   layoutMode?: LayoutMode;
@@ -50,10 +55,10 @@ export interface WindowSize {
 }
 
 export interface Offset {
-  top: number;
-  bottom: number;
-  left: number;
-  right: number;
+  top?: number;
+  bottom?: number;
+  left?: number;
+  right?: number;
 }
 
 export interface FrameLocale {
@@ -62,11 +67,12 @@ export interface FrameLocale {
 }
 
 export interface FrameConfig {
-  provider: 'sdk-package';
+  provider: 'video-package'
   apiKey: string;
   apiUrl: string;
   roomId: string;
   debug: boolean;
+  group: Group;
   limits: ComponentLimits;
   canShowAudienceList: boolean;
   canUseChat: boolean;
@@ -147,3 +153,12 @@ export enum VideoFrameState {
   INITIALIZING,
   INITIALIZED,
 }
+
+export interface StartMeetingOptions {
+  participant: Participant;
+}
+
+export type Dimensions = {
+  width: number | null;
+  height: number | null;
+};
