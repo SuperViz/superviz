@@ -345,6 +345,9 @@ importers:
       '@semantic-release/release-notes-generator':
         specifier: ^14.0.1
         version: 14.0.1(semantic-release@24.0.0(typescript@5.6.2))
+      '@superviz/video':
+        specifier: workspace:*
+        version: link:../video
       '@types/node':
         specifier: ^20.14.9
         version: 20.16.5

@@ -42,6 +42,7 @@
     "yjs": ">=13.6.20"
   },
   "devDependencies": {
+    "@superviz/video": "workspace:*",
     "@anolilab/semantic-release-pnpm": "^1.1.3",
     "@eslint/compat": "^1.1.1",
     "@rollup/plugin-replace": "^6.0.1",
