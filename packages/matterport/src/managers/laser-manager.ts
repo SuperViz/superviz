@@ -1,3 +1,4 @@
+import { throttle } from 'lodash';
 import { Vector3, Quaternion } from 'three';
 
 import { AVATAR_LASER_HEIGHT_OFFSET, NO_AVATAR_LASER_HEIGHT, MIN_NAME_HEIGHT } from '../common/constants/presence';
@@ -32,6 +33,7 @@ export class LaserManager {
     remoteAvatar: AvatarTypes | null,
     remoteLaser: Laser,
     participant: ParticipantOn3D,
+    localParticipantId: string,
   ): void {
     // Initialize lerper if it doesn't exist
     if (!this.laserLerpers[participantId]) {
@@ -52,7 +54,7 @@ export class LaserManager {
 
     // Set new update interval
     this.laserUpdateIntervals[participantId] = this.intervalManager.setInterval(async () => {
-      await this.updateLaser(participantId, remoteAvatar, remoteLaser, participant.laser);
+      await this.updateLaser(participantId, remoteAvatar, remoteLaser, participant.laser, localParticipantId);
     }, 16); // 60fps update rate
   }
 
@@ -78,6 +80,7 @@ export class LaserManager {
     remoteAvatar: AvatarTypes | null,
     remoteLaser: Laser,
     laserDestinationPosition: Coordinates,
+    localParticipantId: string,
   ): Promise<void> {
     try {
       if (!remoteLaser?.laserPointer || !laserDestinationPosition) {
@@ -87,6 +90,9 @@ export class LaserManager {
       // Calculate position reusing vectors
       const position = await this.calculateLaserPosition(userId, remoteAvatar);
 
+      const remotePosition = this.positionInfos[userId].position;
+      const localPosition = this.positionInfos[localParticipantId].position;
+
       // Update laser components
       this.updateLaserGeometry(
         remoteLaser.laserPointer,
@@ -95,15 +101,16 @@ export class LaserManager {
         this.positionInfos[userId]?.slot,
       );
 
+      // console.log('remotePosition', remotePosition);
+      // console.log('localPosition', localPosition);
+
       // Update name label height if avatars are not enabled
       if (!remoteAvatar && remoteLaser.nameLabel?.updateHeight) {
-        const nameHeight = remoteLaser.laserPointer.calculateNameHeight(
-          position,
-          this.vectorCache.get<Vector3>('lastCameraPosition'),
-        );
-        //  remoteLaser.nameLabel.updateHeight(nameHeight);
+        // console.log('position', position);
 
-        remoteLaser.nameLabel.updateHeight(0.05);
+        const nameHeight = remoteLaser.laserPointer.calculateNameHeight(remotePosition, localPosition);
+
+        remoteLaser.nameLabel.updateHeight(nameHeight);
       }
     } catch (error) {
       console.error('Error updating laser:', error);

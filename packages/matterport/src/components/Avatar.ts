@@ -1,10 +1,11 @@
 import { Participant } from '@superviz/sdk';
 import { Box3, Vector3, Quaternion } from 'three';
 
-import { AVATARS_HEIGHT_ADJUST } from '../common/constants/presence';
+import { AVATARS_HEIGHT_ADJUST, MAX_DISTANCE, MAX_NAME_HEIGHT, MIN_NAME_HEIGHT } from '../common/constants/presence';
 import { Name } from '../common/types/avatarTypes.types';
 import { Coordinates, Simple2DPoint } from '../common/types/coordinates.types';
 import type { MpSdk as Matterport } from '../common/types/matterport.types';
+import { IntervalManager } from '../managers/interval-manager';
 import type { ParticipantOn3D } from '../types';
 
 /**
@@ -41,6 +42,9 @@ function Avatar() {
   this.tempQuaternionX = null;
   this.tempQuaternionY = null;
   this.tempFinalQuaternion = null;
+  this.intervalManager = null;
+  this.myPosition = null;
+  this.remotevatarPosition = null;
 
   /** Avatar lifecycle states */
   const AvatarState = {
@@ -101,10 +105,26 @@ function Avatar() {
 
       nameInstance.createName(
         this.inputs.avatarModel.obj3D,
-        this.inputs.participant?.slot?.index,
+        this.inputs.participant.name,
         this.inputs.participant?.slot?.color || '#FF0000',
-        nameHeight,
+        nameHeight + 0.05,
       );
+
+      console.log('create name with height', nameHeight);
+    },
+
+    updateHeight: (height: number) => {
+      const nameInstance: Name = this.inputs.avatarModel.avatarName;
+
+      // console.log('height', height);
+
+      nameInstance.updateHeight(0.37 + height);
+    },
+
+    checkHeight: () => {
+      // console.log(this.calculateNameHeight());
+      // this.calculateNameHeight(this.remotevatarPosition, this.myPosition);
+      // nameManager.updateHeight(this.calculateNameHeight());
     },
 
     calculateHeight: () => {
@@ -132,7 +152,7 @@ function Avatar() {
 
   // Position Management
   const positionManager = {
-    update: (position: Coordinates, currentCirclePosition: Vector3 | null) => {
+    update: (position: Coordinates, currentCirclePosition: Vector3 | null, localPositionInfo: Coordinates) => {
       if (!position) return;
 
       const addedHeight = parseFloat(this.inputs.avatarModel.obj3D?.userData?.height ?? '0');
@@ -156,6 +176,16 @@ function Avatar() {
         this.inputs.avatarModel.obj3D.position,
         this.tempAdjustPos,
       );
+
+      this.myPosition = localPositionInfo;
+      this.remotevatarPosition = position;
+
+      // console.log('position', position);
+      // console.log('localPositionInfo', localPositionInfo);
+
+      // nameManager.updateHeight(this.calculateNameHeight());
+
+      // nameManager.updateHeight(this.calculateNameHeight(position, localPositionInfo));
     },
 
     destroy: () => {
@@ -165,6 +195,38 @@ function Avatar() {
     },
   };
 
+  this.calculateNameHeight = (() => {
+    const SMOOTHING_FACTOR = 0.1;
+    let currentHeight = MIN_NAME_HEIGHT; // Private state inside closure
+
+    return (): number => {
+      // Calculate distance (in meters) between camera and participant
+      if (!this.myPosition || !this.remotevatarPosition) return 0;
+      const dx = this.myPosition.x - this.remotevatarPosition.x;
+      const dz = this.myPosition.z - this.remotevatarPosition.z;
+
+      // Compute the Euclidean distance
+      const distance = Math.sqrt(dx * dx + dz * dz);
+
+      console.log('distance', distance);
+
+      // console.log('localPosition', localPosition);
+      //  console.log('remotePosition', remotePosition);
+      // console.log('distance', distance);
+
+      // console.log('distance', distance);
+
+      // Calculate target height based on distance using linear interpolation
+      // const targetHeight = 0.105 + (distance / MAX_DISTANCE) * (0.4 - 0.105);
+      const targetHeight = MIN_NAME_HEIGHT + (distance / MAX_DISTANCE) * (MAX_NAME_HEIGHT - MIN_NAME_HEIGHT);
+
+      // Apply Exponential Smoothing for smooth transition
+      currentHeight += (targetHeight - currentHeight) * SMOOTHING_FACTOR;
+
+      return currentHeight;
+    };
+  })();
+
   // Rotation Management
   const rotationManager = {
     update: (
@@ -172,7 +234,7 @@ function Avatar() {
       currentCirclePosition: Vector3 | null,
       participantSlotIndex: number,
     ) => {
-      console.log('this is the rotation', rotation, ' of the participant', participantSlotIndex);
+      // console.log('this is the rotation', rotation, ' of the participant', participantSlotIndex);
 
       const XVector3: Vector3 = new this.THREE.Vector3(1, 0, 0);
       const YVector3: Vector3 = new this.THREE.Vector3(0, 1, 0);
@@ -345,6 +407,11 @@ function Avatar() {
         url: this.inputs.url,
         localScale,
         onLoaded: () => {
+          this.intervalManager = new IntervalManager();
+          this.intervalManager.setInterval(async () => {
+            nameManager.checkHeight();
+          }, 16);
+
           stateManager.transition(AvatarState.READY);
           eventManager.handleModelLoaded();
         },
@@ -394,13 +461,15 @@ function Avatar() {
     rotation: Simple2DPoint,
     currentCirclePosition: Vector3,
     participantSlotIndex: number,
+    localPositionInfo: Coordinates,
   ) => {
     if (!stateManager.canUpdate()) {
       console.warn(`Cannot update avatar in ${this.state.current} state`);
       return;
     }
+
     rotationManager.update(rotation, currentCirclePosition, participantSlotIndex);
-    positionManager.update(position, currentCirclePosition);
+    positionManager.update(position, currentCirclePosition, localPositionInfo);
   };
 
   /**

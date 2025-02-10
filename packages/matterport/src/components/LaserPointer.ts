@@ -5,6 +5,7 @@ import {
   MIN_DIST_SQUARED,
   MIN_NAME_HEIGHT,
   AVATAR_LASER_HEIGHT_OFFSET,
+  MAX_DISTANCE,
 } from '../common/constants/presence';
 import { Coordinates } from '../common/types/coordinates.types';
 import { Slot } from '../types';
@@ -13,7 +14,7 @@ import { Slot } from '../types';
  */
 const SPHERE_RADIUS = 0.008;
 const TUBE_SEGMENTS = 4;
-const TUBE_RADIUS = 0.003;
+const TUBE_RADIUS = 0.05;
 const TUBE_RADIAL_SEGMENTS = 1;
 const DEFAULT_COLOR = '#878291';
 const MATERIAL_SHININESS = 60;
@@ -116,10 +117,6 @@ function LaserPointer() {
    */
   this.updateGeometry = (startPos, destPos, isOn, shouldRenderAvatars, slot, quat, nameHeight) => {
     doUpdateGeometry(isOn, shouldRenderAvatars, slot, quat, startPos, destPos);
-
-    if (this.avatarName?.updateHeight && nameHeight !== undefined) {
-      // this.avatarName.updateHeight(nameHeight);
-    }
   };
 
   /**
@@ -133,18 +130,27 @@ function LaserPointer() {
   /**
    * Calculates the appropriate height for the name label based on distance from camera
    */
-  this.calculateNameHeight = (position: Coordinates, cameraPosition: Coordinates): number => {
-    const dx = cameraPosition.x - position.x;
-    const dz = cameraPosition.z - position.z;
-    const distanceSquared = dx * dx + dz * dz;
+  this.calculateNameHeight = (() => {
+    const SMOOTHING_FACTOR = 0.1;
+    let currentHeight = MIN_NAME_HEIGHT; // Private state inside closure
 
-    return (
-      MIN_NAME_HEIGHT +
-      (Math.min(Math.max(distanceSquared - MIN_DIST_SQUARED, 0), this.inputs.maxDistanceSquared) /
-        this.inputs.maxDistanceSquared) *
-        (MAX_NAME_HEIGHT - MIN_NAME_HEIGHT)
-    );
-  };
+    return (remotePosition: Coordinates, localPosition: Coordinates): number => {
+      // Calculate distance (in meters) between camera and participant
+      const dx = localPosition.x - remotePosition.x;
+      const dz = localPosition.z - remotePosition.z;
+
+      // Compute the Euclidean distance
+      const distance = Math.sqrt(dx * dx + dz * dz);
+
+      // Calculate target height based on distance using linear interpolation
+      const targetHeight = MIN_NAME_HEIGHT + (distance / MAX_DISTANCE) * (MAX_NAME_HEIGHT - MIN_NAME_HEIGHT);
+
+      // Apply Exponential Smoothing for smooth transition
+      currentHeight += (targetHeight - currentHeight) * SMOOTHING_FACTOR;
+
+      return currentHeight;
+    };
+  })();
 
   // Private methods
 

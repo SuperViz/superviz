@@ -1,10 +1,11 @@
-import { Vector3 } from 'three';
-import { CirclePosition, Coordinates } from '../common/types/coordinates.types';
-import { VectorCache } from '../utils/vector-cache';
-import { DISTANCE_BETWEEN_AVATARS } from '../common/constants/presence';
 import { Participant } from '@superviz/sdk';
-import { ParticipantOn3D } from '../types';
+import { Vector3 } from 'three';
+
+import { DISTANCE_BETWEEN_AVATARS } from '../common/constants/presence';
+import { CirclePosition, Coordinates } from '../common/types/coordinates.types';
 import { Logger } from '../common/utils/logger';
+import { ParticipantOn3D } from '../types';
+import { VectorCache } from '../utils/vector-cache';
 
 export class CirclePositionManager {
   private circlePositions: CirclePosition[] = [];
@@ -81,7 +82,7 @@ export class CirclePositionManager {
   }
 
   public getCirclePositions(): CirclePosition[] {
-    console.log('Current circle positions:', this.circlePositions);
+    // console.log('Current circle positions:', this.circlePositions);
     return this.circlePositions;
   }
 }

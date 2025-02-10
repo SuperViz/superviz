@@ -79,6 +79,8 @@ export class Presence3D {
   private participantManager: ParticipantManager;
   //
 
+  private localParticipantPosition: Coordinates;
+
   // Constructor and Initialization
   constructor(matterportSdk: Matterport, options?: MatterportComponentOptions) {
     // Core initialization that must happen first
@@ -193,9 +195,6 @@ export class Presence3D {
     this.participantManager.setRoomParticipants(participants);
 
     participants.forEach((participant: ParticipantOn3D) => {
-      // Skip local participant
-      if (participant.id === this.participantManager.getLocalParticipantId) return;
-
       const participantId = participant.id;
       const { position, rotation, sweep, floor, mode, isPrivate } = participant;
 
@@ -209,6 +208,9 @@ export class Presence3D {
         isPrivate,
         slot: participant.slot,
       });
+
+      // Skip local participant
+      if (participant.id === this.participantManager.getLocalParticipantId) return;
 
       // Update avatar if it exists
       if (this.avatars[participantId] && position && rotation && this.isAttached) {
@@ -226,28 +228,34 @@ export class Presence3D {
         // Convert to THREE.Vector3 with fallback to (0,0,0)
         const circleVector = circlePosition
           ? this.vectorCache
-              .get<Vector3>('tempCircleVector')
-              .set(circlePosition.x, 0, circlePosition.z)
+            .get<Vector3>('tempCircleVector')
+            .set(circlePosition.x, 0, circlePosition.z)
           : this.vectorCache.get<Vector3>('tempCircleVector').set(0, 0, 0);
 
-        /*console.log('Updating avatar with circle position:', {
+        /* console.log('Updating avatar with circle position:', {
           participantId,
           slotIndex: participantSlotIndex,
           circlePosition,
           circleVector,
-        });*/
+        }); */
 
-        avatarModel.avatar.update(position, rotation, circleVector, participantSlotIndex);
+        const localPositionInfo = this.participantManager.getPositionInfo(this.participantManager.getLocalParticipantId).position;
+
+        // console.log('localPositionInfo', localPositionInfo);
+
+        avatarModel.avatar.update(position, rotation, circleVector, participantSlotIndex, localPositionInfo);
       }
 
       // Update laser
       const remoteLaser = this.lasers[participantId];
       if (remoteLaser && position) {
+        console.log('laser');
         this.laserManager.startLaserUpdate(
           participantId,
           this.avatars[participantId],
           remoteLaser,
           participant,
+          this.participantManager.getLocalParticipantId,
         );
       }
 

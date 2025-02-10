@@ -13,7 +13,7 @@ export const DEFAULT_AVATAR_IMAGE_URL =
 export const DISTANCE_BETWEEN_AVATARS = 0.2;
 
 /** Avatars height adjust */
-export const AVATARS_HEIGHT_ADJUST = 0.8;
+export const AVATARS_HEIGHT_ADJUST = 0.5;
 
 /** Avatars radius */
 export const AVATARS_RADIUS = 0.3;
@@ -31,16 +31,18 @@ export const NO_AVATAR_LASER_HEIGHT = 1.3;
 export const AVATAR_LASER_HEIGHT_OFFSET = 0.15;
 
 /** Name height offset */
-export const NAME_HEIGHT_OFFSET = -0.25;
+export const NAME_HEIGHT_OFFSET = -0.3;
 
-/** Minimum name height */
-export const MIN_NAME_HEIGHT = -2;
+/** This is used for dynamic nameLabel height. - The is the Minimum height */
+export const MIN_NAME_HEIGHT = 0.5; // 0.5 meters above when close
 
-/** Maximum name height */
-export const MAX_NAME_HEIGHT = 0.2;
+/** This is used for dynamic nameLabel height. - The is the maximum height */
+export const MAX_NAME_HEIGHT = 0.4; // 3 meters above when far away
 
-/** Minimum distance squared */
+export const MAX_DISTANCE = 8;
+
+/** This is used for dynamic nameLabel height. - The is the Minimum distance squared */
 export const MIN_DIST_SQUARED = 1;
 
-/** Maximum distance squared */
+/** This is used for dynamic nameLabel height. - The is the Maximum distance squared */
 export const MAX_DIST_SQUARED = 100;

@@ -125,21 +125,6 @@ export class ParticipantManager {
    * Updates the state when multiple participants are updated
    * @param participants - Array of updated participants
    */
-  public onParticipantsUpdated(participants: ParticipantOn3D[]): void {
-    this.roomParticipants = participants.reduce(
-      (acc, p) => {
-        acc[p.id] = p;
-        return acc;
-      },
-      {} as Record<string, Participant>,
-    );
-
-    participants.forEach(({ id, position, rotation, sweep, floor, mode }) => {
-      if (id !== this.getLocalParticipantId) {
-        this.positionInfos[id] = { position, rotation, mode, sweep, floor };
-      }
-    });
-  }
 
   /**
    * Handles updates to a single participant
@@ -157,7 +142,7 @@ export class ParticipantManager {
       avatarConfig,
       type,
       slot,
-    });*/
+    }); */
     /*
     TODO::
     if (this.localFollowParticipantId || this.followParticipantId) {
@@ -171,7 +156,7 @@ export class ParticipantManager {
    * @param participant - Joined participant data
    */
   public onParticipantJoined = (participant): void => {
-    /*console.log('MANAGER onParticipantJoined:', participant);
+    /* console.log('MANAGER onParticipantJoined:', participant);
 
     if (!participant.data) return;
     const { id } = participant.data;
@@ -181,7 +166,7 @@ export class ParticipantManager {
     } else {
       console.log('MANAGER onParticipantJoined - addParticipant:', participant.data);
       this.addParticipant(participant.data);
-    }*/
+    } */
   };
 
   /**
@@ -351,7 +336,7 @@ export class ParticipantManager {
 
   public roomParticipantExists(participantId: string) {
     console.log(this.roomParticipants[participantId]);
-    //return this.roomParticipants[participantId] ? true : false;
+    // return this.roomParticipants[participantId] ? true : false;
   }
 
   // Add a safe getter for local participant id
