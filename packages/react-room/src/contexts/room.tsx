@@ -8,6 +8,7 @@ import React, {
   useCallback, 
   useMemo, 
   useRef,
+  useState,
 } from 'react';
 
 type InitializeRoomParams = {
@@ -58,6 +59,7 @@ interface RoomContextInternalProps {
   removeComponent: (component: unknown) => void;
   setCallbacks: (callbacks: RoomCallbacks) => void;
   room: Room | null;
+  components: Record<string, unknown>;
 }
 
 const RoomContext = createContext<RoomContextInternalProps | undefined>(undefined);
@@ -66,7 +68,7 @@ const RoomProvider: React.FC<{
   children: ReactNode 
   developerToken: string
 }> = ({ children, developerToken }) => {
-  const components = useRef<Map<string, unknown>>(new Map());
+  const [components, setComponents] = useState<Record<string, unknown>>({});
   const callbacks = useRef<Record<keyof RoomCallbacks, Callback[]>>({
     onMyParticipantJoined: [],
     onMyParticipantLeft: [],
@@ -137,12 +139,12 @@ const RoomProvider: React.FC<{
       return;
     }
 
-    if(components.current.has((component as Component).name)) {
+    if(components[(component as Component).name]) {
       console.warn('[SuperViz] Component already initialized, cannot add again');
       return;
     }
 
-    components.current.set((component as Component).name, component);
+    setComponents(prev => ({ ...prev, [(component as Component).name]: component }));
 
     room.current?.addComponent(component);
   }, []);
@@ -153,12 +155,15 @@ const RoomProvider: React.FC<{
       return;
     }
 
-    if(!components.current.has((component as Component).name)) {
+    if(!components[(component as Component).name]) {
       console.warn('[SuperViz] Component not initialized yet, cannot remove');
       return;
     }
 
-    components.current.delete((component as Component).name);
+    setComponents(prev => {
+      delete prev[(component as Component).name];
+      return prev;
+    });
 
     room.current?.removeComponent(component);
   }, []);
@@ -241,13 +246,24 @@ const RoomProvider: React.FC<{
         setCallbacks: updateCallbacks,
         addComponent,
         removeComponent, 
-        room: room.current
+        room: room.current,
+        components
       }}
     >
       {children}
     </RoomContext.Provider>
   );
 };
+
+const useInternalFeatures = () => {
+  const context = useContext(RoomContext)
+
+  if (context === undefined) {
+    throw new Error('useRoom must be used within a RoomProvider');
+  }
+
+  return context
+}
 
 const useRoom = (callbacks: RoomCallbacks) => {
   const context = useContext(RoomContext)
@@ -271,4 +287,4 @@ const useRoom = (callbacks: RoomCallbacks) => {
   }
 };
 
-export { RoomProvider, useRoom };
+export { RoomProvider, useRoom, useInternalFeatures };

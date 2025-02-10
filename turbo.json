@@ -137,6 +137,13 @@
         "@superviz/threejs-plugin#build",
         "@superviz/yjs#build"
       ]
+    }, 
+    "@superviz/react-room#build": {
+      "dependsOn": [
+        "@superviz/video#build",
+        "@superviz/room#build",
+        "@superviz/socket-client#build"
+      ]
     }
   }
 }

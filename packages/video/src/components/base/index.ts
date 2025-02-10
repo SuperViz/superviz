@@ -120,7 +120,7 @@ export abstract class BaseComponent {
    * @returns {void}
    */
   public toggleRecording(): void {
-    if (this.localParticipant.id !== this.roomState.state.hostId) {
+    if (this.localParticipant.id !== this.roomState?.state?.hostId) {
       console.warn('[SuperViz] Only host can toggle recording');
       return;
     }
@@ -290,13 +290,13 @@ export abstract class BaseComponent {
     this.localParticipant = props;
   }
 
-  private createFrameParticipant(participant: Participant) {
+  private createFrameParticipant = (participant: Participant) => {
     return {
       id: participant.id,
       participantId: participant.id,
       color: participant.slot?.color || '#878291',
       name: participant.name,
-      isHost: participant.id === this.roomState.state.hostId,
+      isHost: participant.id === this.roomState?.state?.hostId,
       avatar: participant.avatar,
       type: participant.type,
       slot: participant.slot,
@@ -304,7 +304,7 @@ export abstract class BaseComponent {
   }
 
   private async validateIfInTheRoomHasHost(): Promise<void> {
-    const { hostId } = this.roomState.state;
+    const { hostId } = this.roomState?.state;
 
     const participantsList = await new Promise<PresenceEvent<VideoParticipant>[]>(
       (resolve, reject) => {
@@ -405,8 +405,8 @@ export abstract class BaseComponent {
 
     this.logger.log('video conference @ validate if in the room has host - set host', host);
 
-    this.roomState.update({ hostId: host.id });
-    this.videoManager.publishMessageToFrame(RealtimeEvent.REALTIME_HOST_CHANGE, host.id);
+    this.roomState?.update({ hostId: host.id });
+    this.videoManager?.publishMessageToFrame(RealtimeEvent.REALTIME_HOST_CHANGE, host.id);
   }
 
   private removeVideoComponentFromGlobalParticipant() {
@@ -490,7 +490,7 @@ export abstract class BaseComponent {
     });
 
     this.room.presence.update(this.localParticipant);
-    this.roomState.start();
+    this.roomState?.start();
   };
 
   private onPresenceUpdate = (presence: PresenceEvent<Participant>) => {
@@ -559,13 +559,13 @@ export abstract class BaseComponent {
 
     const map = {
       [RealtimeEvent.REALTIME_DRAWING_CHANGE]: (drawing: DrawingData) => {
-        this.roomState.setDrawing(drawing);
+        this.roomState?.setDrawing(drawing);
       },
       [RealtimeEvent.REALTIME_HOST_CHANGE]: (hostId: string) => {
-        this.roomState.update({ hostId });
+        this.roomState?.update({ hostId });
       },
       [MeetingEvent.MEETING_KICK_PARTICIPANT]: (participantId: string) => {
-        this.room.emit(MeetingEvent.MEETING_KICK_PARTICIPANT, participantId);
+        this.room?.emit(MeetingEvent.MEETING_KICK_PARTICIPANT, participantId);
       },
     };
 

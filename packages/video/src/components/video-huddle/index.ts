@@ -191,8 +191,8 @@ export class VideoHuddle extends BaseComponent {
   private onGather = () => {
     if (!this.roomState?.state?.hostId) return;
 
-    if (this.roomState.state.hostId !== this.localParticipant.id) {
-      this.eventBus.publish(RealtimeEvent.REALTIME_GO_TO_PARTICIPANT, this.roomState.state.hostId);
+    if (this.roomState?.state?.hostId !== this.localParticipant.id) {
+      this.eventBus.publish(RealtimeEvent.REALTIME_GO_TO_PARTICIPANT, this.roomState?.state?.hostId);
       return;
     }
 

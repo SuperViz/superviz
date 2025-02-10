@@ -35,6 +35,7 @@ import { VideoWithNewRoom } from "../pages/video-with-new-room.tsx";
 import { SupervizReactRoom } from "../pages/superviz-react-room.tsx";
 import { NewVideoConference } from "../pages/video-conference.tsx";
 import { NewVideoHuddle } from "../pages/video-huddle.tsx";
+import { VideoConferenceReact } from "../pages/video-conference-react.tsx";
 
 export const routeList: RouteObject[] = [
   {
@@ -179,6 +180,10 @@ export const routeList: RouteObject[] = [
       {
         path: 'video-huddle', 
         element: <NewVideoHuddle /> 
+      }, 
+      {
+        path: 'video-conference-react', 
+        element: <VideoConferenceReact />
       }
     ],
   },
