@@ -92,6 +92,21 @@
     "@superviz/room#test:unit:ci": {
       "dependsOn": ["@superviz/socket-client#build"]
     },
+    "@superviz/video#build": {
+      "dependsOn": ["@superviz/socket-client#build", "@superviz/room#build"]
+    },
+    "@superviz/video#test:unit": {
+      "dependsOn": ["@superviz/socket-client#build", "@superviz/room#build"]
+    },
+    "@superviz/video#test:unit:watch": {
+      "dependsOn": ["@superviz/socket-client#build", "@superviz/room#build"]
+    },
+    "@superviz/video#test:unit:coverage": {
+      "dependsOn": ["@superviz/socket-client#build", "@superviz/room#build"]
+    },
+    "@superviz/video#test:unit:ci": {
+      "dependsOn": ["@superviz/socket-client#build", "@superviz/room#build"]
+    },
     "@superviz/yjs#build": {
       "dependsOn": ["@superviz/sdk#build"]
     },
@@ -121,6 +136,13 @@
         "@superviz/socket-client#build",
         "@superviz/threejs-plugin#build",
         "@superviz/yjs#build"
+      ]
+    }, 
+    "@superviz/react-room#build": {
+      "dependsOn": [
+        "@superviz/video#build",
+        "@superviz/room#build",
+        "@superviz/socket-client#build"
       ]
     }
   }
