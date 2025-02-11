@@ -150,7 +150,7 @@ jobs:
           git diff --quiet HEAD^ HEAD -- packages/room ':(exclude)packages/room/package.json' || echo "react_room_changed=true" >> $GITHUB_OUTPUT
       - name: Publish React SDK package
         if: steps.check_react_room_and_dependencies_changes.outputs.react_room_changed == 'true'
-        run: npm whoami && pnpm run semantic-release --filter=@superviz/react-sdk
+        run: npm whoami && pnpm run semantic-release --filter=@superviz/react
         env:
           NPM_CONFIG_USERCONFIG: .npmrc.ci
           GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
