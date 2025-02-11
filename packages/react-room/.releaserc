@@ -12,7 +12,7 @@
       "prerelease": true
     }
   ],
-  "tagFormat": "@superviz/react/${version}",
+  "tagFormat": "@superviz/react-room/${version}",
   "plugins": [
     "@semantic-release/commit-analyzer",
     [
@@ -38,10 +38,9 @@
     [
       "@semantic-release/github",
       {
-        "successComment": ":tada: This issue has been resolved in version @superviz/react/${nextRelease.version} :tada:\n\nThe release is available on [GitHub release](<github_release_url>)"
-      } 
+        "successComment": ":tada: This issue has been resolved in version @superviz/react-room/${nextRelease.version} :tada:\n\nThe release is available on [GitHub release](<github_release_url>)"
+      }
     ]
-    
   ],
   "preset": "angular"
 }
