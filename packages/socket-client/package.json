@@ -1,6 +1,6 @@
 {
   "name": "@superviz/socket-client",
-  "version": "1.15.0-lab.19",
+  "version": "1.15.0",
   "description": "SuperViz Socket Client",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -43,7 +43,7 @@
     "@types/debug": "^4.1.12",
     "@types/node": "^20.14.8",
     "concurrently": "^8.2.2",
-    "esbuild": "^0.21.5",
+    "esbuild": "^0.25.0",
     "eslint": "8.56.0",
     "semantic-release": "^24.0.0",
     "tsc": "^2.0.4",
