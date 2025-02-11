@@ -1,0 +1,76 @@
+{
+  "name": "@superviz/react",
+  "private": false,
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "watch": "./node_modules/typescript/bin/tsc && vite build --watch",
+    "build": "./node_modules/typescript/bin/tsc && vite build && cp package.json dist/package.json && cp README.md dist/README.md",
+    "prepack": "pnpm build",
+    "lint": "eslint 'src/**/*.{js,jsx,ts,tsx}'",
+    "lint:fix": "eslint --fix 'src/**/*.{jsx,ts,tsx}'",
+    "format": "prettier --write src//**/*.{ts,tsx,css} --config ./.prettierrc",
+    "semantic-release": "semantic-release",
+    "commit": "git-cz"
+  },
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "import": "./dist/superviz-sdk-react.es.js",
+      "require": "./dist/superviz-sdk-react.cjs.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./dist/style.css": "./dist/style.css"
+  },
+  "main": "./dist/superviz-sdk-react.cjs.js",
+  "module": "./dist/superviz-sdk-react.es.js",
+  "types": "./dist/index.d.ts",
+  "publishConfig": {
+    "access": "public",
+    "scope": "@superviz"
+  },
+  "dependencies": {
+    "@superviz/room": "workspace:*",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "peerDependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "yjs": ">=13.6.20"
+  },
+  "devDependencies": {
+    "@superviz/video": "workspace:*",
+    "@anolilab/semantic-release-pnpm": "^1.1.3",
+    "@eslint/compat": "^1.1.1",
+    "@rollup/plugin-replace": "^6.0.1",
+    "@semantic-release/release-notes-generator": "^14.0.1",
+    "@types/node": "^20.14.9",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "@typescript-eslint/eslint-plugin": "^7.14.1",
+    "@typescript-eslint/parser": "^8.17.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "@vitejs/plugin-react-swc": "^3.7.0",
+    "eslint": "^9.6.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.1.3",
+    "eslint-plugin-react": "^7.34.3",
+    "eslint-plugin-react-hooks": "^4.6.2",
+    "eslint-plugin-react-refresh": "^0.4.7",
+    "eslint-plugin-simple-import-sort": "^12.1.0",
+    "glob": "^10.4.2",
+    "husky": "^9.0.11",
+    "lint-staged": "^15.2.7",
+    "prettier": "^3.3.2",
+    "react-hooks": "^1.0.1",
+    "semantic-release": "^24.0.0",
+    "typescript": "^5.6.2",
+    "vite": "^5.4.6",
+    "vite-plugin-dts": "^3.9.1",
+    "vite-plugin-linter": "^2.1.1",
+    "vite-tsconfig-paths": "^4.3.2"
+  }
+}
