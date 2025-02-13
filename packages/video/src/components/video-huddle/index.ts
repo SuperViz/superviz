@@ -72,6 +72,8 @@ export class VideoHuddle extends BaseComponent {
     );
 
     this.videoManagerConfig = {
+      // NOTE: this is temporary, we need to implement the new UI for the video huddle
+      provider: 'sdk-package',
       conferenceLayerUrl,
       group: this.globalConfig.group,
       apiKey: this.globalConfig.apiKey,

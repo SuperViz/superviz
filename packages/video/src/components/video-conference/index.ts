@@ -59,6 +59,7 @@ export class VideoConference extends BaseComponent {
     );
 
     this.videoManagerConfig = {
+      provider: 'video-package',
       conferenceLayerUrl,
       group: this.globalConfig.group,
       apiKey: this.globalConfig.apiKey,

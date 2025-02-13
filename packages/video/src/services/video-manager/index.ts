@@ -83,6 +83,7 @@ export default class VideoManager {
       callbacks,
       conferenceLayerUrl,
       group,
+      provider,
     } = options;
 
     this.browserService = new BrowserService();
@@ -90,7 +91,7 @@ export default class VideoManager {
     const wrapper = document.createElement('div');
 
     this.frameConfig = {
-      provider: 'video-package',
+      provider,
       group,
       apiKey,
       apiUrl,
