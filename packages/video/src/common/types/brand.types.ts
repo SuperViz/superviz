@@ -6,4 +6,5 @@ export const BrandSchema = z.object({
 
 export type Brand = {
   logoUrl?: string;
+  styles?: string;
 }

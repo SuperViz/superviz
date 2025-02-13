@@ -35,8 +35,7 @@ export class VideoHuddle extends BaseComponent {
     }
 
     this.config = {
-      styles: props?.styles ?? '',
-      brand: props?.brand ?? { logoUrl: undefined },
+      brand: props?.brand ?? { logoUrl: undefined, styles: undefined },
       participantType: props?.participantType ?? 'guest',
       i18n: props?.i18n ?? { language: 'en', locales: [] },
       permissions: {
@@ -103,7 +102,7 @@ export class VideoHuddle extends BaseComponent {
       locales: this.config.i18n?.locales,
       avatars: this.config.avatars,
       waterMark: this.globalConfig.waterMark,
-      styles: this.config?.styles,
+      styles: this.config?.brand?.styles,
       collaborationMode: true,
       layoutPosition: LayoutPosition.CENTER,
       layoutMode: LayoutMode.LIST,

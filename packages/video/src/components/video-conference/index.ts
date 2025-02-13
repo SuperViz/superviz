@@ -34,8 +34,7 @@ export class VideoConference extends BaseComponent {
     }
 
     this.config = {
-      styles: props?.styles || '',
-      brand: props?.brand || { logoUrl: undefined },
+      brand: props?.brand || { logoUrl: undefined, styles: undefined },
       participantType: props?.participantType || 'guest',
       i18n: props?.i18n || { language: 'en', locales: [] },
       permissions: {
@@ -94,7 +93,7 @@ export class VideoConference extends BaseComponent {
       locales: this.config.i18n?.locales,
       avatars: [],
       waterMark: this.globalConfig.waterMark,
-      styles: this.config?.styles,
+      styles: this.config?.brand?.styles,
       collaborationMode: false,
       layoutPosition: LayoutPosition.CENTER,
       layoutMode: LayoutMode.GRID,
