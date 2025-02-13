@@ -259,6 +259,9 @@ importers:
       lodash:
         specifier: ^4.17.21
         version: 4.17.21
+      pubsub-js:
+        specifier: ^1.9.5
+        version: 1.9.5
       three-spritetext:
         specifier: ^1.8.2
         version: 1.8.2(three@0.167.1)
@@ -284,6 +287,9 @@ importers:
       '@types/lodash':
         specifier: ^4.17.5
         version: 4.17.7
+      '@types/pubsub-js':
+        specifier: ^1.8.6
+        version: 1.8.6
       concurrently:
         specifier: ^8.2.2
         version: 8.2.2
@@ -3019,6 +3025,9 @@ packages:
 
   '@types/prop-types@15.7.12':
     resolution: {integrity: sha512-5zvhXYtRNRluoE/jAp4GVsSduVUzNWKkOZrCDBWYtE7biZywwdC2AcEzg+cSMLFRfVgeAFqpfNabiPjxFddV1Q==}
+
+  '@types/pubsub-js@1.8.6':
+    resolution: {integrity: sha512-Kwug5cwV0paUDm/NfwDx1sp9xI0bGIvmWJjJWCU8NngkCCMt3EIC7oPDvb6fV7BR8kPpFyyBu4D11bda/2MdPA==}
 
   '@types/qs@6.9.16':
     resolution: {integrity: sha512-7i+zxXdPD0T4cKDuxCUXJ4wHcsJLwENa6Z3dCu8cfCK743OGy5Nu1RmAGqDPsoTDINVEcdXKRvR/zre+P2Ku1A==}
@@ -6598,6 +6607,9 @@ packages:
 
   psl@1.9.0:
     resolution: {integrity: sha512-E/ZsdU4HLs/68gYzgGTkMicWTLPdAftJLfJFlLUAAKZGkStNU72sZjT66SnMDVOfOWY/YAoiD7Jxa9iHvngcag==}
+
+  pubsub-js@1.9.5:
+    resolution: {integrity: sha512-5MZ0I9i5JWVO7SizvOviKvZU2qaBbl2KQX150FAA+fJBwYpwOUId7aNygURWSdPzlsA/xZ/InUKXqBbzM0czTA==}
 
   pump@3.0.2:
     resolution: {integrity: sha512-tUPXtzlGM8FE3P0ZL6DVs/3P58k9nk8/jZeQCurTJylQA8qFYzHFfhBJkuqyE0FifOsQ0uKWekiZ5g8wtr28cw==}
@@ -10268,6 +10280,8 @@ snapshots:
   '@types/parse5@6.0.3': {}
 
   '@types/prop-types@15.7.12': {}
+
+  '@types/pubsub-js@1.8.6': {}
 
   '@types/qs@6.9.16': {}
 
@@ -14803,6 +14817,8 @@ snapshots:
   proxy-from-env@1.1.0: {}
 
   psl@1.9.0: {}
+
+  pubsub-js@1.9.5: {}
 
   pump@3.0.2:
     dependencies:
