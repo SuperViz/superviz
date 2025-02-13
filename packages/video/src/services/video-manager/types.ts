@@ -5,6 +5,7 @@ import type { MeetingEvent, RealtimeEvent } from '../../common/types/events.type
 import type { Avatar, Participant } from '../../common/types/participant.types';
 
 export interface VideoManagerOptions {
+  provider: 'video-package' | 'sdk-package';
   group: Group;
   conferenceLayerUrl: string,
   apiKey: string
@@ -67,7 +68,7 @@ export interface FrameLocale {
 }
 
 export interface FrameConfig {
-  provider: 'video-package'
+  provider: 'video-package' | 'sdk-package';
   apiKey: string;
   apiUrl: string;
   roomId: string;

@@ -14,7 +14,6 @@ export type VideoHuddleProps = {
     enableDefaultAvatars?: boolean;
   };
   avatars?: Avatar[];
-  styles?: string;
   offset?: Offset;
   camerasPosition?: CamerasPosition | `${CamerasPosition}`
   i18n?: i18n

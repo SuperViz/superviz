@@ -7,6 +7,5 @@ export type VideoConferenceProps = {
   brand?: Brand;
   participantType?: ParticipantType | `${ParticipantType}`;
   permissions?: Permissions;
-  styles?: string;
   i18n?: i18n
 };
