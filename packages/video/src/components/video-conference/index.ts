@@ -58,6 +58,7 @@ export class VideoConference extends BaseComponent {
     );
 
     this.videoManagerConfig = {
+      customLogo: this.config.brand.logoUrl,
       provider: 'video-package',
       conferenceLayerUrl,
       group: this.globalConfig.group,
