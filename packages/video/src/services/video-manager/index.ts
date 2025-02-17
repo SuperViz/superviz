@@ -84,6 +84,7 @@ export default class VideoManager {
       conferenceLayerUrl,
       group,
       provider,
+      customLogo,
     } = options;
 
     this.browserService = new BrowserService();
@@ -91,6 +92,7 @@ export default class VideoManager {
     const wrapper = document.createElement('div');
 
     this.frameConfig = {
+      customLogo,
       provider,
       group,
       apiKey,
