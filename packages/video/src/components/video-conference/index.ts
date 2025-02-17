@@ -42,7 +42,7 @@ export class VideoConference extends BaseComponent {
         toggleMic: props?.permissions?.toggleMic || true,
         toggleChat: props?.permissions?.toggleChat || true,
         toggleParticipantList: props?.permissions?.toggleParticipantList || true,
-        toggleRecording: props?.permissions?.toggleRecording || true,
+        toggleRecording: props?.permissions?.toggleRecording || false,
         toggleScreenShare: props?.permissions?.toggleScreenShare || true,
         allowGuests: props?.permissions?.allowGuests || false,
       },
