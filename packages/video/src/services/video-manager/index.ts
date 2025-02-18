@@ -85,6 +85,7 @@ export default class VideoManager {
       group,
       provider,
       customLogo,
+      canUseParticipantList,
     } = options;
 
     this.browserService = new BrowserService();
@@ -112,6 +113,7 @@ export default class VideoManager {
       canShowAudienceList,
       camerasPosition: positions.camerasPosition ?? CamerasPosition.RIGHT,
       canUseDefaultToolbar,
+      canUseParticipantList,
       devices: {
         audioInput: devices?.audioInput ?? true,
         audioOutput: devices?.audioOutput ?? true,

@@ -37,6 +37,7 @@ const createVideoConfrenceManager = (options?: VideoManagerOptions) => {
       id: 'unit-test-group-id',
       name: 'unit-test-group-name',
     },
+    canUseParticipantList: true,
     limits: {
       presence: {
         canUse: true,

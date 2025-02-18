@@ -21,6 +21,7 @@ export interface VideoManagerOptions {
   canUseRecording: boolean;
   canUseScreenshare: boolean;
   canUseDefaultAvatars: boolean;
+  canUseParticipantList: boolean;
   canUseGather: boolean;
   canUseFollow: boolean;
   canUseGoTo: boolean;
@@ -78,6 +79,7 @@ export interface FrameConfig {
   group: Group;
   limits: ComponentLimits;
   canShowAudienceList: boolean;
+  canUseParticipantList: boolean;
   canUseChat: boolean;
   canUseCams: boolean;
   canUseScreenshare: boolean;

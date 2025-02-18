@@ -34,17 +34,17 @@ export class VideoConference extends BaseComponent {
     }
 
     this.config = {
-      brand: props?.brand || { logoUrl: undefined, styles: undefined },
-      participantType: props?.participantType || 'guest',
-      i18n: props?.i18n || { language: 'en', locales: [] },
+      brand: props?.brand ?? { logoUrl: undefined, styles: undefined },
+      participantType: props?.participantType ?? 'guest',
+      i18n: props?.i18n ?? { language: 'en', locales: [] },
       permissions: {
-        toggleCamera: props?.permissions?.toggleCamera || true,
-        toggleMic: props?.permissions?.toggleMic || true,
-        toggleChat: props?.permissions?.toggleChat || true,
-        toggleParticipantList: props?.permissions?.toggleParticipantList || true,
-        toggleRecording: props?.permissions?.toggleRecording || false,
-        toggleScreenShare: props?.permissions?.toggleScreenShare || true,
-        allowGuests: props?.permissions?.allowGuests || false,
+        toggleCamera: props?.permissions?.toggleCamera ?? true,
+        toggleMic: props?.permissions?.toggleMic ?? true,
+        toggleChat: props?.permissions?.toggleChat ?? true,
+        toggleParticipantList: props?.permissions?.toggleParticipantList ?? true,
+        toggleRecording: props?.permissions?.toggleRecording ?? false,
+        toggleScreenShare: props?.permissions?.toggleScreenShare ?? true,
+        allowGuests: props?.permissions?.allowGuests ?? false,
       },
     };
 
@@ -69,6 +69,7 @@ export class VideoConference extends BaseComponent {
       roomId: this.globalConfig.roomId,
       canUseRecording: this.config.permissions.toggleRecording,
       canShowAudienceList: true,
+      canUseParticipantList: this.config.permissions.toggleParticipantList,
       canUseChat: this.config.permissions.toggleChat,
       canUseCams: this.config.permissions.toggleCamera,
       canUseScreenshare: this.config.permissions.toggleScreenShare,
@@ -79,7 +80,7 @@ export class VideoConference extends BaseComponent {
       canUseDefaultToolbar: true,
       camerasPosition: CamerasPosition.RIGHT,
       devices: {
-        audioInput: true,
+        audioInput: this.config.permissions.toggleMic,
         audioOutput: true,
         videoInput: true,
       },
