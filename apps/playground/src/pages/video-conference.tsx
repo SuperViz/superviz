@@ -6,6 +6,7 @@ import { VideoConference } from "@superviz/video";
 
 import { useCallback, useEffect, useRef } from "react";
 import { getConfig } from "../config";
+import { useSearchParams } from "react-router-dom";
 
 const SUPERVIZ_KEY = getConfig<string>("keys.superviz");
 const SUPERVIZ_ROOM_PREFIX = getConfig<string>("roomPrefix");
@@ -14,6 +15,10 @@ const componentName = "video-with-new-room";
 
 export function NewVideoConference() {
   const room = useRef<Room | null>(null);
+  const [searchParams] = useSearchParams();
+  const type =
+    (searchParams.get("userType") as 'host') || 'host'
+
 
   const initializeSuperViz = useCallback(async () => {
     const uuid = generateId();
@@ -22,7 +27,7 @@ export function NewVideoConference() {
       developerToken: SUPERVIZ_KEY,
       roomId: `${SUPERVIZ_ROOM_PREFIX}-${componentName}`,
       participant: {
-        name: "Participant",
+        name: " ",
         id: uuid,
         email: "carlos@superviz.com"
       },
@@ -35,29 +40,41 @@ export function NewVideoConference() {
     });
 
     const video = new VideoConference({
-      participantType: 'host'
+      brand: {
+        logoUrl: 'https://docs.superviz.com/logo-white.svg',
+      },
+      permissions: {
+        toggleRecording: true,
+        toggleCamera: true,
+        toggleMic: true,
+        toggleScreenShare: true,
+        toggleChat: true,
+        toggleParticipantList: true,
+        allowGuests: false,
+      },
+      participantType: type
     });
 
-    video.subscribe('host.changed', (host) => { 
+    video.subscribe('host.changed', (host) => {
       console.log('host.changed', host);
     })
 
-    video.subscribe('participant.joined', (participant) => { 
+    video.subscribe('participant.joined', (participant) => {
       console.log('participant.joined', participant);
     })
 
-    video.subscribe('participant.left', (participant) => { 
+    video.subscribe('participant.left', (participant) => {
       console.log('participant.left', participant);
     })
 
-    video.subscribe('participant.list.update', (participants) => { 
+    video.subscribe('participant.list.update', (participants) => {
       console.log('participant.list.update', participants);
     })
 
-    video.subscribe('meeting.state.update', (state) => { 
+    video.subscribe('meeting.state.update', (state) => {
       console.log('meeting.state.update', state);
     })
-    
+
     room.current.addComponent(video);
   }, []);
 
