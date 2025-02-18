@@ -91,8 +91,9 @@ export class VideoHuddle extends BaseComponent {
       canUseGoTo: this.config.permissions.enableGoTo,
       canUseDefaultToolbar: true,
       camerasPosition: this.config.camerasPosition as CamerasPosition,
+      canUseParticipantList: this.config.permissions.toggleParticipantList,
       devices: {
-        audioInput: true,
+        audioInput: this.config.permissions.toggleMic,
         audioOutput: true,
         videoInput: true,
       },
