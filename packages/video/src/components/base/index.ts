@@ -473,6 +473,7 @@ export abstract class BaseComponent {
   private onKickParticipant = (event: SocketEvent<string>) => {
     if (event.data !== this.localParticipant.id) return;
 
+    this.emit(VideoEvent.PARTICIPANT_KICKED, this.localParticipant);
     this.kickLocalParticipant();
   };
 

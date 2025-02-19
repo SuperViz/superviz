@@ -83,6 +83,9 @@ export default class VideoManager {
       callbacks,
       conferenceLayerUrl,
       group,
+      provider,
+      customLogo,
+      canUseParticipantList,
     } = options;
 
     this.browserService = new BrowserService();
@@ -90,7 +93,8 @@ export default class VideoManager {
     const wrapper = document.createElement('div');
 
     this.frameConfig = {
-      provider: 'video-package',
+      customLogo,
+      provider,
       group,
       apiKey,
       apiUrl,
@@ -109,6 +113,7 @@ export default class VideoManager {
       canShowAudienceList,
       camerasPosition: positions.camerasPosition ?? CamerasPosition.RIGHT,
       canUseDefaultToolbar,
+      canUseParticipantList,
       devices: {
         audioInput: devices?.audioInput ?? true,
         audioOutput: devices?.audioOutput ?? true,

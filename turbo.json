@@ -3,7 +3,10 @@
   "ui": "tui",
   "tasks": {
     "semantic-release": {
-      "env": ["GITHUB_TOKEN", "NPM_TOKEN"]
+      "env": [
+        "GITHUB_TOKEN",
+        "NPM_TOKEN"
+      ]
     },
     "test:unit": {},
     "test:unit:watch": {
@@ -36,97 +39,193 @@
     "build": {
       "cache": false,
       "persistent": false,
-      "dependsOn": ["^build"],
-      "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "outputs": [".next/**", "!.next/cache/**"]
+      "dependsOn": [
+        "^build"
+      ],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        ".env*"
+      ],
+      "outputs": [
+        ".next/**",
+        "!.next/cache/**"
+      ]
     },
     "lint": {
-      "dependsOn": ["^lint"]
+      "dependsOn": [
+        "^lint"
+      ]
     },
     "dev": {
       "cache": false,
       "persistent": true
     },
     "@superviz/realtime#build": {
-      "dependsOn": ["@superviz/socket-client#build"]
+      "dependsOn": [
+        "@superviz/socket-client#build"
+      ]
     },
     "@superviz/realtime#test:unit": {
-      "dependsOn": ["@superviz/socket-client#build"]
+      "dependsOn": [
+        "@superviz/socket-client#build"
+      ]
     },
     "@superviz/realtime#test:unit:watch": {
-      "dependsOn": ["@superviz/socket-client#build"]
+      "dependsOn": [
+        "@superviz/socket-client#build"
+      ]
     },
     "@superviz/realtime#test:unit:coverage": {
-      "dependsOn": ["@superviz/socket-client#build"]
+      "dependsOn": [
+        "@superviz/socket-client#build"
+      ]
     },
     "@superviz/realtime#test:unit:ci": {
-      "dependsOn": ["@superviz/socket-client#build"]
+      "dependsOn": [
+        "@superviz/socket-client#build"
+      ]
     },
     "@superviz/sdk#build": {
-      "dependsOn": ["@superviz/socket-client#build"]
+      "dependsOn": [
+        "@superviz/socket-client#build"
+      ]
     },
     "@superviz/sdk#test:unit": {
-      "dependsOn": ["@superviz/socket-client#build"]
+      "dependsOn": [
+        "@superviz/socket-client#build"
+      ]
     },
     "@superviz/sdk#test:unit:watch": {
-      "dependsOn": ["@superviz/socket-client#build"]
+      "dependsOn": [
+        "@superviz/socket-client#build"
+      ]
     },
     "@superviz/sdk#test:unit:coverage": {
-      "dependsOn": ["@superviz/socket-client#build"]
+      "dependsOn": [
+        "@superviz/socket-client#build"
+      ]
     },
     "@superviz/sdk#test:unit:ci": {
-      "dependsOn": ["@superviz/socket-client#build"]
+      "dependsOn": [
+        "@superviz/socket-client#build"
+      ]
+    },
+    "@superviz/collaboration#build": {
+      "dependsOn": [
+        "@superviz/socket-client#build"
+      ]
+    },
+    "@superviz/collaboration#test:unit": {
+      "dependsOn": [
+        "@superviz/socket-client#build"
+      ]
+    },
+    "@superviz/collaboration#test:unit:watch": {
+      "dependsOn": [
+        "@superviz/socket-client#build"
+      ]
+    },
+    "@superviz/collaboration#test:unit:coverage": {
+      "dependsOn": [
+        "@superviz/socket-client#build"
+      ]
+    },
+    "@superviz/collaboration#test:unit:ci": {
+      "dependsOn": [
+        "@superviz/socket-client#build"
+      ]
     },
     "@superviz/room#build": {
-      "dependsOn": ["@superviz/socket-client#build"]
+      "dependsOn": [
+        "@superviz/socket-client#build"
+      ]
     },
     "@superviz/room#test:unit": {
-      "dependsOn": ["@superviz/socket-client#build"]
+      "dependsOn": [
+        "@superviz/socket-client#build"
+      ]
     },
     "@superviz/room#test:unit:watch": {
-      "dependsOn": ["@superviz/socket-client#build"]
+      "dependsOn": [
+        "@superviz/socket-client#build"
+      ]
     },
     "@superviz/room#test:unit:coverage": {
-      "dependsOn": ["@superviz/socket-client#build"]
+      "dependsOn": [
+        "@superviz/socket-client#build"
+      ]
     },
     "@superviz/room#test:unit:ci": {
-      "dependsOn": ["@superviz/socket-client#build"]
+      "dependsOn": [
+        "@superviz/socket-client#build"
+      ]
     },
     "@superviz/video#build": {
-      "dependsOn": ["@superviz/socket-client#build", "@superviz/room#build"]
+      "dependsOn": [
+        "@superviz/socket-client#build",
+        "@superviz/room#build"
+      ]
     },
     "@superviz/video#test:unit": {
-      "dependsOn": ["@superviz/socket-client#build", "@superviz/room#build"]
+      "dependsOn": [
+        "@superviz/socket-client#build",
+        "@superviz/room#build"
+      ]
     },
     "@superviz/video#test:unit:watch": {
-      "dependsOn": ["@superviz/socket-client#build", "@superviz/room#build"]
+      "dependsOn": [
+        "@superviz/socket-client#build",
+        "@superviz/room#build"
+      ]
     },
     "@superviz/video#test:unit:coverage": {
-      "dependsOn": ["@superviz/socket-client#build", "@superviz/room#build"]
+      "dependsOn": [
+        "@superviz/socket-client#build",
+        "@superviz/room#build"
+      ]
     },
     "@superviz/video#test:unit:ci": {
-      "dependsOn": ["@superviz/socket-client#build", "@superviz/room#build"]
+      "dependsOn": [
+        "@superviz/socket-client#build",
+        "@superviz/room#build"
+      ]
     },
     "@superviz/yjs#build": {
-      "dependsOn": ["@superviz/sdk#build"]
+      "dependsOn": [
+        "@superviz/sdk#build"
+      ]
     },
     "@superviz/yjs#test:unit": {
-      "dependsOn": ["@superviz/sdk#build", "@superviz/socket-client#build"]
+      "dependsOn": [
+        "@superviz/sdk#build",
+        "@superviz/socket-client#build"
+      ]
     },
     "@superviz/yjs#test:unit:ci": {
-      "dependsOn": ["@superviz/sdk#build", "@superviz/socket-client#build"]
+      "dependsOn": [
+        "@superviz/sdk#build",
+        "@superviz/socket-client#build"
+      ]
     },
     "@superviz/yjs#test:unit:coverage": {
-      "dependsOn": ["@superviz/yjs#build"]
+      "dependsOn": [
+        "@superviz/yjs#build"
+      ]
     },
     "@superviz/autodesk-viewer-plugin#build": {
-      "dependsOn": ["@superviz/sdk#build"]
+      "dependsOn": [
+        "@superviz/sdk#build"
+      ]
     },
     "@superviz/@superviz/threejs-plugin#build": {
-      "dependsOn": ["@superviz/sdk#build"]
+      "dependsOn": [
+        "@superviz/sdk#build"
+      ]
     },
     "@superviz/matterport-plugin#build": {
-      "dependsOn": ["@superviz/sdk#build"]
+      "dependsOn": [
+        "@superviz/sdk#build"
+      ]
     },
     "@superviz/react-sdk#build": {
       "dependsOn": [
@@ -137,7 +236,7 @@
         "@superviz/threejs-plugin#build",
         "@superviz/yjs#build"
       ]
-    }, 
+    },
     "@superviz/react-room#build": {
       "dependsOn": [
         "@superviz/video#build",

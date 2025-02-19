@@ -35,8 +35,7 @@ export class VideoHuddle extends BaseComponent {
     }
 
     this.config = {
-      styles: props?.styles ?? '',
-      brand: props?.brand ?? { logoUrl: undefined },
+      brand: props?.brand ?? { logoUrl: undefined, styles: undefined },
       participantType: props?.participantType ?? 'guest',
       i18n: props?.i18n ?? { language: 'en', locales: [] },
       permissions: {
@@ -44,7 +43,7 @@ export class VideoHuddle extends BaseComponent {
         toggleMic: props?.permissions?.toggleMic ?? true,
         toggleChat: props?.permissions?.toggleChat ?? true,
         toggleParticipantList: props?.permissions?.toggleParticipantList ?? true,
-        toggleRecording: props?.permissions?.toggleRecording ?? true,
+        toggleRecording: props?.permissions?.toggleRecording ?? false,
         toggleScreenShare: props?.permissions?.toggleScreenShare ?? true,
         enableFollow: props?.permissions?.enableFollow ?? true,
         enableGoTo: props?.permissions?.enableGoTo ?? true,
@@ -72,6 +71,8 @@ export class VideoHuddle extends BaseComponent {
     );
 
     this.videoManagerConfig = {
+      // NOTE: this is temporary, we need to implement the new UI for the video huddle
+      provider: 'sdk-package',
       conferenceLayerUrl,
       group: this.globalConfig.group,
       apiKey: this.globalConfig.apiKey,
@@ -90,8 +91,9 @@ export class VideoHuddle extends BaseComponent {
       canUseGoTo: this.config.permissions.enableGoTo,
       canUseDefaultToolbar: true,
       camerasPosition: this.config.camerasPosition as CamerasPosition,
+      canUseParticipantList: this.config.permissions.toggleParticipantList,
       devices: {
-        audioInput: true,
+        audioInput: this.config.permissions.toggleMic,
         audioOutput: true,
         videoInput: true,
       },
@@ -101,7 +103,7 @@ export class VideoHuddle extends BaseComponent {
       locales: this.config.i18n?.locales,
       avatars: this.config.avatars,
       waterMark: this.globalConfig.waterMark,
-      styles: this.config?.styles,
+      styles: this.config?.brand?.styles,
       collaborationMode: true,
       layoutPosition: LayoutPosition.CENTER,
       layoutMode: LayoutMode.LIST,

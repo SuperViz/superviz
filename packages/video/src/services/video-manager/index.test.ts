@@ -27,6 +27,7 @@ const MOCK_LOCAL_PARTICIPANT: Participant = {
 
 const createVideoConfrenceManager = (options?: VideoManagerOptions) => {
   const defaultOptions: VideoManagerOptions = {
+    provider: 'video-package',
     apiKey: 'unit-test',
     apiUrl: 'https://unit-test-api-url/',
     conferenceLayerUrl: 'https://unit-test-conference-layer-url/',
@@ -36,6 +37,7 @@ const createVideoConfrenceManager = (options?: VideoManagerOptions) => {
       id: 'unit-test-group-id',
       name: 'unit-test-group-name',
     },
+    canUseParticipantList: true,
     limits: {
       presence: {
         canUse: true,

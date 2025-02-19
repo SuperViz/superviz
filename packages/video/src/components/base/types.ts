@@ -5,6 +5,7 @@ export enum VideoEvent {
   HOST_CHANGED = 'host.changed',
   PARTICIPANT_LEFT = 'participant.left',
   PARTICIPANT_JOINED = 'participant.joined',
+  PARTICIPANT_KICKED = 'participant.kicked',
   PARTICIPANT_LIST_UPDATE = 'participant.list.update',
   MEETING_STATE_UPDATE = 'meeting.state.update',
 }
@@ -12,6 +13,7 @@ export enum VideoEvent {
 export interface VideoEventPayloads {
   [VideoEvent.PARTICIPANT_JOINED]: Participant;
   [VideoEvent.PARTICIPANT_LEFT]: Participant;
+  [VideoEvent.PARTICIPANT_KICKED]: Participant;
   [VideoEvent.PARTICIPANT_LIST_UPDATE]: Record<string, Participant>;
   [VideoEvent.MEETING_STATE_UPDATE]: MeetingState;
   [VideoEvent.HOST_CHANGED]: Participant | null;

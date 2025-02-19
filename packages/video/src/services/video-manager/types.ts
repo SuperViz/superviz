@@ -5,6 +5,8 @@ import type { MeetingEvent, RealtimeEvent } from '../../common/types/events.type
 import type { Avatar, Participant } from '../../common/types/participant.types';
 
 export interface VideoManagerOptions {
+  customLogo?: string;
+  provider: 'video-package' | 'sdk-package';
   group: Group;
   conferenceLayerUrl: string,
   apiKey: string
@@ -19,6 +21,7 @@ export interface VideoManagerOptions {
   canUseRecording: boolean;
   canUseScreenshare: boolean;
   canUseDefaultAvatars: boolean;
+  canUseParticipantList: boolean;
   canUseGather: boolean;
   canUseFollow: boolean;
   canUseGoTo: boolean;
@@ -67,7 +70,8 @@ export interface FrameLocale {
 }
 
 export interface FrameConfig {
-  provider: 'video-package'
+  customLogo?: string;
+  provider: 'video-package' | 'sdk-package';
   apiKey: string;
   apiUrl: string;
   roomId: string;
@@ -75,6 +79,7 @@ export interface FrameConfig {
   group: Group;
   limits: ComponentLimits;
   canShowAudienceList: boolean;
+  canUseParticipantList: boolean;
   canUseChat: boolean;
   canUseCams: boolean;
   canUseScreenshare: boolean;

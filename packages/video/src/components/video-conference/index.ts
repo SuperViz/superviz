@@ -34,18 +34,17 @@ export class VideoConference extends BaseComponent {
     }
 
     this.config = {
-      styles: props?.styles || '',
-      brand: props?.brand || { logoUrl: undefined },
-      participantType: props?.participantType || 'guest',
-      i18n: props?.i18n || { language: 'en', locales: [] },
+      brand: props?.brand ?? { logoUrl: undefined, styles: undefined },
+      participantType: props?.participantType ?? 'guest',
+      i18n: props?.i18n ?? { language: 'en', locales: [] },
       permissions: {
-        toggleCamera: props?.permissions?.toggleCamera || true,
-        toggleMic: props?.permissions?.toggleMic || true,
-        toggleChat: props?.permissions?.toggleChat || true,
-        toggleParticipantList: props?.permissions?.toggleParticipantList || true,
-        toggleRecording: props?.permissions?.toggleRecording || true,
-        toggleScreenShare: props?.permissions?.toggleScreenShare || true,
-        allowGuests: props?.permissions?.allowGuests || false,
+        toggleCamera: props?.permissions?.toggleCamera ?? true,
+        toggleMic: props?.permissions?.toggleMic ?? true,
+        toggleChat: props?.permissions?.toggleChat ?? true,
+        toggleParticipantList: props?.permissions?.toggleParticipantList ?? true,
+        toggleRecording: props?.permissions?.toggleRecording ?? false,
+        toggleScreenShare: props?.permissions?.toggleScreenShare ?? true,
+        allowGuests: props?.permissions?.allowGuests ?? false,
       },
     };
 
@@ -59,6 +58,8 @@ export class VideoConference extends BaseComponent {
     );
 
     this.videoManagerConfig = {
+      customLogo: this.config.brand.logoUrl,
+      provider: 'video-package',
       conferenceLayerUrl,
       group: this.globalConfig.group,
       apiKey: this.globalConfig.apiKey,
@@ -68,6 +69,7 @@ export class VideoConference extends BaseComponent {
       roomId: this.globalConfig.roomId,
       canUseRecording: this.config.permissions.toggleRecording,
       canShowAudienceList: true,
+      canUseParticipantList: this.config.permissions.toggleParticipantList,
       canUseChat: this.config.permissions.toggleChat,
       canUseCams: this.config.permissions.toggleCamera,
       canUseScreenshare: this.config.permissions.toggleScreenShare,
@@ -78,7 +80,7 @@ export class VideoConference extends BaseComponent {
       canUseDefaultToolbar: true,
       camerasPosition: CamerasPosition.RIGHT,
       devices: {
-        audioInput: true,
+        audioInput: this.config.permissions.toggleMic,
         audioOutput: true,
         videoInput: true,
       },
@@ -93,7 +95,7 @@ export class VideoConference extends BaseComponent {
       locales: this.config.i18n?.locales,
       avatars: [],
       waterMark: this.globalConfig.waterMark,
-      styles: this.config?.styles,
+      styles: this.config?.brand?.styles,
       collaborationMode: false,
       layoutPosition: LayoutPosition.CENTER,
       layoutMode: LayoutMode.GRID,
