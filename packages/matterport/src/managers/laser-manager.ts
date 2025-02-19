@@ -2,7 +2,7 @@ import { throttle } from 'lodash';
 import { Vector3, Quaternion } from 'three';
 
 import { AVATAR_LASER_HEIGHT_OFFSET, NO_AVATAR_LASER_HEIGHT, MIN_NAME_HEIGHT } from '../common/constants/presence';
-import { AvatarTypes, Name } from '../common/types/avatarTypes.types';
+import { AvatarTypes } from '../common/types/avatarTypes.types';
 import { Coordinates } from '../common/types/coordinates.types';
 import { Laser } from '../common/types/lasers.types';
 import type { MpSdk as Matterport, Rotation } from '../common/types/matterport.types';
@@ -100,18 +100,6 @@ export class LaserManager {
         laserDestinationPosition,
         this.positionInfos[userId]?.slot,
       );
-
-      // console.log('remotePosition', remotePosition);
-      // console.log('localPosition', localPosition);
-
-      // Update name label height if avatars are not enabled
-      if (!remoteAvatar && remoteLaser.nameLabel?.updateHeight) {
-        // console.log('position', position);
-
-        const nameHeight = remoteLaser.laserPointer.calculateNameHeight(remotePosition, localPosition);
-
-        remoteLaser.nameLabel.updateHeight(nameHeight);
-      }
     } catch (error) {
       console.error('Error updating laser:', error);
     }
@@ -195,16 +183,6 @@ export class LaserManager {
       });
 
       laser.laserPointer.onInitCallback = () => {
-        laser.nameLabel = laser.addComponent('name');
-
-        if (!config.isAvatarsEnabled) {
-          const nameInstance: Name = laser.nameLabel;
-          const nameHeight = MIN_NAME_HEIGHT;
-          const color = participant.slot?.color || '#FF0000';
-          nameInstance.createName(laser.laserPointer.group, participant.name, color, nameHeight);
-          laser.laserPointer.setNameComponent(laser.nameLabel);
-        }
-
         laser.obj3D.userData = { uuid: participant.id };
         lasers[participant.id] = laser;
         resolve(laser);

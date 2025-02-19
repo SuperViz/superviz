@@ -8,16 +8,30 @@ import { ParticipantOn3D } from '../types';
 import { VectorCache } from '../utils/vector-cache';
 
 export class CirclePositionManager {
+  private static _instance: CirclePositionManager | null = null;
   private circlePositions: CirclePosition[] = [];
-  private readonly vectorCache: VectorCache;
   private readonly logger: Logger;
 
-  constructor(vectorCache: VectorCache) {
-    if (!vectorCache) {
-      throw new Error('VectorCache is required');
-    }
-    this.vectorCache = vectorCache;
+  private constructor() {
     this.logger = new Logger('@superviz/sdk/circle-position-manager');
+  }
+
+  public static init(): CirclePositionManager {
+    if (!CirclePositionManager._instance) {
+      CirclePositionManager._instance = new CirclePositionManager();
+    }
+    return CirclePositionManager._instance;
+  }
+
+  public static get instance(): CirclePositionManager {
+    if (!CirclePositionManager._instance) {
+      throw new Error('CirclePositionManager has not been initialized. Call `init()` first.');
+    }
+    return CirclePositionManager._instance;
+  }
+
+  public static reset(): void {
+    CirclePositionManager._instance = null;
   }
 
   public createCircleOfPositions(participants: (ParticipantOn3D | Participant)[]): void {
@@ -30,7 +44,7 @@ export class CirclePositionManager {
     const participantCount = sortedParticipants.length;
     if (participantCount === 0) return;
 
-    const circleCache = this.vectorCache.getCircleCache();
+    const circleCache = VectorCache.instance.getCircleCache();
     circleCache.radius = Math.max(participantCount * 0.3, 2);
     circleCache.angleStep = (2 * Math.PI) / participantCount;
 
@@ -53,8 +67,8 @@ export class CirclePositionManager {
       return position;
     }
 
-    const tempPositionVector = this.vectorCache.get<Vector3>('tempPositionVector');
-    const tempCircleVector = this.vectorCache.get<Vector3>('tempCircleVector');
+    const tempPositionVector = VectorCache.instance.get<Vector3>('tempPositionVector');
+    const tempCircleVector = VectorCache.instance.get<Vector3>('tempCircleVector');
 
     tempPositionVector.set(position.x, position.y, position.z);
 
@@ -72,7 +86,7 @@ export class CirclePositionManager {
 
     tempPositionVector.add(tempCircleVector);
 
-    this.vectorCache.get<Vector3>('currentCirclePosition').copy(tempCircleVector);
+    VectorCache.instance.get<Vector3>('currentCirclePosition').copy(tempCircleVector);
 
     return {
       x: tempPositionVector.x,

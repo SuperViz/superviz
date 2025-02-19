@@ -10,13 +10,10 @@ export const DEFAULT_AVATAR_IMAGE_URL =
   'https://production.cdn.superviz.com/static/default-avatars/1.png';
 
 /** Distance between avatars */
-export const DISTANCE_BETWEEN_AVATARS = 0.2;
+export const DISTANCE_BETWEEN_AVATARS = 0.02;
 
 /** Avatars height adjust */
 export const AVATARS_HEIGHT_ADJUST = 0.5;
-
-/** Avatars radius */
-export const AVATARS_RADIUS = 0.3;
 
 /** Duration of sweep transitions in milliseconds */
 export const SWEEP_DURATION = 1000;

@@ -1,5 +1,7 @@
 import { Vector3, Quaternion } from 'three';
 
+import type { MpSdk as Matterport } from './common/types/matterport.types';
+
 export enum Mode {
   INSIDE = 'mode.inside',
   OUTSIDE = 'mode.outside',
@@ -73,3 +75,7 @@ export type Rotation = {
   x: number;
   y: number;
 };
+
+export interface Avatar3DTypes extends Matterport.Scene.INode {
+  avatar3D?: any;
+}

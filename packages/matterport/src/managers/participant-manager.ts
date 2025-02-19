@@ -1,30 +1,37 @@
 import { Participant, Presence3DManager } from '@superviz/sdk';
 import type { useStore } from '@superviz/sdk/dist/common/utils/use-store';
-import type { PresenceEvent } from '@superviz/socket-client';
+import PubSub from 'pubsub-js';
 
 import { MatterportComponentOptions, ParticipantOn3D, PositionInfo } from '../types';
 import { Config } from '../utils/config';
+
+import { MatterportManager } from './matterport-manager';
 
 /**
  * Manages participants in a 3D environment, handling their creation, updates, and removal
  */
 export class ParticipantManager {
+  private static _instance: ParticipantManager | null = null;
   private useStore: typeof useStore;
   private localParticipant: Participant;
   private config: MatterportComponentOptions;
   private participants: ParticipantOn3D[] = [];
   private roomParticipants: Record<string, Participant> = {};
   private positionInfos: Record<string, PositionInfo> = {};
-  private presence3DManager: Presence3DManager;
-  private followParticipantId?: string;
-  private localFollowParticipantId?: string;
 
-  /**
-   * Creates a new ParticipantManager instance
-   * @param presence3DManager - Manager handling 3D presence
-   */
-  constructor() {
+  private constructor() {
     this.config = Config.getInstance().getConfig();
+  }
+
+  public static get instance(): ParticipantManager {
+    if (!ParticipantManager._instance) {
+      ParticipantManager._instance = new ParticipantManager();
+    }
+    return ParticipantManager._instance;
+  }
+
+  public static reset(): void {
+    ParticipantManager._instance = null;
   }
 
   public handleParticpantList(participants: ParticipantOn3D[]): void {
@@ -61,6 +68,16 @@ export class ParticipantManager {
         isPrivate,
         slot: participant.slot,
       });
+      // Update avatar if it exists
+      if (
+        MatterportManager.getAvatars()[participantId] &&
+        position &&
+        rotation
+      ) {
+        PubSub.publish(`PARTICIPANT_UPDATED_${participantId}`, { participant });
+      }
+
+      // console.log('PLUGIN: avatar', MatterportManager.getAvatars());
 
       // Skip local or previously added participant
       if (
@@ -69,10 +86,10 @@ export class ParticipantManager {
       ) {
         this.addParticipant(participant as ParticipantOn3D)
           .then((participantOn3D) => {
-            console.log('PLUGIN:participant added', participantOn3D.id);
+            PubSub.publish('PARTICIPANT_ADDED', { participant: participantOn3D });
           })
           .catch((error) => {
-            console.error('Error adding participant:', error);
+            console.log('Error adding participant:', error);
           });
       }
     });
@@ -83,6 +100,10 @@ export class ParticipantManager {
   */
   public updatePositionInfo(participantId: string, info: PositionInfo): void {
     this.positionInfos[participantId] = info;
+  }
+
+  public getPositionInfo(participantId: string): PositionInfo | undefined {
+    return this.positionInfos[participantId];
   }
 
   /*
@@ -105,7 +126,7 @@ export class ParticipantManager {
   }
 
   private removeParticipant(participant: Participant): void {
-    console.log('PLUGIN: remove participant', participant.id);
+    PubSub.publish('REMOVE_PARTCIPANT', { participant });
   }
 
   public get getParticipants(): ParticipantOn3D[] {
@@ -128,24 +149,19 @@ export class ParticipantManager {
     });
   };
 
-  private get getRoomParticipants(): Record<string, Participant> {
+  public get getRoomParticipants(): Record<string, Participant> {
     return this.roomParticipants;
   }
 
   /*
     Local Participant ::
   */
-  public setLocalParticipant(participant: Participant): Promise<boolean> {
-    // only add local participant once ::
-    if (this.localParticipant) {
-      return Promise.reject(new Error('Local participant is already set'));
-    }
+  public async setLocalParticipant(participant: Participant): Promise<boolean> {
+    if (this.localParticipant || participant.slot.index === null) return false;
 
     this.localParticipant = participant;
 
-    console.log('PLUGIN:local participant set', this.localParticipant);
-
-    return Promise.resolve(true);
+    return true;
   }
 
   public get getLocalParticipant(): Participant {

@@ -1,6 +1,6 @@
 import type { Object3D } from 'three';
 
-import { Slot } from '../../types';
+import { ParticipantOn3D, Slot } from '../../types';
 
 import type { MpSdk as Matterport } from './matterport.types';
 
@@ -10,6 +10,7 @@ export interface AvatarTypes extends Matterport.Scene.INode {
   avatarName?: any;
   avatar?: any;
   update?: () => void;
+  updatePosition?: (participant: ParticipantOn3D) => void;
 }
 
 export interface Name extends Matterport.Scene.IComponent {

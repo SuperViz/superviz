@@ -1,7 +1,9 @@
 import { Euler, Quaternion, Vector3 } from 'three';
+
 import { DefaultCoordinates } from '../common/types/coordinates.types';
 
 export class VectorCache {
+  private static _instance: VectorCache | null = null;
   private readonly vectors = {
     tempVector3: new Vector3(),
     tempEuler: new Euler(),
@@ -22,14 +24,21 @@ export class VectorCache {
     angleStep: 0,
   };
 
-  constructor() {
+  private constructor() {
     this.vectors.currentCirclePosition.copy(DefaultCoordinates);
   }
 
-  /**
-   * Initializes vectors with THREE.js instances
-   * @param THREE THREE.js instance
-   */
+  public static get instance(): VectorCache {
+    if (!VectorCache._instance) {
+      VectorCache._instance = new VectorCache();
+    }
+    return VectorCache._instance;
+  }
+
+  public static reset(): void {
+    VectorCache._instance = null;
+  }
+
   public initialize(THREE: any): void {
     Object.keys(this.vectors).forEach((key) => {
       if (this.vectors[key] instanceof Vector3) {
@@ -44,16 +53,10 @@ export class VectorCache {
     this.vectors.currentCirclePosition.copy(DefaultCoordinates);
   }
 
-  /**
-   * Gets a vector by key
-   */
   public get<T extends Vector3 | Euler | Quaternion>(key: keyof typeof this.vectors): T {
     return this.vectors[key] as T;
   }
 
-  /**
-   * Resets all vectors to their default values
-   */
   public cleanup(): void {
     Object.values(this.vectors).forEach((vector) => {
       if (vector instanceof Vector3) {
@@ -64,7 +67,6 @@ export class VectorCache {
         vector.set(0, 0, 0);
       }
     });
-    // Reset circle cache
     this.circleCache.center.set(0, 0, 0);
     this.circleCache.radius = 0;
     this.circleCache.angleStep = 0;

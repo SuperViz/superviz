@@ -1,11 +1,9 @@
 import type { Vector3 } from 'three';
 
 import {
-  MAX_NAME_HEIGHT,
-  MIN_DIST_SQUARED,
-  MIN_NAME_HEIGHT,
-  AVATAR_LASER_HEIGHT_OFFSET,
   MAX_DISTANCE,
+  MAX_NAME_HEIGHT,
+  MIN_NAME_HEIGHT,
 } from '../common/constants/presence';
 import { Coordinates } from '../common/types/coordinates.types';
 import { Slot } from '../types';
