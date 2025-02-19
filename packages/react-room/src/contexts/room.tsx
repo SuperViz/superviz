@@ -1,12 +1,12 @@
 import { Participant, Room, RoomState, createRoom } from '@superviz/room'
 import type { Component } from '@superviz/room/dist/common/types/component.types';
 
-import React, { 
-  createContext, 
-  useContext, 
-  ReactNode, 
-  useCallback, 
-  useMemo, 
+import React, {
+  createContext,
+  useContext,
+  ReactNode,
+  useCallback,
+  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -30,9 +30,9 @@ type InitializeRoomParams = {
   environment?: 'dev' | 'prod';
 }
 
-type RoomError = { 
-  code: string, 
-  message: string 
+type RoomError = {
+  code: string,
+  message: string
 }
 
 type RoomUpdate = {
@@ -58,14 +58,15 @@ interface RoomContextInternalProps {
   addComponent: (component: unknown) => void;
   removeComponent: (component: unknown) => void;
   setCallbacks: (callbacks: RoomCallbacks) => void;
+  getParticipants: () => Promise<Participant[]>;
   room: Room | null;
   components: Record<string, unknown>;
 }
 
 const RoomContext = createContext<RoomContextInternalProps | undefined>(undefined);
 
-const RoomProvider: React.FC<{ 
-  children: ReactNode 
+const RoomProvider: React.FC<{
+  children: ReactNode
   developerToken: string
 }> = ({ children, developerToken }) => {
   const [components, setComponents] = useState<Record<string, unknown>>({});
@@ -83,7 +84,7 @@ const RoomProvider: React.FC<{
   const initialized = useRef<boolean>(false);
 
   const joinRoom = useCallback(async (options: InitializeRoomParams) => {
-    if(initialized.current) {
+    if (initialized.current) {
       console.warn('[SuperViz] Room already initialized, leaving room before joining again');
       return;
     }
@@ -105,7 +106,7 @@ const RoomProvider: React.FC<{
   }, [callbacks, initialized]);
 
   const leaveRoom = useCallback(() => {
-    if(!initialized.current) {
+    if (!initialized.current) {
       console.warn('[SuperViz] Room not initialized, nothing to leave');
       return;
     }
@@ -134,12 +135,12 @@ const RoomProvider: React.FC<{
   }, []);
 
   const addComponent = useCallback((component: unknown) => {
-    if(!initialized.current) {
+    if (!initialized.current) {
       console.warn('[SuperViz] Room not initialized, cannot add component');
       return;
     }
 
-    if(components[(component as Component).name]) {
+    if (components[(component as Component).name]) {
       console.warn('[SuperViz] Component already initialized, cannot add again');
       return;
     }
@@ -150,12 +151,12 @@ const RoomProvider: React.FC<{
   }, []);
 
   const removeComponent = useCallback((component: unknown) => {
-    if(!initialized.current) {
+    if (!initialized.current) {
       console.warn('[SuperViz] Room not initialized, cannot remove component');
       return;
     }
 
-    if(!components[(component as Component).name]) {
+    if (!components[(component as Component).name]) {
       console.warn('[SuperViz] Component not initialized yet, cannot remove');
       return;
     }
@@ -171,83 +172,93 @@ const RoomProvider: React.FC<{
   const updateCallbacks = (newCallbacks: RoomCallbacks) => {
     Object.keys(newCallbacks).forEach((key) => {
       const callbackKey = key as keyof RoomCallbacks;
-  
+
       if (callbacks.current[callbackKey]) {
         const existingCallbacks = callbacks.current[callbackKey];
-  
+
         const callbackMap: Map<string, Callback> = new Map(
           existingCallbacks.map((cb) => [cb.toString(), cb])
         );
-  
+
         const newCallback = newCallbacks[callbackKey] as Callback;
-  
+
         if (newCallback && !callbackMap.has(newCallback.toString())) {
           callbackMap.set(newCallback.toString(), newCallback);
           callbacks.current[callbackKey] = Array.from(callbackMap.values());
         }
       }
     });
-  
+
   };
 
   const onMyParticipantJoined = useCallback((participant: Participant) => {
-    if(callbacks.current.onMyParticipantJoined) {
+    if (callbacks.current.onMyParticipantJoined) {
       callbacks.current.onMyParticipantJoined.forEach(cb => cb(participant));
     }
   }, [callbacks.current]);
 
   const onMyParticipantLeft = useCallback((participant: Participant) => {
-    if(callbacks.current.onMyParticipantLeft) {
+    if (callbacks.current.onMyParticipantLeft) {
       callbacks.current.onMyParticipantLeft.forEach(cb => cb(participant));
     }
   }, [callbacks.current]);
 
   const onMyParticipantUpdated = useCallback((participant: Participant) => {
-    if(callbacks.current.onMyParticipantUpdated) {
+    if (callbacks.current.onMyParticipantUpdated) {
       callbacks.current.onMyParticipantUpdated.forEach(cb => cb(participant));
     }
   }, [callbacks.current]);
 
   const onParticipantJoined = useCallback((participant: Participant) => {
-    if(callbacks.current.onParticipantJoined) {
+    if (callbacks.current.onParticipantJoined) {
       callbacks.current.onParticipantJoined.forEach(cb => cb(participant));
     }
   }, [callbacks.current]);
 
   const onParticipantLeft = useCallback((participant: Participant) => {
-    if(callbacks.current.onParticipantLeft) {
+    if (callbacks.current.onParticipantLeft) {
       callbacks.current.onParticipantLeft.forEach(cb => cb(participant));
     }
   }, [callbacks.current]);
-  
+
   const onParticipantUpdated = useCallback((participant: Participant) => {
-    if(callbacks.current.onParticipantUpdated) {
+    if (callbacks.current.onParticipantUpdated) {
       callbacks.current.onParticipantUpdated.forEach(cb => cb(participant));
     }
   }, [callbacks.current]);
-  
+
   const onError = useCallback((error: RoomError) => {
-    if(callbacks.current.onError) {
+    if (callbacks.current.onError) {
       callbacks.current.onError.forEach(cb => cb(error));
     }
   }, [callbacks.current]);
 
   const onRoomUpdated = useCallback((data: RoomUpdate) => {
-    if(callbacks.current.onRoomUpdated) {
+    if (callbacks.current.onRoomUpdated) {
       callbacks.current.onRoomUpdated.forEach(cb => cb(data));
     }
   }, [callbacks.current]);
 
+  const getParticipants = useCallback(async () => {
+    if (!room.current) {
+      console.warn('[SuperViz] Room not initialized, cannot get participants');
+      return [];
+    }
+
+    return room.current.getParticipants();
+  }, [room.current]);
+
   return (
-    <RoomContext.Provider 
-      value={{ 
-        joinRoom, 
-        leaveRoom, 
+    <RoomContext.Provider
+      value={{
+        joinRoom,
+        leaveRoom,
         setCallbacks: updateCallbacks,
         addComponent,
-        removeComponent, 
+        removeComponent,
         room: room.current,
-        components
+        components,
+        getParticipants
       }}
     >
       {children}
@@ -272,13 +283,13 @@ const useRoom = (callbacks: RoomCallbacks) => {
     throw new Error('useRoom must be used within a RoomProvider');
   }
 
-  useMemo(() => { 
-    if(Object.keys(callbacks).length) {
+  useMemo(() => {
+    if (Object.keys(callbacks).length) {
       context.setCallbacks(callbacks);
     }
   }, [callbacks])
 
-  return { 
+  return {
     joinRoom: context.joinRoom,
     leaveRoom: context.leaveRoom,
     addComponent: context.addComponent,
