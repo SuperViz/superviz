@@ -8,6 +8,7 @@ type VideoCallbacks = {
   onHostChanged?: (host: Participant | null) => void;
   onParticipantJoined?: (participant: Participant) => void;
   onParticipantLeft?: (participant: Participant) => void;
+  onParticipantKicked?: (participant: Participant) => void;
   onParticipantListUpdate?: (participants: Record<string, Participant>) => void;
   onMeetingStateUpdate?: (meetingState: MeetingState) => void;
 };
@@ -28,6 +29,7 @@ export const useVideo = (callbacks: VideoCallbacks) => {
       callbacks?.onParticipantLeft && video.subscribe("participant.left", callbacks.onParticipantLeft);
       callbacks?.onParticipantListUpdate && video.subscribe("participant.list.update", callbacks.onParticipantListUpdate);
       callbacks?.onMeetingStateUpdate && video.subscribe("meeting.state.update", callbacks.onMeetingStateUpdate);
+      callbacks?.onParticipantKicked && video.subscribe("participant.kicked", callbacks.onParticipantKicked);
     }
 
     return () => {
@@ -37,6 +39,7 @@ export const useVideo = (callbacks: VideoCallbacks) => {
         callbacks?.onParticipantLeft && video.unsubscribe("participant.left", callbacks.onParticipantLeft);
         callbacks?.onParticipantListUpdate && video.unsubscribe("participant.list.update", callbacks.onParticipantListUpdate);
         callbacks?.onMeetingStateUpdate && video.unsubscribe("meeting.state.update", callbacks.onMeetingStateUpdate);
+        callbacks?.onParticipantKicked && video.unsubscribe("participant.kicked", callbacks.onParticipantKicked);
       }
     };
   }, [video]);

@@ -5,7 +5,7 @@
     "build": "turbo build",
     "dev": "turbo dev",
     "lint": "turbo lint",
-    "watch": "turbo run watch --concurrency=13",
+    "watch": "turbo run watch --concurrency=14",
     "semantic-release": "turbo run semantic-release",
     "test:unit": "turbo run test:unit",
     "test:unit:watch": "turbo run test:unit:watch",

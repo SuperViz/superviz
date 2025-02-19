@@ -1,4 +1,4 @@
-import { Comments, HTMLPin } from "@superviz/sdk";
+import { Comments, HTMLPin } from "@superviz/collaboration";
 import { v4 as generateId } from "uuid";
 
 import { useCallback, useEffect, useRef } from "react";
@@ -31,7 +31,7 @@ export function CommentsHtmlCasesWithNewRoom() {
 
   const initializeSuperViz = useCallback(async () => {
     if (loaded.current) return;
-    
+
     loaded.current = true;
 
     const uuid = generateId();

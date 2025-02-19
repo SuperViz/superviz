@@ -76,6 +76,13 @@ jobs:
           NPM_CONFIG_USERCONFIG: .npmrc.ci
           GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Publish collaboration package
+        if: steps.check_collaboration_changes.outputs.collaboration_changed == 'true'
+        run: npm whoami && pnpm run semantic-release --filter=@superviz/collaboration
+        env:
+          NPM_CONFIG_USERCONFIG: .npmrc.ci
+          GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
       - name: Check for changes in packages/yjs
         id: check_yjs_changes
         run: |
