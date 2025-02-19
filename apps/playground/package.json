@@ -17,6 +17,7 @@
     "@superviz/realtime": "workspace:*",
     "@superviz/room": "workspace:*",
     "@superviz/sdk": "workspace:*",
+    "@superviz/collaboration": "workspace:*",
     "@superviz/threejs-plugin": "workspace:*",
     "@superviz/yjs": "workspace:*",
     "@superviz/react": "workspace:*",
