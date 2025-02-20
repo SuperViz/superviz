@@ -10,8 +10,8 @@ import { VideoHuddle } from './components/video-huddle';
 if (typeof window !== 'undefined') {
   // @ts-ignore
   window.SuperVizVideo = {
-    VideoConference,
-    VideoHuddle,
+    VideoConference: VideoConference,
+    VideoHuddle: VideoHuddle,
   };
 }
 
