@@ -1,0 +1,106 @@
+import PubSub from 'pubsub-js';
+
+import type { MpSdk as Matterport } from '../../common/types/matterport.types';
+import { HEIGHT_ADJUSTMENT } from '../../constants/nameLabel';
+import { ParticipantManager } from '../../managers/participant-manager';
+import { NameService } from '../../services/name-service';
+import type { ParticipantOn3D } from '../../types';
+
+import { Canvas } from './Canvas';
+
+function NameLabel() {
+  this.inputs = {
+    participant: null as ParticipantOn3D | null,
+    matterportSdk: null as Matterport | null,
+  };
+
+  this.nameLabelModel = null;
+  this.nameLabel = null;
+  this.positionSub = null;
+  this.THREE = null;
+  this.canvas = null;
+
+  const setupThreeObjects = () => {
+    if (!this.context.three) {
+      throw new Error('Laser initialization failed: THREE.js context is missing');
+    }
+    this.THREE = NameService.instance.getTHREE();
+
+    // Initialize position vector
+    this.tempAdjustPos = new this.THREE.Vector3();
+  };
+
+  const updatePosition = (e: any, payload: { participant: ParticipantOn3D }) => {
+    if (!payload.participant) {
+      return;
+    }
+
+    const localPosition = ParticipantManager.instance.getLocalParticipantPosition.position;
+    const remotePosition = payload.participant.position;
+
+    const dx = localPosition.x - remotePosition.x;
+    const dz = localPosition.z - remotePosition.z;
+
+    // Compute the Euclidean distance
+    const distance = Math.sqrt(dx * dx + dz * dz);
+
+    // Calculate additional height based on distance
+    const additionalHeight = Math.min(
+      (distance / HEIGHT_ADJUSTMENT.MAX_DISTANCE) * HEIGHT_ADJUSTMENT.MAX_ADDITIONAL_HEIGHT,
+      HEIGHT_ADJUSTMENT.MAX_ADDITIONAL_HEIGHT,
+    );
+
+    console.log('additionalHeight', additionalHeight);
+
+    const position = new this.THREE.Vector3(
+      payload.participant.position.x,
+      payload.participant.position.y + HEIGHT_ADJUSTMENT.BASE_OFFSET + additionalHeight,
+      payload.participant.position.z,
+    );
+
+    this.canvas.updatePosition(position);
+  };
+
+  const createCanvas = () => {
+    this.canvas = new Canvas(this.nameLabelModel, this.inputs.participant);
+  };
+
+  this.onInit = async () => {
+    try {
+      console.log('Plugin: NameLabel onInit - participant:', this.inputs.participant);
+
+      // Get the model first
+      this.nameLabelModel = NameService.instance.getNameLabels()[this.inputs.participant?.id];
+
+      setupThreeObjects();
+      createCanvas();
+
+      // Subscribe to position updates
+      this.positionSub = PubSub.subscribe(
+        `PARTICIPANT_UPDATED_${this.inputs.participant?.id}`,
+        updatePosition.bind(this),
+      );
+    } catch (error) {
+      console.error('Plugin: NameLabel initialization error:', error);
+    }
+  };
+
+  this.destroy = () => {
+    // Clean up name label
+    if (this.nameLabel) {
+      this.nameLabel.dispose();
+      this.nameLabel = null;
+    }
+
+    // Clean up subscription
+    if (this.positionSub) {
+      PubSub.unsubscribe(this.positionSub);
+    }
+
+    // Clean up references
+    this.nameLabelModel = null;
+    this.THREE = null;
+  };
+}
+
+export default () => new NameLabel();

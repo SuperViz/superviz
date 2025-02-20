@@ -6,11 +6,13 @@ import type { MpSdk as Matterport } from '../common/types/matterport.types';
 import Lerper from '../components/Lerper';
 import Avatar3D from '../components/avatar/Avatar3D';
 import LaserPointer3D from '../components/laser/LaserPointer3D';
+import NameLabel from '../components/name/NameLabel';
 import { MatterportEvents } from '../events/matterport-events';
 import { AvatarService } from '../services/avatar-service';
 import { LaserService } from '../services/laser-service';
 import { SceneLight } from '../services/matterport/scene-light';
-import { Avatar3DTypes, Laser3DTypes, ParticipantOn3D } from '../types';
+import { NameService } from '../services/name-service';
+import { Avatar3DTypes, Laser3DTypes, NameLabel3DTypes, ParticipantOn3D } from '../types';
 
 import { CirclePositionManager } from './circle-position-manager';
 import { ParticipantManager } from './participant-manager';
@@ -111,6 +113,7 @@ export class MatterportManager {
       this.THREE = this.sceneLight.getTHREE();
       AvatarService.instance.setTHREE(this.THREE);
       LaserService.instance.setTHREE(this.THREE);
+      NameService.instance.setTHREE(this.THREE);
     } catch (error) {
       throw new Error(`Plugin: Matterport scenelight failed: ${error}`);
     }
@@ -127,6 +130,7 @@ export class MatterportManager {
       this.matterportSdk.Scene.register('lerper', Lerper);
       this.matterportSdk.Scene.register('laser3D', LaserPointer3D);
       this.matterportSdk.Scene.register('avatar3D', Avatar3D);
+      this.matterportSdk.Scene.register('nameLabel', NameLabel);
     } else {
       this.isEmbedMode = true;
     }
@@ -180,8 +184,25 @@ export class MatterportManager {
     });
   }
 
+  public async createNameLabel(participant: ParticipantOn3D) {
+    console.log('Plugin: createNameLabel', participant);
+
+    const [sceneObject] = await this.matterportSdk.Scene.createObjects(1);
+    const nameLabelModel: NameLabel3DTypes = sceneObject.addNode();
+
+    NameService.instance.setNameLabel(participant.id, nameLabelModel);
+
+    return new Promise((resolve) => {
+      nameLabelModel.nameLabel3D = nameLabelModel.addComponent('nameLabel', {
+        participant,
+        matterportSdk: this.matterportSdk,
+      });
+      nameLabelModel.start();
+      resolve(nameLabelModel);
+    });
+  }
+
   public async createLaser(participant: ParticipantOn3D) {
-    console.log('Plugin: createLaser', participant);
     const [sceneObject] = await this.matterportSdk.Scene.createObjects(1);
     const laserModel: Laser3DTypes = sceneObject.addNode();
 
@@ -206,6 +227,10 @@ export class MatterportManager {
 
   public static getLasers(): Record<string, Laser3DTypes> {
     return LaserService.instance.getLasers();
+  }
+
+  public static getNameLabels(): Record<string, NameLabel3DTypes> {
+    return NameService.instance.getNameLabels();
   }
 
   public static getTHREE(): any {

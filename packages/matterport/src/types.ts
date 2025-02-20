@@ -83,3 +83,7 @@ export interface Avatar3DTypes extends Matterport.Scene.INode {
 export interface Laser3DTypes extends Matterport.Scene.INode {
   laser3D?: any;
 }
+
+export interface NameLabel3DTypes extends Matterport.Scene.INode {
+  nameLabel3D?: any;
+}

@@ -1,7 +1,7 @@
 import PubSub from 'pubsub-js';
 
 import type { MpSdk as Matterport } from '../../common/types/matterport.types';
-import { NO_AVATAR_LASER_HEIGHT } from '../../constants/laser';
+import { AVATAR_LASER_HEIGHT, NO_AVATAR_LASER_HEIGHT } from '../../constants/laser';
 import { LaserService } from '../../services/laser-service';
 import { ParticipantOn3D } from '../../types';
 
@@ -69,13 +69,14 @@ function LaserPointer3D() {
   };
 
   const updatePosition = (e: any, payload: { participant: ParticipantOn3D }) => {
-    if (!this.tempAdjustPos || !this.sphere || !this.beam) {
+    // console.log('updatePosition', payload);
+    if (!this.tempAdjustPos || !this.sphere || !this.beam || !payload.participant.laser) {
       return;
     }
 
     const avatarPos = new this.THREE.Vector3(
       payload.participant.position.x,
-      payload.participant.position.y + NO_AVATAR_LASER_HEIGHT,
+      payload.participant.position.y + AVATAR_LASER_HEIGHT,
       payload.participant.position.z,
     );
 

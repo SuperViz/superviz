@@ -1,5 +1,4 @@
-import type { MpSdk as Matterport } from '../common/types/matterport.types';
-import type { Avatar3DTypes, Laser3DTypes, ParticipantOn3D } from '../types';
+import type { Laser3DTypes } from '../types';
 
 export class LaserService {
   private static _instance: LaserService | null = null;

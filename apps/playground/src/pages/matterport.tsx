@@ -27,7 +27,7 @@ export function Matterport() {
     room.current = await Room(SUPERVIZ_KEY, {
       roomId: `${SUPERVIZ_ROOM_PREFIX}-presence-3d`,
       participant: {
-        name: "Peter",
+        name: "Peterson Johnson André",
         id: uuid,
       },
       group: {

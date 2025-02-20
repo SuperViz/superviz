@@ -1,5 +1,5 @@
-import { DEFAULT_COLOR, MATERIAL_SHININESS, SPHERE_RADIUS } from '../constants/laser';
-import { LaserService } from '../services/laser-service';
+import { DEFAULT_COLOR, MATERIAL_SHININESS, SPHERE_RADIUS } from '../../constants/laser';
+import { LaserService } from '../../services/laser-service';
 
 export class Sphere {
   private THREE: any;

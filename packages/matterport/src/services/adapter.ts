@@ -8,7 +8,6 @@ import type { MpSdk as Matterport } from '../common/types/matterport.types';
 import { Logger } from '../common/utils/logger';
 import { NAME } from '../constants/presence';
 import { STORE_TYPES } from '../constants/store';
-import { MatterportEvents } from '../events/matterport-events';
 import { CirclePositionManager } from '../managers/circle-position-manager';
 import { MatterportManager } from '../managers/matterport-manager';
 import { ParticipantManager } from '../managers/participant-manager';
@@ -23,20 +22,10 @@ export class Presence3D {
   private room: Room;
   private useStore: typeof useStore;
   private presence3DManager: Presence3DManager;
-  private matterportEvents: MatterportEvents;
   private isAttached = false;
   private matterportSdk: Matterport;
   private isPrivate: boolean;
-  private circlePositionManager: CirclePositionManager;
-  private isEmbedMode: boolean = false;
 
-  private matterportManager: MatterportManager;
-
-  /**
-   * Constructor for the Presence3D service
-   * @param matterportSdk - The Matterport SDK instance
-   * @param options - Optional configuration options for the component
-   */
   constructor(matterportSdk: Matterport, options?: MatterportComponentOptions) {
     // default ::
     this.name = NAME;
@@ -46,10 +35,6 @@ export class Presence3D {
     // initialize config ::
     this.config = Config.getInstance();
     this.config.setConfig(options);
-
-    // initialize the matterport events ::
-
-    console.log('Plugin: constructor');
   }
 
   private destroy = (): void => {
@@ -125,7 +110,8 @@ export class Presence3D {
 
   private onParticipantAdded = (e: any, payload: { participant: ParticipantOn3D }) => {
     console.log('Plugin: Participant added', payload.participant);
-    CirclePositionManager.instance.createCircleOfPositions([payload.participant]);
+    // CirclePositionManager.instance.createCircleOfPositions([payload.participant]);
+    MatterportManager.instance.createNameLabel(payload.participant);
     MatterportManager.instance.createAvatar(payload.participant);
     MatterportManager.instance.createLaser(payload.participant);
   };

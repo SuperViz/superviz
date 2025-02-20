@@ -1,4 +1,4 @@
-import { Participant, Presence3DManager } from '@superviz/sdk';
+import { Participant } from '@superviz/sdk';
 import type { useStore } from '@superviz/sdk/dist/common/utils/use-store';
 import PubSub from 'pubsub-js';
 
@@ -167,6 +167,10 @@ export class ParticipantManager {
 
   public get getLocalParticipant(): Participant {
     return this.localParticipant;
+  }
+
+  public get getLocalParticipantPosition(): PositionInfo {
+    return this.positionInfos[this.getLocalParticipant.id];
   }
 
   /*

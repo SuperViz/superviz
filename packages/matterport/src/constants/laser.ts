@@ -1,4 +1,4 @@
-export const SPHERE_RADIUS = 0.08;
+export const SPHERE_RADIUS = 0.04;
 export const TUBE_SEGMENTS = 8;
 export const TUBE_RADIUS = 0.01;
 export const TUBE_RADIAL_SEGMENTS = 8;
@@ -6,4 +6,5 @@ export const DEFAULT_COLOR = '#878291';
 export const MATERIAL_SHININESS = 60;
 export const LERP_SPEED = 3.45;
 export const INITIAL_POSITION = { x: 1000, y: 1000, z: 1000 };
-export const NO_AVATAR_LASER_HEIGHT = 0.3;
+export const NO_AVATAR_LASER_HEIGHT = -0.2;
+export const AVATAR_LASER_HEIGHT = -0.1;
