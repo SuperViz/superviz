@@ -3,12 +3,14 @@ import PubSub from 'pubsub-js';
 
 import { Coordinates } from '../common/types/coordinates.types';
 import type { MpSdk as Matterport } from '../common/types/matterport.types';
-import Avatar3D from '../components/Avatar3D';
-import LaserPointer from '../components/LaserPointer';
 import Lerper from '../components/Lerper';
+import Avatar3D from '../components/avatar/Avatar3D';
+import LaserPointer3D from '../components/laser/LaserPointer3D';
 import { MatterportEvents } from '../events/matterport-events';
+import { AvatarService } from '../services/avatar-service';
+import { LaserService } from '../services/laser-service';
 import { SceneLight } from '../services/matterport/scene-light';
-import { Avatar3DTypes, ParticipantOn3D } from '../types';
+import { Avatar3DTypes, Laser3DTypes, ParticipantOn3D } from '../types';
 
 import { CirclePositionManager } from './circle-position-manager';
 import { ParticipantManager } from './participant-manager';
@@ -22,6 +24,7 @@ export class MatterportManager {
   private isEmbedMode: boolean = false;
   private mpInputComponent!: Matterport.Scene.IComponent;
   private avatars: Record<string, Avatar3DTypes> = {};
+  private lasers: Record<string, Laser3DTypes> = {};
 
   private constructor(
     private readonly matterportSdk: Matterport,
@@ -79,11 +82,6 @@ export class MatterportManager {
     avatar.avatar3D.destroy();
     avatar.stop();
     delete this.avatars[payload.participant.id];
-
-    // console.log('Plugin - positionInfo', positionInfo);
-
-    // Get the participant's actual position info
-    // const positionInfo = this.positionInfos[participantId];
   };
 
   private async calculateSceneBounds(): Promise<void> {
@@ -111,6 +109,8 @@ export class MatterportManager {
       this.sceneLight = new SceneLight(this.matterportSdk);
       await this.sceneLight.addSceneLight();
       this.THREE = this.sceneLight.getTHREE();
+      AvatarService.instance.setTHREE(this.THREE);
+      LaserService.instance.setTHREE(this.THREE);
     } catch (error) {
       throw new Error(`Plugin: Matterport scenelight failed: ${error}`);
     }
@@ -125,8 +125,7 @@ export class MatterportManager {
   private async registerSceneElements(): Promise<void> {
     if (this.matterportSdk.Scene) {
       this.matterportSdk.Scene.register('lerper', Lerper);
-      // this.matterportSdk.Scene.register('name', NameLabel);
-      this.matterportSdk.Scene.register('laser', LaserPointer);
+      this.matterportSdk.Scene.register('laser3D', LaserPointer3D);
       this.matterportSdk.Scene.register('avatar3D', Avatar3D);
     } else {
       this.isEmbedMode = true;
@@ -169,7 +168,7 @@ export class MatterportManager {
     const [sceneObject] = await this.matterportSdk.Scene.createObjects(1);
     const avatarModel: Avatar3DTypes = sceneObject.addNode();
 
-    this.avatars[participant.id] = avatarModel;
+    AvatarService.instance.setAvatar(participant.id, avatarModel);
 
     return new Promise((resolve) => {
       avatarModel.avatar3D = avatarModel.addComponent('avatar3D', {
@@ -181,15 +180,36 @@ export class MatterportManager {
     });
   }
 
+  public async createLaser(participant: ParticipantOn3D) {
+    console.log('Plugin: createLaser', participant);
+    const [sceneObject] = await this.matterportSdk.Scene.createObjects(1);
+    const laserModel: Laser3DTypes = sceneObject.addNode();
+
+    LaserService.instance.setLaser(participant.id, laserModel);
+
+    return new Promise((resolve) => {
+      laserModel.laser3D = laserModel.addComponent('laser3D', {
+        participant,
+        matterportSdk: this.matterportSdk,
+      });
+      laserModel.start();
+      resolve(laserModel);
+    });
+  }
+
   /**
    * Static access methods
    */
   public static getAvatars(): Record<string, Avatar3DTypes> {
-    return MatterportManager.instance.avatars;
+    return AvatarService.instance.getAvatars();
+  }
+
+  public static getLasers(): Record<string, Laser3DTypes> {
+    return LaserService.instance.getLasers();
   }
 
   public static getTHREE(): any {
-    return MatterportManager.instance.THREE;
+    return AvatarService.instance.getTHREE();
   }
 
   public static getMaxDistanceSquared(): number {

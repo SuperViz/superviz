@@ -12,9 +12,6 @@ export const DEFAULT_AVATAR_IMAGE_URL =
 /** Distance between avatars */
 export const DISTANCE_BETWEEN_AVATARS = 0.02;
 
-/** Avatars height adjust */
-export const AVATARS_HEIGHT_ADJUST = 0.5;
-
 /** Duration of sweep transitions in milliseconds */
 export const SWEEP_DURATION = 1000;
 

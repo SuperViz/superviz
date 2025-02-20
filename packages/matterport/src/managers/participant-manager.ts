@@ -69,6 +69,7 @@ export class ParticipantManager {
         slot: participant.slot,
       });
       // Update avatar if it exists
+      // TODO: we should not chack for avatars only, also check for lasers
       if (
         MatterportManager.getAvatars()[participantId] &&
         position &&

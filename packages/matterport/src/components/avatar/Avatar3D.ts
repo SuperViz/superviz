@@ -1,12 +1,10 @@
 import PubSub from 'pubsub-js';
 import { Quaternion, Vector3 } from 'three';
 
-import { AVATARS_HEIGHT_ADJUST } from '../common/constants/presence';
-import type { MpSdk as Matterport } from '../common/types/matterport.types';
-import { DEFAULT_AVATAR_URL } from '../constants/presence';
-import { CirclePositionManager } from '../managers/circle-position-manager';
-import { MatterportManager } from '../managers/matterport-manager';
-import type { ParticipantOn3D } from '../types';
+import type { MpSdk as Matterport } from '../../common/types/matterport.types';
+import { DEFAULT_AVATAR_URL, AVATARS_HEIGHT_ADJUST } from '../../constants/avatar';
+import { AvatarService } from '../../services/avatar-service';
+import type { ParticipantOn3D } from '../../types';
 
 function Avatar3D() {
   this.inputs = {
@@ -79,7 +77,7 @@ function Avatar3D() {
     if (!this.context.three) {
       throw new Error('Avatar initialization failed: THREE.js context is missing');
     }
-    this.THREE = MatterportManager.getTHREE();
+    this.THREE = AvatarService.instance.getTHREE();
 
     // Initialize cached objects
     this.tempVector3 = new this.THREE.Vector3();
@@ -151,8 +149,9 @@ function Avatar3D() {
   };
 
   this.onInit = () => {
+    console.log('Plugin: Avatar3D onInit');
     try {
-      this.avatarModel = MatterportManager.getAvatars()[this.inputs.participant?.id];
+      this.avatarModel = AvatarService.instance.getAvatars()[this.inputs.participant?.id];
 
       this.positionSub = PubSub.subscribe(`PARTICIPANT_UPDATED_${this.inputs.participant?.id}`, (msg, data) => {
         updatePosition.call(this, msg, data);

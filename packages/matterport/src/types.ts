@@ -79,3 +79,7 @@ export type Rotation = {
 export interface Avatar3DTypes extends Matterport.Scene.INode {
   avatar3D?: any;
 }
+
+export interface Laser3DTypes extends Matterport.Scene.INode {
+  laser3D?: any;
+}

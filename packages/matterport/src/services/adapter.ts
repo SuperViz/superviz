@@ -1,13 +1,11 @@
-import { Participant, Presence3DManager } from '@superviz/sdk';
+import { Presence3DManager } from '@superviz/sdk';
 import type { useStore } from '@superviz/sdk/dist/common/utils/use-store';
 import type { DefaultAttachComponentOptions } from '@superviz/sdk/dist/components/base/types';
 import type { Room } from '@superviz/socket-client';
 import PubSub from 'pubsub-js';
 
-import { Coordinates } from '../common/types/coordinates.types';
 import type { MpSdk as Matterport } from '../common/types/matterport.types';
 import { Logger } from '../common/utils/logger';
-import Avatar from '../components/Avatar';
 import { NAME } from '../constants/presence';
 import { STORE_TYPES } from '../constants/store';
 import { MatterportEvents } from '../events/matterport-events';
@@ -17,8 +15,6 @@ import { ParticipantManager } from '../managers/participant-manager';
 import { MatterportComponentOptions, ParticipantOn3D } from '../types';
 import { Config } from '../utils/config';
 import { VectorCache } from '../utils/vector-cache';
-
-import { SceneLight } from './matterport/scene-light';
 
 export class Presence3D {
   public name: string;
@@ -131,6 +127,7 @@ export class Presence3D {
     console.log('Plugin: Participant added', payload.participant);
     CirclePositionManager.instance.createCircleOfPositions([payload.participant]);
     MatterportManager.instance.createAvatar(payload.participant);
+    MatterportManager.instance.createLaser(payload.participant);
   };
 
   private onLocalParticipantRegistred = async () => {
