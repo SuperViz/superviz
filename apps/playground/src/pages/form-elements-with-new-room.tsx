@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef } from "react";
-import { FormElements } from "@superviz/sdk";
+import { FormElements } from "@superviz/collaboration";
 import { createRoom, Room } from "@superviz/room";
 import { getConfig } from "../config";
 import { v4 as generateId } from "uuid";
@@ -17,7 +17,7 @@ export function FormElementsWithNewRoom() {
   const initializeSuperViz = useCallback(async () => {
     if (loaded.current) return;
     loaded.current = true;
-    
+
     const uuid = generateId();
 
     room.current = await createRoom({

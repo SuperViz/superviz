@@ -43,7 +43,7 @@ jobs:
     needs: build
     strategy:
       matrix:
-        package: [realtime, sdk, yjs, 'room'] 
+        package: [realtime, sdk, yjs, room, video, collaboration] 
     steps:
       - name: Install pnpm
         uses: pnpm/action-setup@v4
@@ -66,8 +66,8 @@ jobs:
         if: always()
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  test-web-components:
-    name: Run Test Web Components
+  test-web-components-sdk:
+    name: Run Test Web Components SDK
     runs-on: ubuntu-latest
     needs: build
     steps:
@@ -97,6 +97,41 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           comment-title: SDK Web Components Test Coverage Report
           artifact-name: sdk-web-components-coverage-report
+        if: always()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  test-web-components-collaboration:
+    name: Run Test Web Components Collaboration
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+      - uses: actions/checkout@v4
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
+        env:
+          NPM_CONFIG_USERCONFIG: .npmrc.ci
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Create a .remote-config.js file
+        run: |
+            touch packages/sdk/.remote-config.js && echo "echo \"module.exports = { remoteConfig: { apiUrl: 'https://api.superviz.com', conferenceLayerUrl: 'https://video-frame.superviz.com/lab/index.html'}};\" > .remote-config.js" | bash -
+            touch packages/realtime/.remote-config.js && echo "echo \"module.exports = { remoteConfig: { apiUrl: 'https://api.superviz.com' }};\" > .remote-config.js" | bash -  
+      - name: Install Playwright browsers
+        run: pnpm --filter=@superviz/collaboration exec playwright install --with-deps
+      - name: Run tests
+        run: pnpm run test:unit:web-components:coverage --filter=@superviz/collaboration
+      - name: Post PR Comment - Test web Components
+        uses: kefasjw/lcov-pull-request-report@v1
+        continue-on-error: true
+        with:
+          lcov-file: packages/collaboration/coverage-components/lcov.info
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          comment-title: Collaboration Web Components Test Coverage Report
+          artifact-name: collaboration-web-components-coverage-report
         if: always()
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

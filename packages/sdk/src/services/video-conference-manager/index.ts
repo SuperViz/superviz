@@ -102,6 +102,7 @@ export default class VideoConfereceManager {
     const wrapper = document.createElement('div');
 
     this.frameConfig = {
+      provider: 'sdk-package',
       apiKey: config.get<string>('apiKey'),
       apiUrl: config.get<string>('apiUrl'),
       debug: config.get<boolean>('debug'),
@@ -308,8 +309,7 @@ export default class VideoConfereceManager {
   };
 
   private setCustomColors = (): void => {
-    if (this.customColors)
-      this.messageBridge.publish(FrameEvent.FRAME_COLOR_LIST_UPDATE, this.customColors);
+    if (this.customColors) this.messageBridge.publish(FrameEvent.FRAME_COLOR_LIST_UPDATE, this.customColors);
 
     if (this.styles) this.messageBridge.publish(FrameEvent.FRAME_STYLES_UPDATE, this.styles);
   };

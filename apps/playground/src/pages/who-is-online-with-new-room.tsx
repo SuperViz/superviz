@@ -1,6 +1,6 @@
 import { v4 as generateId } from "uuid";
 import { createRoom, Room } from '@superviz/room'
-import { WhoIsOnline } from "@superviz/sdk";
+import { WhoIsOnline } from "@superviz/collaboration";
 
 import { useCallback, useEffect, useRef } from "react";
 import { getConfig } from "../config";

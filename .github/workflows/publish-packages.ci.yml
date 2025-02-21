@@ -76,6 +76,17 @@ jobs:
           NPM_CONFIG_USERCONFIG: .npmrc.ci
           GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Check for changes in packages/collaboration
+        id: check_collaboration_changes
+        run: |
+          git diff --quiet HEAD^ HEAD -- packages/collaboration ':(exclude)packages/collaboration/package.json' || echo "collaboration_changed=true" >> $GITHUB_OUTPUT
+      - name: Publish Collaboration package
+        if: steps.check_collaboration_changes.outputs.collaboration_changed == 'true'
+        run: npm whoami && pnpm run semantic-release --filter=@superviz/collaboration
+        env:
+          NPM_CONFIG_USERCONFIG: .npmrc.ci
+          GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
       - name: Check for changes in packages/yjs
         id: check_yjs_changes
         run: |
@@ -116,6 +127,41 @@ jobs:
       - name: Publish three package
         if: steps.check_three_changes.outputs.three_changed == 'true'
         run: npm whoami && pnpm run semantic-release --filter=@superviz/threejs-plugin
+        env:
+          NPM_CONFIG_USERCONFIG: .npmrc.ci
+          GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Check for changes in packages/room
+        id: check_room_changes
+        run: |
+          git diff --quiet HEAD^ HEAD -- packages/room ':(exclude)packages/room/package.json' || echo "room_changed=true" >> $GITHUB_OUTPUT
+      - name: Publish room package
+        if: steps.check_room_changes.outputs.room_changed == 'true'
+        run: npm whoami && pnpm run semantic-release --filter=@superviz/room
+        env:
+          NPM_CONFIG_USERCONFIG: .npmrc.ci
+          GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Check for changes in packages/video
+        id: check_video_changes
+        run: |
+          git diff --quiet HEAD^ HEAD -- packages/video ':(exclude)packages/video/package.json' || echo "video_changed=true" >> $GITHUB_OUTPUT
+      - name: Publish video package
+        if: steps.check_video_changes.outputs.video_changed == 'true'
+        run: npm whoami && pnpm run semantic-release --filter=@superviz/video
+        env:
+          NPM_CONFIG_USERCONFIG: .npmrc.ci
+          GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Check for changes in React Room and dependencies
+        id: check_react_room_and_dependencies_changes
+        run: |
+          git diff --quiet HEAD^ HEAD -- packages/react-room ':(exclude)packages/react-room/package.json' || echo "react_room_changed=true" >> $GITHUB_OUTPUT
+          git diff --quiet HEAD^ HEAD -- packages/video ':(exclude)packages/video/package.json' || echo "react_room_changed=true" >> $GITHUB_OUTPUT
+          git diff --quiet HEAD^ HEAD -- packages/room ':(exclude)packages/room/package.json' || echo "react_room_changed=true" >> $GITHUB_OUTPUT
+      - name: Publish React SDK package
+        if: steps.check_react_room_and_dependencies_changes.outputs.react_room_changed == 'true'
+        run: npm whoami && pnpm run semantic-release --filter=@superviz/react
         env:
           NPM_CONFIG_USERCONFIG: .npmrc.ci
           GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
