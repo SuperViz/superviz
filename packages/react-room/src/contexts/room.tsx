@@ -276,7 +276,7 @@ const useInternalFeatures = () => {
   return context
 }
 
-const useRoom = (callbacks: RoomCallbacks) => {
+const useRoom = (callbacks?: RoomCallbacks) => {
   const context = useContext(RoomContext)
 
   if (context === undefined) {
@@ -284,7 +284,7 @@ const useRoom = (callbacks: RoomCallbacks) => {
   }
 
   useMemo(() => {
-    if (Object.keys(callbacks).length) {
+    if (callbacks && Object.keys(callbacks).length) {
       context.setCallbacks(callbacks);
     }
   }, [callbacks])

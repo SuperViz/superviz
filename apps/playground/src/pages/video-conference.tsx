@@ -44,7 +44,7 @@ export function NewVideoConference() {
         logoUrl: 'https://docs.superviz.com/logo-white.svg',
       },
       permissions: {
-        toggleRecording: true,
+        toggleRecording: false,
         toggleCamera: true,
         toggleMic: true,
         toggleScreenShare: true,

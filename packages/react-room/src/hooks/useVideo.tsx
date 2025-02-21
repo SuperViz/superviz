@@ -13,7 +13,7 @@ type VideoCallbacks = {
   onMeetingStateUpdate?: (meetingState: MeetingState) => void;
 };
 
-export const useVideo = (callbacks: VideoCallbacks) => {
+export const useVideo = (callbacks?: VideoCallbacks) => {
   const { components } = useInternalFeatures();
 
   const video = useMemo<VideoConference | VideoHuddle>(() => {
