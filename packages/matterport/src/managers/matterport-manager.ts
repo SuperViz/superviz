@@ -12,7 +12,7 @@ import { AvatarService } from '../services/avatar-service';
 import { LaserService } from '../services/laser-service';
 import { SceneLight } from '../services/matterport/scene-light';
 import { NameService } from '../services/name-service';
-import { Avatar3DTypes, Laser3DTypes, Mode, NameLabel3DTypes, ParticipantOn3D, Rotation } from '../types';
+import { Avatar3DTypes, Laser3DTypes, Mode, NameLabel3DTypes, ParticipantOn3D, Presence3dEvents, Rotation } from '../types';
 
 import { MatterportMovementManager } from './matterport-movement-manager';
 import { ParticipantManager } from './participant-manager';

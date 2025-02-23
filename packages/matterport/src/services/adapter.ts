@@ -27,6 +27,7 @@ export class Presence3D {
   private matterportSdk: Matterport;
   private isPrivate: boolean;
   private eventBus: EventBus;
+  private followParticipantId: string | undefined;
 
   constructor(matterportSdk: Matterport, options?: MatterportComponentOptions) {
     // default ::
@@ -87,6 +88,10 @@ export class Presence3D {
     console.log('Plugin: Managers initialized');
 
     PubSub.subscribe('PARTICIPANT_ADDED', this.onParticipantAdded.bind(this));
+    PubSub.subscribe(
+      Presence3dEvents.FOLLOW_PARTICIPANT_CHANGED,
+      this.onFollowParticipantChanged.bind(this),
+    );
     // PubSub.subscribe('PARTICIPANT_UPDATED', this.onParticipantUpdated.bind(this));
 
     const { localParticipant, hasJoinedRoom } = this.useStore(STORE_TYPES.GLOBAL);
@@ -110,12 +115,19 @@ export class Presence3D {
     hasJoinedRoom.subscribe();
   };
 
+  private onFollowParticipantChanged = (e: any, payload: { followId: string }) => {
+    console.log('onFollowParticipantChanged', payload.followId);
+    this.followParticipantId = payload.followId;
+  };
+
   private onParticipantAdded = (e: any, payload: { participant: ParticipantOn3D }) => {
     // implement Presence3DManager ::
+    /*
     this.presence3DManager.subscribeToUpdates(
       payload.participant.id,
       ParticipantManager.instance.onParticipantUpdated,
     );
+    */
 
     console.log('Plugin: Participant added', payload.participant);
     // CirclePositionManager.instance.createCircleOfPositions([payload.participant]);
@@ -163,6 +175,10 @@ export class Presence3D {
 
   private onParticipantsUpdated = (participants: ParticipantOn3D[]) => {
     if (!this.isAttached) return;
+
+    if (this.followParticipantId) {
+      PubSub.publish(Presence3dEvents.GO_TO_PARTICIPANT, { participantId: this.followParticipantId });
+    }
 
     // let the participant manager handle the list of participants active ::
     ParticipantManager.instance.handleParticpantList(participants);

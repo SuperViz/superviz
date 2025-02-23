@@ -33,7 +33,7 @@ export class MatterportMovementManager {
     this.moveToAnotherParticipant(payload.participantId);
   };
 
-  private moveToAnotherParticipant = (participantId: string): void => {
+  public moveToAnotherParticipant = (participantId: string): void => {
     if (participantId === ParticipantManager.instance.getLocalParticipant.id) {
       console.log('Controls: moveToAnotherParticipan: return, im local');
       return;
@@ -96,11 +96,9 @@ export class MatterportMovementManager {
   ): void => {
     console.log('followMe', payload.event.data.id);
     this.followParticipantId = payload.event.data.id;
-    PubSub.publish(
-      Presence3dEvents.FOLLOW_PARTICIPANT_CHANGED,
-      { participantId: payload.event.data.id },
-    );
-
+    PubSub.publish(Presence3dEvents.FOLLOW_PARTICIPANT_CHANGED, {
+      followId: payload.event.data.id,
+    });
     this.moveToAnotherParticipant(payload.event.data.id);
   };
 

@@ -34,12 +34,21 @@ function Avatar3D() {
     const addedHeight = parseFloat(this.avatarModel.obj3D?.userData?.height ?? '0');
     const addY = addedHeight - AVATARS_HEIGHT_ADJUST;
 
-    // If no circle position provided, use zero vector
-    const circlePos = this.tempLocalPos.set(0, 0, 0);
+    let circlePos = new Vector3(0, 0, 0);
+
+    if (payload.participant.name === 'John') {
+      circlePos = new Vector3(10000000, 0, 2);
+    }
 
     this.tempLocalPos.set(circlePos.x, 0, circlePos.z);
-    this.tempAvatarPos.set(payload.participant.position.x, 0, payload.participant.position.z);
+    this.tempAvatarPos.set(
+      payload.participant.position.x,
+      0,
+      payload.participant.position.z,
+    );
     this.tempAdjustPos.copy(this.tempAvatarPos);
+
+    this.tempAdjustPos.sub(this.tempLocalPos);
 
     this.tempAdjustPos.y = payload.participant.position.y + addY;
 

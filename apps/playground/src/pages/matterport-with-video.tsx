@@ -23,20 +23,24 @@ type WindowWithMP_SDK = Window & {
 
 export function MatterportWithVideo() {
   const containerId = "matterport-container";
-  const modelId = "Zh14WDtkjdC";
+  const modelId = "5m4i274y1aV";
   const room = useRef<LauncherFacade | null>(null);
   const mpSdk = useRef<any | null>();
   const [searchParams] = useSearchParams();
+ // const name = ["John", "Peter"];
 
   const initializeSuperViz = useCallback(async () => {
     const uuid = generateId();
+    const name = searchParams.get("name") || "Participant";
     const type =
       (searchParams.get("userType") as ParticipantType) || ParticipantType.HOST;
+
+      console.log(name)
 
     room.current = await Room(SUPERVIZ_KEY, {
       roomId: `${SUPERVIZ_ROOM_PREFIX}-presence-3d`,
       participant: {
-        name: "Participant " + type,
+        name: name,
         id: uuid,
       },
       group: {
@@ -56,6 +60,7 @@ export function MatterportWithVideo() {
         enabled: true,
       },
       defaultAvatars: true,
+      skipMeetingSettings: true,
     });
 
     room.current.addComponent(videoConference);
