@@ -9,7 +9,7 @@ import type { MpSdk as Matterport, Rotation } from '../common/types/matterport.t
 import { ParticipantOn3D, PositionInfo, Slot, MatterportComponentOptions } from '../types';
 import { VectorCache } from '../utils/vector-cache';
 
-import { IntervalManager } from './interval-manager';
+import { IntervalManager } from './-interval-manager';
 
 export class LaserManager {
   private readonly intervalManager: IntervalManager;

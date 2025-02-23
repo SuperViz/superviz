@@ -5,7 +5,7 @@ import { DISTANCE_BETWEEN_AVATARS } from '../common/constants/presence';
 import { CirclePosition, Coordinates } from '../common/types/coordinates.types';
 import { Logger } from '../common/utils/logger';
 import { ParticipantOn3D } from '../types';
-import { VectorCache } from '../utils/vector-cache';
+import { VectorCache } from '../utils/-vector-cache';
 
 export class CirclePositionManager {
   private static _instance: CirclePositionManager | null = null;
@@ -87,6 +87,11 @@ export class CirclePositionManager {
     tempPositionVector.add(tempCircleVector);
 
     VectorCache.instance.get<Vector3>('currentCirclePosition').copy(tempCircleVector);
+
+    console.log('Circle: Position adjusted', {
+      original: position,
+      adjusted: tempPositionVector,
+    });
 
     return {
       x: tempPositionVector.x,

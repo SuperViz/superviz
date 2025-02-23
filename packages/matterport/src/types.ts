@@ -10,6 +10,21 @@ export enum Mode {
   TRANSITIONING = 'mode.transitioning',
 }
 
+export enum Presence3dEvents {
+  PARTICIPANT_JOINED = 'participant-joined',
+  GATHER = 'gather',
+  FOLLOW_ME = 'follow-me',
+  // FOLLOW_ME = 'who-is-online.start-follow-me',
+  GO_TO_PARTICIPANT = 'go-to-participant',
+  //  FOLLOW_PARTICIPANT = 'follow-participant',
+  LOCAL_FOLLOW_PARTICIPANT = 'local-follow-participant',
+  SET_PRIVATE = 'set-private',
+  SET_PUBLIC = 'set-public',
+  LOCAL_MODE_CHANGED = 'local-mode-changed',
+  FOLLOW_PARTICIPANT_CHANGED = 'follow-participant-changed',
+  LOCAL_FOLLOW_PARTICIPANT_CHANGED = 'local-follow-participant-changed',
+}
+
 export interface MatterportComponentOptions {
   isAvatarsEnabled?: boolean;
   isLaserEnabled?: boolean;

@@ -50,8 +50,6 @@ function NameLabel() {
       HEIGHT_ADJUSTMENT.MAX_ADDITIONAL_HEIGHT,
     );
 
-    console.log('additionalHeight', additionalHeight);
-
     const position = new this.THREE.Vector3(
       payload.participant.position.x,
       payload.participant.position.y + HEIGHT_ADJUSTMENT.BASE_OFFSET + additionalHeight,

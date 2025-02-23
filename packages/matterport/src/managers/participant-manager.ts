@@ -14,6 +14,7 @@ export class ParticipantManager {
   private static _instance: ParticipantManager | null = null;
   private useStore: typeof useStore;
   private localParticipant: Participant;
+  private localParticipantId: string;
   private config: MatterportComponentOptions;
   private participants: ParticipantOn3D[] = [];
   private roomParticipants: Record<string, Participant> = {};
@@ -130,8 +131,8 @@ export class ParticipantManager {
     PubSub.publish('REMOVE_PARTCIPANT', { participant });
   }
 
-  public get getParticipants(): ParticipantOn3D[] {
-    return this.participants;
+  public async onParticipantUpdated(participant: Participant): Promise<void> {
+    console.log('onParticipantUpdated', participant);
   }
 
   public participantExists(participantId: string): boolean {
@@ -171,6 +172,10 @@ export class ParticipantManager {
 
   public get getLocalParticipantPosition(): PositionInfo {
     return this.positionInfos[this.getLocalParticipant.id];
+  }
+
+  public setLocalParticipantId(participantId: string): void {
+    this.localParticipantId = participantId;
   }
 
   /*

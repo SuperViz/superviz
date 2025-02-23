@@ -5,7 +5,7 @@ import { AVATARS_HEIGHT_ADJUST, MAX_DISTANCE, MAX_NAME_HEIGHT, MIN_NAME_HEIGHT }
 import { Name } from '../common/types/avatarTypes.types';
 import { Coordinates, Simple2DPoint } from '../common/types/coordinates.types';
 import type { MpSdk as Matterport } from '../common/types/matterport.types';
-import { IntervalManager } from '../managers/interval-manager';
+import { IntervalManager } from '../managers/-interval-manager';
 import type { ParticipantOn3D } from '../types';
 
 /**

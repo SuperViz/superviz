@@ -1,20 +1,20 @@
 import { Presence3DManager } from '@superviz/sdk';
 import PubSub from 'pubsub-js';
 
-import { Coordinates } from '../common/types/coordinates.types';
 import type { MpSdk as Matterport } from '../common/types/matterport.types';
 import Lerper from '../components/Lerper';
 import Avatar3D from '../components/avatar/Avatar3D';
 import LaserPointer3D from '../components/laser/LaserPointer3D';
 import NameLabel from '../components/name/NameLabel';
+import { SWEEP_DURATION } from '../constants/avatar';
 import { MatterportEvents } from '../events/matterport-events';
 import { AvatarService } from '../services/avatar-service';
 import { LaserService } from '../services/laser-service';
 import { SceneLight } from '../services/matterport/scene-light';
 import { NameService } from '../services/name-service';
-import { Avatar3DTypes, Laser3DTypes, NameLabel3DTypes, ParticipantOn3D } from '../types';
+import { Avatar3DTypes, Laser3DTypes, Mode, NameLabel3DTypes, ParticipantOn3D, Rotation } from '../types';
 
-import { CirclePositionManager } from './circle-position-manager';
+import { MatterportMovementManager } from './matterport-movement-manager';
 import { ParticipantManager } from './participant-manager';
 
 export class MatterportManager {
@@ -24,15 +24,19 @@ export class MatterportManager {
   private THREE: any;
   private matterportEvents!: MatterportEvents;
   private isEmbedMode: boolean = false;
-  private mpInputComponent!: Matterport.Scene.IComponent;
+
   private avatars: Record<string, Avatar3DTypes> = {};
   private lasers: Record<string, Laser3DTypes> = {};
+
+  private movementManager: MatterportMovementManager;
 
   private constructor(
     private readonly matterportSdk: Matterport,
     private readonly presence3DManager: Presence3DManager,
     private readonly isPrivate: boolean,
-  ) {}
+  ) {
+
+  }
 
   /**
    * Get the singleton instance of MatterportManager.
@@ -68,11 +72,11 @@ export class MatterportManager {
    */
   public async initialize(): Promise<void> {
     try {
-      // PubSub.subscribe('PARTICIPANT_UPDATED', this.onParticipantUpdated.bind(this));
-      PubSub.subscribe('REMOVE_PARTCIPANT', this.onRemoveParticipant.bind(this));
-
       await this.calculateSceneBounds();
       await this.addSceneLights();
+      this.movementManager = new MatterportMovementManager(this.matterportSdk);
+
+      PubSub.subscribe('REMOVE_PARTCIPANT', this.onRemoveParticipant.bind(this));
     } catch (error) {
       throw new Error(`Plugin: Matterport initialization failed: ${error}`);
     }
@@ -122,7 +126,7 @@ export class MatterportManager {
   public async registerEventsAndElements(): Promise<void> {
     await this.initializeMatterportEvents();
     await this.registerSceneElements();
-    await this.addInputComponent();
+    await this.movementManager.addInputComponent();
   }
 
   private async registerSceneElements(): Promise<void> {
@@ -136,22 +140,11 @@ export class MatterportManager {
     }
   }
 
-  private async addInputComponent(): Promise<void> {
-    const [mpInputObject] = await this.matterportSdk.Scene.createObjects(1);
-    const mpInputNode = mpInputObject.addNode();
-    this.mpInputComponent = mpInputNode.addComponent('mp.input', {
-      eventsEnabled: false,
-      userNavigationEnabled: true,
-    });
-    mpInputNode.start();
-  }
-
   private async initializeMatterportEvents(): Promise<void> {
     try {
       this.matterportEvents = new MatterportEvents(
         this.matterportSdk,
         this.presence3DManager,
-        this.adjustMyPositionToCircle,
         () => ParticipantManager.instance.getLocalParticipant.id,
         this.isPrivate,
       );
@@ -160,13 +153,6 @@ export class MatterportManager {
       throw new Error(`Plugin: Matterport events failed: ${error}`);
     }
   }
-
-  private adjustMyPositionToCircle = (position?: Coordinates): Coordinates => {
-    return CirclePositionManager.instance.adjustPositionToCircle(
-      position,
-      ParticipantManager.instance.getLocalParticipant?.slot?.index,
-    );
-  };
 
   public async createAvatar(participant: ParticipantOn3D) {
     const [sceneObject] = await this.matterportSdk.Scene.createObjects(1);

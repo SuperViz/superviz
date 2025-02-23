@@ -1,8 +1,10 @@
 import type { Presence3DManager } from '@superviz/sdk';
 import type { ParticipantDataInput } from '@superviz/sdk/dist/services/presence-3d-manager/types';
+import PubSub from 'pubsub-js';
 
 import type { Coordinates } from '../common/types/coordinates.types';
 import type { MpSdk as Matterport } from '../common/types/matterport.types';
+import { Presence3dEvents } from '../types';
 
 export class MatterportEvents {
   private currentSweepId: string;
@@ -15,16 +17,27 @@ export class MatterportEvents {
   constructor(
     private matterportSdk: Matterport,
     private presence3DManager: Presence3DManager | null,
-    private adjustMyPositionToCircle: (position: Coordinates) => Coordinates,
     private getLocalParticipantId: () => string,
     private isPrivate: boolean,
   ) {
     this.matterportSdk = matterportSdk;
     this.presence3DManager = presence3DManager;
-    this.adjustMyPositionToCircle = adjustMyPositionToCircle;
     this.getLocalParticipantId = getLocalParticipantId;
     this.isPrivate = isPrivate;
+
+    PubSub.subscribe(Presence3dEvents.LOCAL_MODE_CHANGED, this.onLocalModeChange.bind(this));
+    PubSub.subscribe(Presence3dEvents.LOCAL_FOLLOW_PARTICIPANT_CHANGED, this.onLocalFollowParticipantChange.bind(this));
   }
+
+  private onLocalModeChange = (e: any, payload: { localmode: string }) => {
+    console.log('onLocalModeChange', payload.localmode);
+    // this.currentLocalMode = payload.localmode;
+  };
+
+  private onLocalFollowParticipantChange = (e: any, payload: { participantId: string }) => {
+    console.log('onLocalFollowParticipantChange', payload.participantId);
+    // this.localFollowParticipantId = payload.participantId;
+  };
 
   public subscribeToMatterportEvents(): void {
     this.matterportSdk.Camera.pose.subscribe(this._onLocalCameraMoveObserver);
@@ -39,7 +52,7 @@ export class MatterportEvents {
 
     if (!this.presence3DManager || !localParticipantId) return;
 
-    this.currentLocalPosition = this.adjustMyPositionToCircle(position);
+    this.currentLocalPosition = position;
     this.currentLocalRotation = rotation;
 
     if (this.isPrivate) return;

@@ -1,4 +1,4 @@
-export interface Sides {
+/* export interface Sides {
     left: number,
     top: number,
     right: number,
@@ -23,4 +23,4 @@ export enum Presence3dEvents {
     PARTICIPANT_JOINED = 'participant-joined',
     GATHER = 'gather',
     FOLLOW_ME = 'follow-me',
-}
+} */

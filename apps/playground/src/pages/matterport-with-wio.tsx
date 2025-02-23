@@ -16,8 +16,8 @@ type WindowWithMP_SDK = Window & {
 }
 
 export function MatterportWithWio() {
-  const containerId = 'matterport-container' 
-  const modelId = 'Zh14WDtkjdC'
+  const containerId = 'matterport-container'
+  const modelId = '5m4i274y1aV'
   const room = useRef<LauncherFacade | null>(null)
   const mpSdk = useRef<any | null>()
 
@@ -31,7 +31,7 @@ export function MatterportWithWio() {
         name: 'partcipant',
         id: uuid,
       },
-      group: { 
+      group: {
         name: SUPERVIZ_ROOM_PREFIX,
         id: SUPERVIZ_ROOM_PREFIX,
       },
@@ -40,9 +40,9 @@ export function MatterportWithWio() {
     })
 
     const matterportPresence = new MatterportPresence3D(matterportInstance, {
-      isAvatarsEnabled: false,
-      isLaserEnabled: false,
-      isNameEnabled: false,
+      isAvatarsEnabled: true,
+      isLaserEnabled: true,
+      isNameEnabled: true,
     })
 
     const wio = new WhoIsOnline({
@@ -55,27 +55,27 @@ export function MatterportWithWio() {
 
   const initializeMatterport = useCallback(async () => {
     const showcase = document.getElementById(containerId) as HTMLIFrameElement
-    
+
     if(!showcase) return
 
     showcase.onload = async () => {
-      
+
       const showcaseWindow = showcase.contentWindow as WindowWithMP_SDK;
 
       mpSdk.current = await showcaseWindow.MP_SDK.connect(
         showcaseWindow,
         MATTERPORT_KEY
       );
-      
+
       initializeSuperViz(mpSdk.current as never);
     };
 
   }, [initializeSuperViz])
 
-  useEffect(() => { 
+  useEffect(() => {
     initializeMatterport()
 
-    return () => { 
+    return () => {
       room?.current?.destroy()
       mpSdk.current?.disconnect()
     }
@@ -85,14 +85,14 @@ export function MatterportWithWio() {
     <div className='h-full w-full flex flex-col'>
       <header className='p-2 flex bg-purple-200 h-[50px]' id='container'></header>
       <div className='flex-1'>
-        <iframe
-          className='matterport-iframe'
-          id={containerId}
-          src={`/mp-bundle/showcase.html?&brand=0&mls=2&mt=0&search=0&kb=0&play=1&qs=1&applicationKey=${MATTERPORT_KEY}&m=${modelId}`}
-        />
+      <iframe
+        className="matterport-iframe"
+        id={containerId}
+        src={`/mp-bundle/showcase.html?&play=1&search=0&vr=0&qs=1&hr=0&kb=0&applicationKey=${MATTERPORT_KEY}&m=${modelId}`}
+      />
       </div>
     </div>
-    
+
   )
 }
 
