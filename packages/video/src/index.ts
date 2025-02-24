@@ -5,6 +5,7 @@ import { VideoConference } from './components/video-conference';
 
 import { VideoHuddleProps } from './components/video-huddle/types';
 import { VideoHuddle } from './components/video-huddle';
+import { VideoEvent } from './components/base/types';
 
 
 if (typeof window !== 'undefined') {
@@ -12,7 +13,8 @@ if (typeof window !== 'undefined') {
   window.SuperVizVideo = {
     VideoConference: VideoConference,
     VideoHuddle: VideoHuddle,
+    VideoEvent: VideoEvent,
   };
 }
 
-export { VideoConferenceProps, VideoConference, VideoHuddleProps, VideoHuddle };
+export { VideoConferenceProps, VideoConference, VideoHuddleProps, VideoHuddle, VideoEvent };
