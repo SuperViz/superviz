@@ -1,4 +1,5 @@
 import PubSub from 'pubsub-js';
+import { Quaternion, Vector3 } from 'three';
 
 import type { MpSdk as Matterport } from '../../common/types/matterport.types';
 import { AVATAR_LASER_HEIGHT, NO_AVATAR_LASER_HEIGHT } from '../../constants/laser';
@@ -74,10 +75,25 @@ function LaserPointer3D() {
       return;
     }
 
-    const avatarPos = new this.THREE.Vector3(
+    const circlePos = new Vector3(0, 0, 0);
+
+    /* TODO calculate circle pos */
+    // let circlePos = new Vector3(0.26, 0.17169901847839356, 0.22516660498395408);
+    // if (payload.participant.name === 'John')
+    // circlePos = new Vector3(0.12999999999999995, 0.17169901847839356, 0.22516660498395408);
+
+    this.tempLocalPos = new Vector3(
       payload.participant.position.x,
-      payload.participant.position.y + AVATAR_LASER_HEIGHT,
+      payload.participant.position.y,
       payload.participant.position.z,
+    );
+
+    this.tempLocalPos.sub(circlePos);
+
+    const avatarPos = new this.THREE.Vector3(
+      this.tempLocalPos.x,
+      payload.participant.position.y + AVATAR_LASER_HEIGHT,
+      this.tempLocalPos.z,
     );
 
     const laserTarget = new this.THREE.Vector3(

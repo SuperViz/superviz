@@ -28,42 +28,30 @@ function Avatar3D() {
   this.tempFinalQuaternion = null;
   this.intervalManager = null;
   this.myPosition = null;
-  this.remotevatarPosition = null;
 
   const updatePosition = (e: any, payload: { participant: ParticipantOn3D }) => {
-    const addedHeight = parseFloat(this.avatarModel.obj3D?.userData?.height ?? '0');
-    const addY = addedHeight - AVATARS_HEIGHT_ADJUST;
+    const modelHeight = parseFloat(this.avatarModel.obj3D?.userData?.height ?? '0');
+    const addY = modelHeight - AVATARS_HEIGHT_ADJUST;
+    const circlePos = new Vector3(0, 0, 0);
 
-    let circlePos = new Vector3(0, 0, 0);
-
-    if (payload.participant.name === 'John') {
-      circlePos = new Vector3(10000000, 0, 2);
-    }
+    /* TODO calculate circle pos */
+    // let circlePos = new Vector3(0.26, 0.17169901847839356, 0.22516660498395408);
+    // if (payload.participant.name === 'John')
+    // circlePos = new Vector3(0.12999999999999995, 0.17169901847839356, 0.22516660498395408);
 
     this.tempLocalPos.set(circlePos.x, 0, circlePos.z);
-    this.tempAvatarPos.set(
-      payload.participant.position.x,
-      0,
-      payload.participant.position.z,
-    );
+    this.tempAvatarPos.set(payload.participant.position.x, 0, payload.participant.position.z);
     this.tempAdjustPos.copy(this.tempAvatarPos);
-
     this.tempAdjustPos.sub(this.tempLocalPos);
-
     this.tempAdjustPos.y = payload.participant.position.y + addY;
 
     this.avatarModel.lerper.animateVector(
       this.avatarModel.obj3D.position,
       this.tempAdjustPos,
     );
-
-    // this.myPosition = localPositionInfo;
-    this.remotevatarPosition = payload.participant.position;
   };
 
   const updateRotation = (e: any, payload: { participant: ParticipantOn3D }) => {
-    // console.log('this is the rotation', rotation, ' of the participant', participantSlotIndex);
-
     const XVector3: Vector3 = new this.THREE.Vector3(1, 0, 0);
     const YVector3: Vector3 = new this.THREE.Vector3(0, 1, 0);
     const quaternionX: Quaternion = new this.THREE.Quaternion().setFromAxisAngle(

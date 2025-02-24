@@ -14,7 +14,7 @@ const Lerper = function () {
     this.vectorCounter = 0;
     this.quatCounter = 0;
 
-    this.speed = 1.25;
+    this.speed = 1.5;
   };
 
   this.onTick = function (tickDelta) {
@@ -42,10 +42,11 @@ const Lerper = function () {
     }
   };
 
-  this.animateVector = function (vectorToSet, destVector) {
+  this.animateVector = function (vectorToSet, destVector, speed = 1.5) {
     this.vectorCounter = 0;
     this.destVector = destVector;
     this.vectorToSet = vectorToSet;
+    this.speed = speed;
   };
 
   this.animateQuaternion = function (quatToSet, destQuaternion) {

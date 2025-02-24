@@ -132,7 +132,7 @@ export class Presence3D {
     console.log('Plugin: Participant added', payload.participant);
     // CirclePositionManager.instance.createCircleOfPositions([payload.participant]);
     MatterportManager.instance.createNameLabel(payload.participant);
-    MatterportManager.instance.createAvatar(payload.participant);
+    // MatterportManager.instance.createAvatar(payload.participant);
     MatterportManager.instance.createLaser(payload.participant);
   };
 

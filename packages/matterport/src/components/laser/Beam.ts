@@ -32,7 +32,7 @@ export class Beam {
       TUBE_SEGMENTS,
       TUBE_RADIUS,
       TUBE_RADIAL_SEGMENTS,
-      false,
+      true,
     );
 
     this.beamMesh = new this.THREE.Mesh(this.beamGeometry, this.beamMaterial);

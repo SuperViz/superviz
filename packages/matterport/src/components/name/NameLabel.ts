@@ -1,4 +1,5 @@
 import PubSub from 'pubsub-js';
+import { Vector3 } from 'three';
 
 import type { MpSdk as Matterport } from '../../common/types/matterport.types';
 import { HEIGHT_ADJUSTMENT } from '../../constants/nameLabel';
@@ -50,10 +51,25 @@ function NameLabel() {
       HEIGHT_ADJUSTMENT.MAX_ADDITIONAL_HEIGHT,
     );
 
-    const position = new this.THREE.Vector3(
+    const circlePos = new Vector3(0, 0, 0);
+
+    /* TODO calculate circle pos */
+    // let circlePos = new Vector3(0.26, 0.17169901847839356, 0.22516660498395408);
+    // if (payload.participant.name === 'John')
+    // circlePos = new Vector3(0.12999999999999995, 0.17169901847839356, 0.22516660498395408);
+
+    this.tempLocalPos = new Vector3(
       payload.participant.position.x,
-      payload.participant.position.y + HEIGHT_ADJUSTMENT.BASE_OFFSET + additionalHeight,
+      payload.participant.position.y,
       payload.participant.position.z,
+    );
+
+    this.tempLocalPos.sub(circlePos);
+
+    const position = new this.THREE.Vector3(
+      this.tempLocalPos.x,
+      payload.participant.position.y + HEIGHT_ADJUSTMENT.BASE_OFFSET + additionalHeight,
+      this.tempLocalPos.z,
     );
 
     this.canvas.updatePosition(position);

@@ -133,7 +133,7 @@ export class MatterportManager {
     if (this.matterportSdk.Scene) {
       this.matterportSdk.Scene.register('lerper', Lerper);
       this.matterportSdk.Scene.register('laser3D', LaserPointer3D);
-      this.matterportSdk.Scene.register('avatar3D', Avatar3D);
+      // this.matterportSdk.Scene.register('avatar3D', Avatar3D);
       this.matterportSdk.Scene.register('nameLabel', NameLabel);
     } else {
       this.isEmbedMode = true;
