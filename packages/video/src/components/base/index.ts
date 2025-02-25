@@ -473,7 +473,7 @@ export abstract class BaseComponent {
   private onKickParticipant = (event: SocketEvent<string>) => {
     if (event.data !== this.localParticipant.id) return;
 
-    this.emit(VideoEvent.PARTICIPANT_KICKED, this.localParticipant);
+    this.emit(VideoEvent.MY_PARTICIPANT_KICKED, this.localParticipant);
     this.kickLocalParticipant();
   };
 
@@ -633,11 +633,11 @@ export abstract class BaseComponent {
     this.updateParticipant(updated);
     this.roomState?.notify();
 
-    this.emit(VideoEvent.PARTICIPANT_JOINED, this.localParticipant);
+    this.emit(VideoEvent.MY_PARTICIPANT_JOINED, this.localParticipant);
   };
 
   private onParticipantLeft = (_: VideoParticipant) => {
-    this.emit(VideoEvent.PARTICIPANT_LEFT, this.localParticipant);
+    this.emit(VideoEvent.MY_PARTICIPANT_LEFT, this.localParticipant);
 
     this.removeVideoComponentFromGlobalParticipant();
     this.detach();

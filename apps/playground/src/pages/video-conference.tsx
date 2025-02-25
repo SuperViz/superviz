@@ -59,16 +59,20 @@ export function NewVideoConference() {
       console.log('host.changed', host);
     })
 
-    video.subscribe('participant.joined', (participant) => {
+    video.subscribe('my.participant.joined', (participant) => {
       console.log('participant.joined', participant);
     })
 
-    video.subscribe('participant.left', (participant) => {
+    video.subscribe('my.participant.left', (participant) => {
       console.log('participant.left', participant);
     })
 
     video.subscribe('participant.list.update', (participants) => {
       console.log('participant.list.update', participants);
+    })
+
+    video.subscribe('my.participant.kicked', (participant) => {
+      console.log('my.participant.kicked', participant);
     })
 
     video.subscribe('meeting.state.update', (state) => {
