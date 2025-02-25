@@ -25,21 +25,21 @@ export const useVideo = (callbacks?: VideoCallbacks) => {
   useEffect(() => {
     if (video) {
       callbacks?.onHostChanged && video.subscribe("host.changed", callbacks.onHostChanged);
-      callbacks?.onParticipantJoined && video.subscribe("participant.joined", callbacks.onParticipantJoined);
-      callbacks?.onParticipantLeft && video.subscribe("participant.left", callbacks.onParticipantLeft);
+      callbacks?.onParticipantJoined && video.subscribe("my.participant.joined", callbacks.onParticipantJoined);
+      callbacks?.onParticipantLeft && video.subscribe("my.participant.left", callbacks.onParticipantLeft);
       callbacks?.onParticipantListUpdate && video.subscribe("participant.list.update", callbacks.onParticipantListUpdate);
       callbacks?.onMeetingStateUpdate && video.subscribe("meeting.state.update", callbacks.onMeetingStateUpdate);
-      callbacks?.onParticipantKicked && video.subscribe("participant.kicked", callbacks.onParticipantKicked);
+      callbacks?.onParticipantKicked && video.subscribe("my.participant.kicked", callbacks.onParticipantKicked);
     }
 
     return () => {
       if (video) {
         callbacks?.onHostChanged && video.unsubscribe("host.changed", callbacks.onHostChanged);
-        callbacks?.onParticipantJoined && video.unsubscribe("participant.joined", callbacks.onParticipantJoined);
-        callbacks?.onParticipantLeft && video.unsubscribe("participant.left", callbacks.onParticipantLeft);
+        callbacks?.onParticipantJoined && video.unsubscribe("my.participant.joined", callbacks.onParticipantJoined);
+        callbacks?.onParticipantLeft && video.unsubscribe("my.participant.left", callbacks.onParticipantLeft);
         callbacks?.onParticipantListUpdate && video.unsubscribe("participant.list.update", callbacks.onParticipantListUpdate);
         callbacks?.onMeetingStateUpdate && video.unsubscribe("meeting.state.update", callbacks.onMeetingStateUpdate);
-        callbacks?.onParticipantKicked && video.unsubscribe("participant.kicked", callbacks.onParticipantKicked);
+        callbacks?.onParticipantKicked && video.unsubscribe("my.participant.kicked", callbacks.onParticipantKicked);
       }
     };
   }, [video]);
