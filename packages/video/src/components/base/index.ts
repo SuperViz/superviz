@@ -158,7 +158,7 @@ export abstract class BaseComponent {
     this.connectionLimit = params.connectionLimit ?? 50;
 
     this.room = ioc.createRoom(this.name, this.connectionLimit);
-    this.drawingRoom = ioc.createRoom(this.name, this.connectionLimit);
+    this.drawingRoom = ioc.createRoom(`${this.name}-drawing`, this.connectionLimit);
     this.subscribeToRealtimeEvents();
 
     this.roomState = new RoomState(this.room, this.drawingRoom, this.localParticipant);
