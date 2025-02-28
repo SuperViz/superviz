@@ -140,12 +140,12 @@ const RoomProvider: React.FC<{
       return;
     }
 
-    if (components[(component as Component).name]) {
+    if (components[(component as Component)?.name]) {
       console.warn('[SuperViz] Component already initialized, cannot add again');
       return;
     }
 
-    setComponents(prev => ({ ...prev, [(component as Component).name]: component }));
+    setComponents(prev => ({ ...prev, [(component as Component)?.name]: component }));
 
     room.current?.addComponent(component);
   }, []);
@@ -156,13 +156,13 @@ const RoomProvider: React.FC<{
       return;
     }
 
-    if (!components[(component as Component).name]) {
+    if (!components[(component as Component)?.name]) {
       console.warn('[SuperViz] Component not initialized yet, cannot remove');
       return;
     }
 
     setComponents(prev => {
-      delete prev[(component as Component).name];
+      delete prev[(component as Component)?.name];
       return prev;
     });
 
@@ -283,11 +283,9 @@ const useRoom = (callbacks?: RoomCallbacks) => {
     throw new Error('useRoom must be used within a RoomProvider');
   }
 
-  useMemo(() => {
-    if (callbacks && Object.keys(callbacks).length) {
-      context.setCallbacks(callbacks);
-    }
-  }, [callbacks])
+  if (callbacks && Object.keys(callbacks).length) {
+    context.setCallbacks(callbacks);
+  }
 
   return {
     joinRoom: context.joinRoom,
