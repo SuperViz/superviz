@@ -62,7 +62,7 @@
     "@types/debug": "^4.1.12",
     "@types/jest": "^29.5.12",
     "@types/node": "^20.14.8",
-    "concurrently": "^8.2.2",
+    "concurrently": "^9.1.2",
     "esbuild": "^0.25.0",
     "eslint": "8.56.0",
     "husky": "^9.0.11",
