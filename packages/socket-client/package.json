@@ -37,7 +37,7 @@
   "homepage": "https://github.com/SuperViz/superviz/tree/main/packages/socket-client#readme",
   "devDependencies": {
     "@anolilab/semantic-release-pnpm": "^1.1.3",
-    "@semantic-release/release-notes-generator": "^14.0.1",
+    "@semantic-release/release-notes-generator": "^14.0.3",
     "@superviz/eslint-config": "workspace:*",
     "@superviz/typescript-config": "workspace:*",
     "@types/debug": "^4.1.12",
