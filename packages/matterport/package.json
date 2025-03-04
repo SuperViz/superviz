@@ -37,7 +37,7 @@
     "@superviz/typescript-config": "workspace:*",
     "@types/debug": "^4.1.12",
     "@types/lodash": "^4.17.5",
-    "concurrently": "^8.2.2",
+    "concurrently": "^9.1.2",
     "dotenv": "^16.4.7",
     "esbuild": "^0.25.0",
     "eslint": "8.56.0",
