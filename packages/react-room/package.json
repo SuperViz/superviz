@@ -46,7 +46,7 @@
     "@anolilab/semantic-release-pnpm": "^1.1.3",
     "@eslint/compat": "^1.1.1",
     "@rollup/plugin-replace": "^6.0.1",
-    "@semantic-release/release-notes-generator": "^14.0.1",
+    "@semantic-release/release-notes-generator": "^14.0.3",
     "@types/node": "^20.14.9",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",

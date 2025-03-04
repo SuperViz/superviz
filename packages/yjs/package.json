@@ -50,7 +50,7 @@
   "devDependencies": {
     "@anolilab/semantic-release-pnpm": "^1.1.3",
     "@jest/globals": "^29.7.0",
-    "@semantic-release/release-notes-generator": "^14.0.1",
+    "@semantic-release/release-notes-generator": "^14.0.3",
     "@superviz/eslint-config": "workspace:*",
     "@superviz/sdk": "workspace:*",
     "@superviz/socket-client": "workspace:*",
