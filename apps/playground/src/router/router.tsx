@@ -36,6 +36,8 @@ import { SupervizReactRoom } from "../pages/superviz-react-room.tsx";
 import { NewVideoConference } from "../pages/video-conference.tsx";
 import { NewVideoHuddle } from "../pages/video-huddle.tsx";
 import { VideoConferenceReact } from "../pages/video-conference-react.tsx";
+import { CommentsHtmlCasesWithReact } from "../pages/comments-html-cases-with-react.tsx";
+import { CommentsCanvasWithReact } from "../pages/comments-canvas-with-react.tsx";
 
 export const routeList: RouteObject[] = [
   {
@@ -50,7 +52,7 @@ export const routeList: RouteObject[] = [
         element: <Video />,
       },
       {
-        path: 'video-with-react', 
+        path: 'video-with-react',
         element: <VideoWithReact />
       },
       {
@@ -125,18 +127,18 @@ export const routeList: RouteObject[] = [
         path: "react-flow-with-react-sdk",
         element: <ReactFlowWithReactSDK />,
       },
-      { 
-        path: 'room', 
+      {
+        path: 'room',
         element: <SuperVizRoom />
       },
-      { 
-        path: 'matterport-with-superviz-room', 
+      {
+        path: 'matterport-with-superviz-room',
         element: <MatterportWithNewRoom />
-      }, 
+      },
       {
         path: 'three-with-new-room',
         element: <ThreeWithNewRoom />
-      }, 
+      },
       {
         path: 'autodesk-with-new-room',
         element: <AutodeskWithNewRoom />
@@ -144,45 +146,53 @@ export const routeList: RouteObject[] = [
       {
         path: 'who-is-online-with-new-room',
         element: <WhoIsOnlineWithNewRoom />
-      }, 
-      { 
+      },
+      {
         path: 'form-elements-with-new-room',
-        element: <FormElementsWithNewRoom /> 
-      }, 
-      { 
+        element: <FormElementsWithNewRoom />
+      },
+      {
         path: 'yjs-with-quill-with-new-room',
         element: <YjsQuillWioWithNewRoom />
-      }, 
-      { 
+      },
+      {
         path: 'mouse-pointers-with-new-room',
-        element: <MousePointersWithNewRoom  />
-      }, 
+        element: <MousePointersWithNewRoom />
+      },
       {
         path: 'mouse-pointers-with-new-room-html',
         element: <MousePointersWithNewRoomHTML />
-      }, 
+      },
       {
-        path: 'comments-html-cases-with-new-room', 
+        path: 'comments-html-cases-with-new-room',
         element: <CommentsHtmlCasesWithNewRoom />
-      }, 
-      { 
+      },
+      {
+        path: 'comments-canvas-with-react',
+        element: <CommentsCanvasWithReact />
+      },
+      {
+        path: 'comments-html-cases-with-react',
+        element: <CommentsHtmlCasesWithReact />
+      },
+      {
         path: 'video-with-new-room',
-        element: <VideoWithNewRoom /> 
+        element: <VideoWithNewRoom />
       },
       {
-        path: 'superviz-react-room', 
+        path: 'superviz-react-room',
         element: <SupervizReactRoom />
-      }, 
-      {
-        path: 'video-conference', 
-        element: <NewVideoConference /> 
       },
       {
-        path: 'video-huddle', 
-        element: <NewVideoHuddle /> 
-      }, 
+        path: 'video-conference',
+        element: <NewVideoConference />
+      },
       {
-        path: 'video-conference-react', 
+        path: 'video-huddle',
+        element: <NewVideoHuddle />
+      },
+      {
+        path: 'video-conference-react',
         element: <VideoConferenceReact />
       }
     ],
