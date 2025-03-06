@@ -3,8 +3,7 @@ import { Vector3 } from 'three';
 
 import type { MpSdk as Matterport } from '../../common/types/matterport.types';
 import { HEIGHT_ADJUSTMENT } from '../../constants/nameLabel';
-import { ParticipantManager } from '../../managers/participant-manager';
-import { NameService } from '../../services/name-service';
+import { ServiceLocator } from '../../services/service-locator';
 import type { ParticipantOn3D } from '../../types';
 
 import { Canvas } from './Canvas';
@@ -25,7 +24,11 @@ function NameLabel() {
     if (!this.context.three) {
       throw new Error('Laser initialization failed: THREE.js context is missing');
     }
-    this.THREE = NameService.instance.getTHREE();
+
+    // Replace direct static access with ServiceLocator
+    const serviceLocator = ServiceLocator.getInstance();
+    const nameService = serviceLocator.get('nameService');
+    this.THREE = nameService.getTHREE();
 
     // Initialize position vector
     this.tempAdjustPos = new this.THREE.Vector3();
@@ -36,7 +39,10 @@ function NameLabel() {
       return;
     }
 
-    const localPosition = ParticipantManager.instance.getLocalParticipantPosition.position;
+    const serviceLocator = ServiceLocator.getInstance();
+    const participantManager = serviceLocator.get('participantManager');
+
+    const localPosition = participantManager.getLocalParticipantPosition.position;
     const remotePosition = payload.participant.position;
 
     const dx = localPosition.x - remotePosition.x;
@@ -83,8 +89,12 @@ function NameLabel() {
     try {
       console.log('Plugin: NameLabel onInit - participant:', this.inputs.participant);
 
-      // Get the model first
-      this.nameLabelModel = NameService.instance.getNameLabels()[this.inputs.participant?.id];
+      // Replace direct static access with ServiceLocator
+      const serviceLocator = ServiceLocator.getInstance();
+      const nameService = serviceLocator.get('nameService');
+
+      // Get the name label model from the service
+      this.nameLabelModel = nameService.getNameLabels()[this.inputs.participant?.id];
 
       setupThreeObjects();
       createCanvas();

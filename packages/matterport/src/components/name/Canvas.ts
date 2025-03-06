@@ -1,5 +1,6 @@
 import { STYLE, RECTANGLE } from '../../constants/nameLabel';
 import { NameService } from '../../services/name-service';
+import { ServiceLocator } from '../../services/service-locator';
 
 import { MaterialHelper } from './MaterialHelper';
 
@@ -10,8 +11,10 @@ export class Canvas {
   private materialHelper: MaterialHelper;
 
   constructor(nameLabelModel: any, participant: any) {
+    const serviceLocator = ServiceLocator.getInstance();
+    const nameService = serviceLocator.get('nameService') as NameService;
+    this.THREE = nameService.getTHREE();
     this.nameLabelModel = nameLabelModel;
-    this.THREE = NameService.instance.getTHREE();
     this.materialHelper = new MaterialHelper(this.THREE);
     this.createLabel(participant);
   }

@@ -2,7 +2,7 @@ import { Participant } from '@superviz/sdk';
 import type { useStore } from '@superviz/sdk/dist/common/utils/use-store';
 import PubSub from 'pubsub-js';
 
-import { MatterportComponentOptions, ParticipantOn3D, PositionInfo } from '../types';
+import { MatterportComponentOptions, ParticipantOn3D, PositionInfo, PARTICIPANT_EVENTS } from '../types';
 import { Config } from '../utils/config';
 
 import { MatterportManager } from './matterport-manager';
@@ -11,7 +11,6 @@ import { MatterportManager } from './matterport-manager';
  * Manages participants in a 3D environment, handling their creation, updates, and removal
  */
 export class ParticipantManager {
-  private static _instance: ParticipantManager | null = null;
   private useStore: typeof useStore;
   private localParticipant: Participant;
   private localParticipantId: string;
@@ -20,19 +19,8 @@ export class ParticipantManager {
   private roomParticipants: Record<string, Participant> = {};
   private positionInfos: Record<string, PositionInfo> = {};
 
-  private constructor() {
+  constructor() {
     this.config = Config.getInstance().getConfig();
-  }
-
-  public static get instance(): ParticipantManager {
-    if (!ParticipantManager._instance) {
-      ParticipantManager._instance = new ParticipantManager();
-    }
-    return ParticipantManager._instance;
-  }
-
-  public static reset(): void {
-    ParticipantManager._instance = null;
   }
 
   public handleParticpantList(participants: ParticipantOn3D[]): void {
@@ -128,7 +116,7 @@ export class ParticipantManager {
   }
 
   private removeParticipant(participant: Participant): void {
-    PubSub.publish('REMOVE_PARTCIPANT', { participant });
+    PubSub.publish(PARTICIPANT_EVENTS.LEFT, { participant });
   }
 
   public async onParticipantUpdated(participant: Participant): Promise<void> {
@@ -162,6 +150,9 @@ export class ParticipantManager {
     if (this.localParticipant || participant.slot.index === null) return false;
 
     this.localParticipant = participant;
+
+    // Publish event that local participant has been set
+    PubSub.publish(PARTICIPANT_EVENTS.LOCAL_SET, { participant });
 
     return true;
   }

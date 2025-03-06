@@ -1,18 +1,10 @@
 import type { Laser3DTypes } from '../types';
 
 export class LaserService {
-  private static _instance: LaserService | null = null;
   private lasers: Record<string, Laser3DTypes> = {};
   private THREE: any;
 
-  private constructor() {}
-
-  public static get instance(): LaserService {
-    if (!this._instance) {
-      this._instance = new LaserService();
-    }
-    return this._instance;
-  }
+  constructor() {}
 
   public setTHREE(THREE: any) {
     this.THREE = THREE;

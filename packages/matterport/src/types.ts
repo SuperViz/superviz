@@ -25,6 +25,12 @@ export enum Presence3dEvents {
   LOCAL_FOLLOW_PARTICIPANT_CHANGED = 'local-follow-participant-changed',
 }
 
+// Participant lifecycle events
+export const PARTICIPANT_EVENTS = {
+  LEFT: 'PARTICIPANT_LEFT',
+  LOCAL_SET: 'LOCAL_PARTICIPANT_SET',
+};
+
 export interface MatterportComponentOptions {
   isAvatarsEnabled?: boolean;
   isLaserEnabled?: boolean;

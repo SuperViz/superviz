@@ -25,8 +25,15 @@ export class MatterportEvents {
     this.getLocalParticipantId = getLocalParticipantId;
     this.isPrivate = isPrivate;
 
-    PubSub.subscribe(Presence3dEvents.LOCAL_MODE_CHANGED, this.onLocalModeChange.bind(this));
-    PubSub.subscribe(Presence3dEvents.LOCAL_FOLLOW_PARTICIPANT_CHANGED, this.onLocalFollowParticipantChange.bind(this));
+    PubSub.subscribe(
+      Presence3dEvents.LOCAL_MODE_CHANGED,
+      this.onLocalModeChange.bind(this),
+    );
+
+    PubSub.subscribe(
+      Presence3dEvents.LOCAL_FOLLOW_PARTICIPANT_CHANGED,
+      this.onLocalFollowParticipantChange.bind(this),
+    );
   }
 
   private onLocalModeChange = (e: any, payload: { localmode: string }) => {

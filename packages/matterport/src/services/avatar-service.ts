@@ -2,18 +2,10 @@ import type { MpSdk as Matterport } from '../common/types/matterport.types';
 import type { Avatar3DTypes, ParticipantOn3D } from '../types';
 
 export class AvatarService {
-  private static _instance: AvatarService | null = null;
   private avatars: Record<string, Avatar3DTypes> = {};
   private THREE: any;
 
-  private constructor() {}
-
-  public static get instance(): AvatarService {
-    if (!this._instance) {
-      this._instance = new AvatarService();
-    }
-    return this._instance;
-  }
+  constructor() {}
 
   public setTHREE(THREE: any) {
     this.THREE = THREE;

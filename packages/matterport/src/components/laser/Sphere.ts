@@ -1,5 +1,6 @@
 import { DEFAULT_COLOR, MATERIAL_SHININESS, SPHERE_RADIUS } from '../../constants/laser';
 import { LaserService } from '../../services/laser-service';
+import { ServiceLocator } from '../../services/service-locator';
 
 export class Sphere {
   private THREE: any;
@@ -10,7 +11,9 @@ export class Sphere {
 
   constructor(laserModel: any, participant: any) {
     this.laserModel = laserModel;
-    this.THREE = LaserService.instance.getTHREE();
+    const serviceLocator = ServiceLocator.getInstance();
+    const laserService = serviceLocator.get('laserService') as LaserService;
+    this.THREE = laserService.getTHREE();
     this.createSphere(participant);
   }
 

@@ -3,9 +3,8 @@ import PubSub from 'pubsub-js';
 
 import type { MpSdk as Matterport, Rotation } from '../common/types/matterport.types';
 import { SWEEP_DURATION } from '../constants/avatar';
+import { ServiceLocator } from '../services/service-locator';
 import { Mode, Presence3dEvents } from '../types';
-
-import { ParticipantManager } from './participant-manager';
 
 export class MatterportMovementManager {
   private mpInputComponent: Matterport.Scene.IComponent;
@@ -13,10 +12,9 @@ export class MatterportMovementManager {
   private followParticipantId: string | undefined;
   private currentLocalMode: Matterport.Mode.Mode;
   constructor(private readonly matterportSdk: Matterport) {
-    PubSub.subscribe(Presence3dEvents.GO_TO_PARTICIPANT, this.goTo.bind(this));
-    PubSub.subscribe(Presence3dEvents.FOLLOW_ME, this.followMe.bind(this));
-    // PubSub.subscribe(Presence3dEvents.FOLLOW_PARTICIPANT, this.follow.bind(this));
-    // PubSub.subscribe(Presence3dEvents.LOCAL_FOLLOW_PARTICIPANT, this.localFollow.bind(this));
+    PubSub.subscribe(Presence3dEvents.GO_TO_PARTICIPANT, this.handleGoToParticipant.bind(this));
+    PubSub.subscribe(Presence3dEvents.FOLLOW_ME, this.handleFollowMe.bind(this));
+    PubSub.subscribe(Presence3dEvents.LOCAL_FOLLOW_PARTICIPANT, this.localFollow.bind(this));
   }
 
   public async addInputComponent(): Promise<void> {
@@ -29,16 +27,15 @@ export class MatterportMovementManager {
     mpInputNode.start();
   }
 
-  public goTo = (e: any, payload: { participantId: string }): void => {
-    this.moveToAnotherParticipant(payload.participantId);
-  };
-
   public moveToAnotherParticipant = (participantId: string): void => {
-    if (participantId === ParticipantManager.instance.getLocalParticipant.id) {
+    const serviceLocator = ServiceLocator.getInstance();
+    const participantManager = serviceLocator.get('participantManager');
+
+    if (participantId === participantManager.getLocalParticipant.id) {
       console.log('Controls: moveToAnotherParticipan: return, im local');
       return;
     }
-    const { mode, sweep, rotation } = ParticipantManager.instance.getPositionInfo(participantId);
+    const { mode, sweep, rotation } = participantManager.getPositionInfo(participantId);
 
     if (mode === Mode.INSIDE && sweep) {
       this.moveToSweep(sweep, rotation || {
@@ -49,7 +46,7 @@ export class MatterportMovementManager {
 
     if (mode === Mode.DOLLHOUSE || mode === Mode.FLOORPLAN) {
       const transition = this.matterportSdk.Mode.TransitionType.FLY;
-      const { position, rotation, floor } = ParticipantManager.instance.getPositionInfo(participantId);
+      const { position, rotation, floor } = participantManager.getPositionInfo(participantId);
       this.matterportSdk.Mode.moveTo(mode, {
         position,
         rotation,
@@ -58,28 +55,23 @@ export class MatterportMovementManager {
       }).then((nextMode) => {
         PubSub.publish(Presence3dEvents.LOCAL_MODE_CHANGED, { localmode: nextMode });
       });
-
-      // old :: if (mode === Mode.FLOORPLAN && this.currentLocalFloorId !== floor) {
-
-      /* if (mode === Mode.FLOORPLAN) {
-        if (floor === -1) {
-          this.matterportSdk.Floor.showAll();
-        } else {
-          this.matterportSdk.Floor.moveTo(floor).then(() => {
-            this.currentLocalFloorId = floor;
-          });
-        }
-      } */
     }
   };
 
-  public async moveToParticipant(e: any, payload: { participantId: string }): Promise<void> {
+  public handleGoToParticipant = async (
+    e: any,
+    payload: { participantId: string },
+  ): Promise<void> => {
+    console.log('handleGoToParticipant', payload);
+    const serviceLocator = ServiceLocator.getInstance();
+    const participantManager = serviceLocator.get('participantManager');
+
     const {
       mode,
       sweep,
       position,
       rotation,
-      floor } = ParticipantManager.instance.getPositionInfo(payload.participantId);
+      floor } = participantManager.getPositionInfo(payload.participantId);
 
     if (mode === Mode.INSIDE && sweep) {
       await this.moveToSweep(sweep, rotation);
@@ -88,13 +80,13 @@ export class MatterportMovementManager {
     if (mode === Mode.DOLLHOUSE || mode === Mode.FLOORPLAN) {
       await this.moveToPosition(mode, position, rotation, floor);
     }
-  }
+  };
 
-  private followMe = (
+  public handleFollowMe = (
     e: any,
     payload: { event: SocketEvent<{ id: string | undefined }> },
   ): void => {
-    console.log('followMe', payload.event.data.id);
+    console.log('handleFollowMe', payload.event.data.id);
     this.followParticipantId = payload.event.data.id;
     PubSub.publish(Presence3dEvents.FOLLOW_PARTICIPANT_CHANGED, {
       followId: payload.event.data.id,
@@ -102,18 +94,12 @@ export class MatterportMovementManager {
     this.moveToAnotherParticipant(payload.event.data.id);
   };
 
-  private follow = (e: any, payload: { participantId: string }): void => {
-    // console.log('follow', payload.participantId);
-    // console.log('follow', payload.event.data.id);
-    // if (payload.event.data.id === ParticipantManager.instance.getLocalParticipant.id) return;
-    // this.followParticipantId = payload.event.data.id;
-    // this.moveToAnotherParticipant(payload.event.data.id);
-    // console.log('follow', this.followParticipantId);
-  };
-
   private localFollow = (e: any, payload: { participantId: string }): void => {
     console.log('localFollow', payload.participantId);
-    ParticipantManager.instance.setLocalParticipantId(payload.participantId);
+    const serviceLocator = ServiceLocator.getInstance();
+    const participantManager = serviceLocator.get('participantManager');
+
+    participantManager.setLocalParticipantId(payload.participantId);
   };
 
   private async moveToSweep(sweepId: string, rotation: Rotation): Promise<void> {

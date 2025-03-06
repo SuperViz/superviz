@@ -4,6 +4,7 @@ import { Quaternion, Vector3 } from 'three';
 import type { MpSdk as Matterport } from '../../common/types/matterport.types';
 import { AVATAR_LASER_HEIGHT, NO_AVATAR_LASER_HEIGHT } from '../../constants/laser';
 import { LaserService } from '../../services/laser-service';
+import { ServiceLocator } from '../../services/service-locator';
 import { ParticipantOn3D } from '../../types';
 
 import { Beam } from './Beam';
@@ -50,12 +51,17 @@ function LaserPointer3D() {
 
   this.beam = null;
   this.sphere = null;
+  this.serviceLocator = null;
+  this.laserService = null;
 
   const setupThreeObjects = () => {
     if (!this.context.three) {
       throw new Error('Laser initialization failed: THREE.js context is missing');
     }
-    this.THREE = LaserService.instance.getTHREE();
+
+    this.serviceLocator = ServiceLocator.getInstance();
+    this.laserService = this.serviceLocator.get('laserService') as LaserService;
+    this.THREE = this.laserService.getTHREE();
 
     // Initialize position vector
     this.tempAdjustPos = new this.THREE.Vector3();
@@ -111,7 +117,9 @@ function LaserPointer3D() {
 
   this.onInit = () => {
     try {
-      this.laserModel = LaserService.instance.getLasers()[this.inputs.participant?.id];
+      this.serviceLocator = ServiceLocator.getInstance();
+      this.laserService = this.serviceLocator.get('laserService') as LaserService;
+      this.laserModel = this.laserService.getLasers()[this.inputs.participant?.id];
 
       setupThreeObjects();
       createSphere();

@@ -1,5 +1,6 @@
 import { DEFAULT_COLOR, MATERIAL_SHININESS, TUBE_RADIAL_SEGMENTS, TUBE_RADIUS, TUBE_SEGMENTS } from '../../constants/laser';
 import { LaserService } from '../../services/laser-service';
+import { ServiceLocator } from '../../services/service-locator';
 
 export class Beam {
   private THREE: any;
@@ -10,7 +11,12 @@ export class Beam {
 
   constructor(laserModel: any, participant: any) {
     this.laserModel = laserModel;
-    this.THREE = LaserService.instance.getTHREE();
+
+    // Replace direct static access with ServiceLocator
+    const serviceLocator = ServiceLocator.getInstance();
+    const laserService = serviceLocator.get('laserService') as LaserService;
+    this.THREE = laserService.getTHREE();
+
     this.createBeam(participant);
   }
 

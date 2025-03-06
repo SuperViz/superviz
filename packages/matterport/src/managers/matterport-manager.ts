@@ -3,19 +3,17 @@ import PubSub from 'pubsub-js';
 
 import type { MpSdk as Matterport } from '../common/types/matterport.types';
 import Lerper from '../components/Lerper';
-import Avatar3D from '../components/avatar/Avatar3D';
 import LaserPointer3D from '../components/laser/LaserPointer3D';
 import NameLabel from '../components/name/NameLabel';
-import { SWEEP_DURATION } from '../constants/avatar';
 import { MatterportEvents } from '../events/matterport-events';
 import { AvatarService } from '../services/avatar-service';
 import { LaserService } from '../services/laser-service';
 import { SceneLight } from '../services/matterport/scene-light';
 import { NameService } from '../services/name-service';
-import { Avatar3DTypes, Laser3DTypes, Mode, NameLabel3DTypes, ParticipantOn3D, Presence3dEvents, Rotation } from '../types';
+import { ServiceLocator } from '../services/service-locator';
+import { Avatar3DTypes, Laser3DTypes, NameLabel3DTypes, ParticipantOn3D, PARTICIPANT_EVENTS } from '../types';
 
 import { MatterportMovementManager } from './matterport-movement-manager';
-import { ParticipantManager } from './participant-manager';
 
 export class MatterportManager {
   private static _instance: MatterportManager | null = null;
@@ -29,13 +27,23 @@ export class MatterportManager {
   private lasers: Record<string, Laser3DTypes> = {};
 
   private movementManager: MatterportMovementManager;
+  private serviceLocator: ServiceLocator;
+  private avatarService: AvatarService;
+  private laserService: LaserService;
+  private nameService: NameService;
 
   private constructor(
     private readonly matterportSdk: Matterport,
     private readonly presence3DManager: Presence3DManager,
     private readonly isPrivate: boolean,
   ) {
+    this.serviceLocator = ServiceLocator.getInstance();
+    this.registerServices();
 
+    // Register itself in the ServiceLocator
+    this.serviceLocator.register('matterportManager', this);
+
+    this.movementManager = new MatterportMovementManager(this.matterportSdk);
   }
 
   /**
@@ -74,20 +82,36 @@ export class MatterportManager {
     try {
       await this.calculateSceneBounds();
       await this.addSceneLights();
-      this.movementManager = new MatterportMovementManager(this.matterportSdk);
+      await this.movementManager.addInputComponent();
 
-      PubSub.subscribe('REMOVE_PARTCIPANT', this.onRemoveParticipant.bind(this));
+      PubSub.subscribe(PARTICIPANT_EVENTS.LEFT, this.onParticipantLeft.bind(this));
     } catch (error) {
       throw new Error(`Plugin: Matterport initialization failed: ${error}`);
     }
   }
 
-  private onRemoveParticipant = (e: any, payload: { participant: ParticipantOn3D }) => {
+  private onParticipantLeft = (e: any, payload: { participant: ParticipantOn3D }) => {
     // delete avatar ::
-    const avatar = this.avatars[payload.participant.id];
+    const avatar = this.avatarService.getAvatars()[payload.participant.id];
     avatar.avatar3D.destroy();
     avatar.stop();
-    delete this.avatars[payload.participant.id];
+    this.avatarService.removeAvatar(payload.participant.id);
+
+    // Clean up laser
+    const laser = this.laserService.getLasers()[payload.participant.id];
+    if (laser) {
+      laser.laser3D.destroy();
+      laser.stop();
+      this.laserService.removeLaser(payload.participant.id);
+    }
+
+    // Clean up name label
+    const nameLabel = this.nameService.getNameLabels()[payload.participant.id];
+    if (nameLabel) {
+      nameLabel.nameLabel3D.destroy();
+      nameLabel.stop();
+      this.nameService.removeNameLabel(payload.participant.id);
+    }
   };
 
   private async calculateSceneBounds(): Promise<void> {
@@ -115,9 +139,11 @@ export class MatterportManager {
       this.sceneLight = new SceneLight(this.matterportSdk);
       await this.sceneLight.addSceneLight();
       this.THREE = this.sceneLight.getTHREE();
-      AvatarService.instance.setTHREE(this.THREE);
-      LaserService.instance.setTHREE(this.THREE);
-      NameService.instance.setTHREE(this.THREE);
+
+      // Set THREE to all services
+      this.avatarService.setTHREE(this.THREE);
+      this.laserService.setTHREE(this.THREE);
+      this.nameService.setTHREE(this.THREE);
     } catch (error) {
       throw new Error(`Plugin: Matterport scenelight failed: ${error}`);
     }
@@ -142,10 +168,13 @@ export class MatterportManager {
 
   private async initializeMatterportEvents(): Promise<void> {
     try {
+      // Get participantManager from ServiceLocator instead of importing it directly
+      const participantManager = this.serviceLocator.get('participantManager');
+
       this.matterportEvents = new MatterportEvents(
         this.matterportSdk,
         this.presence3DManager,
-        () => ParticipantManager.instance.getLocalParticipant.id,
+        () => participantManager.getLocalParticipant.id,
         this.isPrivate,
       );
       this.matterportEvents.subscribeToMatterportEvents();
@@ -158,7 +187,7 @@ export class MatterportManager {
     const [sceneObject] = await this.matterportSdk.Scene.createObjects(1);
     const avatarModel: Avatar3DTypes = sceneObject.addNode();
 
-    AvatarService.instance.setAvatar(participant.id, avatarModel);
+    this.avatarService.setAvatar(participant.id, avatarModel);
 
     return new Promise((resolve) => {
       avatarModel.avatar3D = avatarModel.addComponent('avatar3D', {
@@ -176,7 +205,7 @@ export class MatterportManager {
     const [sceneObject] = await this.matterportSdk.Scene.createObjects(1);
     const nameLabelModel: NameLabel3DTypes = sceneObject.addNode();
 
-    NameService.instance.setNameLabel(participant.id, nameLabelModel);
+    this.nameService.setNameLabel(participant.id, nameLabelModel);
 
     return new Promise((resolve) => {
       nameLabelModel.nameLabel3D = nameLabelModel.addComponent('nameLabel', {
@@ -192,7 +221,7 @@ export class MatterportManager {
     const [sceneObject] = await this.matterportSdk.Scene.createObjects(1);
     const laserModel: Laser3DTypes = sceneObject.addNode();
 
-    LaserService.instance.setLaser(participant.id, laserModel);
+    this.laserService.setLaser(participant.id, laserModel);
 
     return new Promise((resolve) => {
       laserModel.laser3D = laserModel.addComponent('laser3D', {
@@ -208,19 +237,27 @@ export class MatterportManager {
    * Static access methods
    */
   public static getAvatars(): Record<string, Avatar3DTypes> {
-    return AvatarService.instance.getAvatars();
+    const locator = ServiceLocator.getInstance();
+    const avatarService = locator.get('avatarService') as AvatarService;
+    return avatarService.getAvatars();
   }
 
   public static getLasers(): Record<string, Laser3DTypes> {
-    return LaserService.instance.getLasers();
+    const locator = ServiceLocator.getInstance();
+    const laserService = locator.get('laserService') as LaserService;
+    return laserService.getLasers();
   }
 
   public static getNameLabels(): Record<string, NameLabel3DTypes> {
-    return NameService.instance.getNameLabels();
+    const locator = ServiceLocator.getInstance();
+    const nameService = locator.get('nameService') as NameService;
+    return nameService.getNameLabels();
   }
 
   public static getTHREE(): any {
-    return AvatarService.instance.getTHREE();
+    const locator = ServiceLocator.getInstance();
+    const avatarService = locator.get('avatarService') as AvatarService;
+    return avatarService.getTHREE();
   }
 
   public static getMaxDistanceSquared(): number {
@@ -229,5 +266,31 @@ export class MatterportManager {
 
   public static getIsEmbedMode(): boolean {
     return MatterportManager.instance.isEmbedMode;
+  }
+
+  private registerServices() {
+    try {
+      console.log('Registering services in ServiceLocator');
+      // Register all services early in the lifecycle
+      this.serviceLocator.register('avatarService', new AvatarService());
+      this.serviceLocator.register('laserService', new LaserService());
+      this.serviceLocator.register('nameService', new NameService());
+
+      // Register ParticipantManager if not already registered
+      // But don't import it directly!
+      if (!this.serviceLocator.has('participantManager')) {
+        // This should be done elsewhere, likely when ParticipantManager is instantiated
+        // We'll just make sure we don't try to register it twice
+        console.log('ParticipantManager will be registered externally');
+      }
+
+      // Get references
+      this.avatarService = this.serviceLocator.get('avatarService') as AvatarService;
+      this.laserService = this.serviceLocator.get('laserService') as LaserService;
+      this.nameService = this.serviceLocator.get('nameService') as NameService;
+      console.log('Services registered successfully');
+    } catch (error) {
+      console.error('Error registering services:', error);
+    }
   }
 }

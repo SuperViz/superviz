@@ -4,6 +4,7 @@ import { Quaternion, Vector3 } from 'three';
 import type { MpSdk as Matterport } from '../../common/types/matterport.types';
 import { DEFAULT_AVATAR_URL, AVATARS_HEIGHT_ADJUST } from '../../constants/avatar';
 import { AvatarService } from '../../services/avatar-service';
+import { ServiceLocator } from '../../services/service-locator';
 import type { ParticipantOn3D } from '../../types';
 
 function Avatar3D() {
@@ -14,9 +15,11 @@ function Avatar3D() {
 
   this.avatarModel = null;
   this.positionSub = null;
+  this.serviceLocator = null;
+  this.avatarService = null;
+  this.THREE = null;
 
   /** Cached THREE.js objects for performance optimization */
-  this.THREE = null;
   this.tempVector3 = null;
   this.tempLocalPos = null;
   this.tempAvatarPos = null;
@@ -74,7 +77,6 @@ function Avatar3D() {
     if (!this.context.three) {
       throw new Error('Avatar initialization failed: THREE.js context is missing');
     }
-    this.THREE = AvatarService.instance.getTHREE();
 
     // Initialize cached objects
     this.tempVector3 = new this.THREE.Vector3();
@@ -148,7 +150,13 @@ function Avatar3D() {
   this.onInit = () => {
     console.log('Plugin: Avatar3D onInit');
     try {
-      this.avatarModel = AvatarService.instance.getAvatars()[this.inputs.participant?.id];
+      // Use ServiceLocator to get AvatarService
+      this.serviceLocator = ServiceLocator.getInstance();
+      this.avatarService = this.serviceLocator.get('avatarService') as AvatarService;
+      this.THREE = this.avatarService.getTHREE();
+
+      // Get the avatar model from the service
+      this.avatarModel = this.avatarService.getAvatars()[this.inputs.participant?.id];
 
       this.positionSub = PubSub.subscribe(`PARTICIPANT_UPDATED_${this.inputs.participant?.id}`, (msg, data) => {
         updatePosition.call(this, msg, data);
@@ -159,7 +167,7 @@ function Avatar3D() {
       const { scale } = setupAvatar();
       loadModel(scale);
     } catch (error) {
-      console.log('Plugin: Avatar3D error', error);
+      console.error('Plugin: Avatar3D initialization error:', error);
     }
   };
 
@@ -169,6 +177,12 @@ function Avatar3D() {
 
     // clean up pubsub ::
     PubSub.unsubscribe(this.positionSub);
+
+    // Clean up references
+    this.avatarModel = null;
+    this.THREE = null;
+    this.serviceLocator = null;
+    this.avatarService = null;
 
     // Clean up cached objects
     Object.keys(this).forEach((key) => {

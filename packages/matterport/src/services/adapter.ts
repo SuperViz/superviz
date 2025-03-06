@@ -1,20 +1,20 @@
-import { Presence3DManager, Participant } from '@superviz/sdk';
+import { Participant, Presence3DManager } from '@superviz/sdk';
 import type { useStore } from '@superviz/sdk/dist/common/utils/use-store';
 import type { DefaultAttachComponentOptions } from '@superviz/sdk/dist/components/base/types';
 import type { EventBus } from '@superviz/sdk/dist/services/event-bus';
-import { ParticipantDataInput } from '@superviz/sdk/dist/services/presence-3d-manager/types';
-import type { Room, PresenceEvent, PresenceEvents, SocketEvent } from '@superviz/socket-client';
+import type { Room, SocketEvent } from '@superviz/socket-client';
 import PubSub from 'pubsub-js';
 
 import type { MpSdk as Matterport } from '../common/types/matterport.types';
 import { Logger } from '../common/utils/logger';
-import { DEFAULT_AVATAR_URL } from '../constants/avatar';
 import { NAME } from '../constants/presence';
 import { STORE_TYPES } from '../constants/store';
 import { MatterportManager } from '../managers/matterport-manager';
 import { ParticipantManager } from '../managers/participant-manager';
 import { MatterportComponentOptions, ParticipantOn3D, Presence3dEvents } from '../types';
 import { Config } from '../utils/config';
+
+import { ServiceLocator } from './service-locator';
 
 export class Presence3D {
   public name: string;
@@ -38,6 +38,12 @@ export class Presence3D {
     // initialize config ::
     this.config = Config.getInstance();
     this.config.setConfig(options);
+
+    // Initialize ServiceLocator and register ParticipantManager early
+    const serviceLocator = ServiceLocator.getInstance();
+    if (!serviceLocator.has('participantManager')) {
+      serviceLocator.register('participantManager', new ParticipantManager());
+    }
   }
 
   private destroy = (): void => {
@@ -92,15 +98,18 @@ export class Presence3D {
       Presence3dEvents.FOLLOW_PARTICIPANT_CHANGED,
       this.onFollowParticipantChanged.bind(this),
     );
-    // PubSub.subscribe('PARTICIPANT_UPDATED', this.onParticipantUpdated.bind(this));
 
     const { localParticipant, hasJoinedRoom } = this.useStore(STORE_TYPES.GLOBAL);
 
     // Subscribe to local participant updates
     localParticipant.subscribe(async (participant) => {
       try {
+        // Get participantManager from ServiceLocator
+        const serviceLocator = ServiceLocator.getInstance();
+        const participantManager = serviceLocator.get('participantManager');
+
         // Attempt to set the local participant
-        if (await ParticipantManager.instance.setLocalParticipant(participant)) {
+        if (await participantManager.setLocalParticipant(participant)) {
           this.onLocalParticipantRegistred(participant);
         }
       } catch (error) {
@@ -137,8 +146,6 @@ export class Presence3D {
   };
 
   private onLocalParticipantRegistred = async (participant: Participant) => {
-    this.setLocalParticipantData(participant);
-
     await MatterportManager.instance.registerEventsAndElements();
 
     // subscribe to updates on the participants ::
@@ -147,41 +154,22 @@ export class Presence3D {
     participants.subscribe(this.onParticipantsUpdated);
   };
 
-  private setLocalParticipantData = (participant: Participant) => {
-    if (this.config.getConfig().avatarConfig) {
-      this.presence3DManager.setParticipantData({
-        avatarConfig: this.config.getConfig().avatarConfig,
-      } as ParticipantDataInput);
-    }
-
-    if (participant.avatar?.model3DUrl) {
-      this.presence3DManager.setParticipantData({
-        avatar: {
-          model3DUrl: participant?.avatar.model3DUrl,
-          imageUrl: participant?.avatar?.imageUrl,
-        },
-      } as ParticipantDataInput);
-    }
-
-    if (!participant.avatar?.model3DUrl) {
-      this.presence3DManager.setParticipantData({
-        avatar: {
-          model3DUrl: DEFAULT_AVATAR_URL,
-          imageUrl: participant?.avatar?.imageUrl,
-        },
-      } as ParticipantDataInput);
-    }
-  };
-
   private onParticipantsUpdated = (participants: ParticipantOn3D[]) => {
     if (!this.isAttached) return;
 
     if (this.followParticipantId) {
-      PubSub.publish(Presence3dEvents.GO_TO_PARTICIPANT, { participantId: this.followParticipantId });
+      PubSub.publish(
+        Presence3dEvents.GO_TO_PARTICIPANT,
+        { participantId: this.followParticipantId },
+      );
     }
 
-    // let the participant manager handle the list of participants active ::
-    ParticipantManager.instance.handleParticpantList(participants);
+    // Get participantManager from ServiceLocator
+    const serviceLocator = ServiceLocator.getInstance();
+    const participantManager = serviceLocator.get('participantManager');
+
+    // let the participant manager handle the list of participants active
+    participantManager.handleParticpantList(participants);
   };
 
   /*
@@ -231,12 +219,20 @@ export class Presence3D {
   };
 
   private onFollowParticipantUpdate = (event: SocketEvent<{ id: string | undefined }>): void => {
-    if (event.data.id === ParticipantManager.instance.getLocalParticipant.id) return;
+    // Get participantManager from ServiceLocator
+    const serviceLocator = ServiceLocator.getInstance();
+    const participantManager = serviceLocator.get('participantManager');
+
+    if (event.data.id === participantManager.getLocalParticipant.id) return;
     PubSub.publish(Presence3dEvents.FOLLOW_ME, { event });
   };
 
   private onGatherUpdate = (event: SocketEvent<{ id: string | undefined }>): void => {
-    if (event.data.id === ParticipantManager.instance.getLocalParticipant.id) return;
+    // Get participantManager from ServiceLocator
+    const serviceLocator = ServiceLocator.getInstance();
+    const participantManager = serviceLocator.get('participantManager');
+
+    if (event.data.id === participantManager.getLocalParticipant.id) return;
 
     this.eventBus.publish('realtime.go-to-participant', event.data.id);
   };
