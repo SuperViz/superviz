@@ -251,6 +251,9 @@ export class CanvasPin implements PinAdapter {
     if (this.isActive || this.isPinsVisible) {
       this.renderAnnotationsPins();
       this.divWrapper = this.renderDivWrapper();
+      if(!this.divWrapper.isConnected) {
+        this.canvas.parentElement.appendChild(this.divWrapper);
+      }
     }
 
     if (this.temporaryPinCoordinates) {
@@ -350,8 +353,8 @@ export class CanvasPin implements PinAdapter {
       pinElement.setAttribute('annotation', JSON.stringify(annotation));
       pinElement.setAttribute('position', JSON.stringify({ x, y }));
       pinElement.id = annotation.uuid;
-
       this.divWrapper.appendChild(pinElement);
+
       this.pins.set(annotation.uuid, pinElement);
     });
   }
@@ -392,7 +395,7 @@ export class CanvasPin implements PinAdapter {
 
     if (newPin) {
       const pin = this.pins.get(uuid);
-      pin.setAttribute('newPin', '');
+      pin?.setAttribute('newPin', '');
     }
 
     const annotation = JSON.parse(this.selectedPin?.getAttribute('annotation') ?? '{}');
