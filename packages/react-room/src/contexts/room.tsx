@@ -31,12 +31,12 @@ type InitializeRoomParams = {
   environment?: 'dev' | 'prod';
 }
 
-type RoomError = {
+export type RoomError = {
   code: string,
   message: string
 }
 
-type RoomUpdate = {
+export type RoomUpdate = {
   status: RoomState | `${RoomState}`
 }
 
@@ -110,8 +110,6 @@ const RoomProvider: React.FC<{
     }
 
     roomInstance.current?.addComponent(component);
-
-    console.log(roomInstance.current);
     setComponents(prev => ({ ...prev, [(component as Component)?.name]: component }));
   }, [room, initialized.current]);
 
