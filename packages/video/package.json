@@ -1,6 +1,6 @@
 {
   "name": "@superviz/video",
-  "version": "1.0.4-beta.1",
+  "version": "1.0.4",
   "description": "SuperViz Video SDK",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
