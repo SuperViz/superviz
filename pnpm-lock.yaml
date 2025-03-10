@@ -185,8 +185,8 @@ importers:
         specifier: ^1.1.3
         version: 1.1.3(yaml@2.5.1)
       '@semantic-release/release-notes-generator':
-        specifier: ^14.0.1
-        version: 14.0.1(semantic-release@24.0.0(typescript@5.6.2))
+        specifier: ^14.0.3
+        version: 14.0.3(semantic-release@24.0.0(typescript@5.6.2))
       '@superviz/eslint-config':
         specifier: workspace:*
         version: link:../eslint-config
@@ -270,8 +270,8 @@ importers:
         specifier: ^3.0.1
         version: 3.0.1
       '@semantic-release/release-notes-generator':
-        specifier: ^14.0.1
-        version: 14.0.1(semantic-release@24.0.0(typescript@5.6.2))
+        specifier: ^14.0.3
+        version: 14.0.3(semantic-release@24.0.0(typescript@5.6.2))
       '@superviz/eslint-config':
         specifier: workspace:*
         version: link:../eslint-config
@@ -412,8 +412,8 @@ importers:
         specifier: ^1.1.3
         version: 1.1.3(yaml@2.5.1)
       '@semantic-release/release-notes-generator':
-        specifier: ^14.0.1
-        version: 14.0.1(semantic-release@24.0.0(typescript@5.6.2))
+        specifier: ^14.0.3
+        version: 14.0.3(semantic-release@24.0.0(typescript@5.6.2))
       '@superviz/eslint-config':
         specifier: workspace:*
         version: link:../eslint-config
@@ -482,8 +482,8 @@ importers:
         specifier: ^6.0.1
         version: 6.0.1(rollup@4.21.3)
       '@semantic-release/release-notes-generator':
-        specifier: ^14.0.1
-        version: 14.0.1(semantic-release@24.0.0(typescript@5.6.2))
+        specifier: ^14.0.3
+        version: 14.0.3(semantic-release@24.0.0(typescript@5.6.2))
       '@superviz/video':
         specifier: workspace:*
         version: link:../video
@@ -606,8 +606,8 @@ importers:
         specifier: ^6.0.1
         version: 6.0.1(rollup@4.21.3)
       '@semantic-release/release-notes-generator':
-        specifier: ^14.0.1
-        version: 14.0.1(semantic-release@24.0.0(typescript@5.6.2))
+        specifier: ^14.0.3
+        version: 14.0.3(semantic-release@24.0.0(typescript@5.6.2))
       '@types/forge-viewer':
         specifier: ^7.89.1
         version: 7.89.1
@@ -721,8 +721,8 @@ importers:
         specifier: ^29.7.0
         version: 29.7.0
       '@semantic-release/release-notes-generator':
-        specifier: ^14.0.1
-        version: 14.0.1(semantic-release@24.1.1(typescript@5.6.2))
+        specifier: ^14.0.3
+        version: 14.0.3(semantic-release@24.1.1(typescript@5.6.2))
       '@superviz/eslint-config':
         specifier: workspace:*
         version: link:../eslint-config
@@ -803,8 +803,8 @@ importers:
         specifier: ^3.0.1
         version: 3.0.1
       '@semantic-release/release-notes-generator':
-        specifier: ^14.0.1
-        version: 14.0.1(semantic-release@24.0.0(typescript@5.6.2))
+        specifier: ^14.0.3
+        version: 14.0.3(semantic-release@24.0.0(typescript@5.6.2))
       '@superviz/eslint-config':
         specifier: workspace:*
         version: link:../eslint-config
@@ -915,8 +915,8 @@ importers:
         specifier: ^3.0.1
         version: 3.0.1
       '@semantic-release/release-notes-generator':
-        specifier: ^14.0.1
-        version: 14.0.1(semantic-release@24.0.0(typescript@5.6.2))
+        specifier: ^14.0.3
+        version: 14.0.3(semantic-release@24.0.0(typescript@5.6.2))
       '@superviz/eslint-config':
         specifier: workspace:*
         version: link:../eslint-config
@@ -1033,8 +1033,8 @@ importers:
         specifier: ^1.1.3
         version: 1.1.3(yaml@2.5.1)
       '@semantic-release/release-notes-generator':
-        specifier: ^14.0.1
-        version: 14.0.1(semantic-release@24.1.1(typescript@5.6.2))
+        specifier: ^14.0.3
+        version: 14.0.3(semantic-release@24.1.1(typescript@5.6.2))
       '@superviz/eslint-config':
         specifier: workspace:*
         version: link:../eslint-config
@@ -1091,8 +1091,8 @@ importers:
         specifier: ^1.1.3
         version: 1.1.3(yaml@2.5.1)
       '@semantic-release/release-notes-generator':
-        specifier: ^14.0.1
-        version: 14.0.1(semantic-release@24.0.0(typescript@5.6.2))
+        specifier: ^14.0.3
+        version: 14.0.3(semantic-release@24.0.0(typescript@5.6.2))
       '@superviz/eslint-config':
         specifier: workspace:*
         version: link:../eslint-config
@@ -1175,8 +1175,8 @@ importers:
         specifier: ^3.0.1
         version: 3.0.1
       '@semantic-release/release-notes-generator':
-        specifier: ^14.0.1
-        version: 14.0.1(semantic-release@24.0.0(typescript@5.6.2))
+        specifier: ^14.0.3
+        version: 14.0.3(semantic-release@24.0.0(typescript@5.6.2))
       '@superviz/eslint-config':
         specifier: workspace:*
         version: link:../eslint-config
@@ -1275,8 +1275,8 @@ importers:
         specifier: ^29.7.0
         version: 29.7.0
       '@semantic-release/release-notes-generator':
-        specifier: ^14.0.1
-        version: 14.0.1(semantic-release@24.0.0(typescript@5.6.2))
+        specifier: ^14.0.3
+        version: 14.0.3(semantic-release@24.0.0(typescript@5.6.2))
       '@superviz/eslint-config':
         specifier: workspace:*
         version: link:../eslint-config
@@ -1335,6 +1335,10 @@ packages:
 
   '@babel/code-frame@7.24.7':
     resolution: {integrity: sha512-BcYH1CVJBO9tvyIZ2jVeXgSIMvGZ2FDRvDdOIVQyuklNKSsx+eppDEBq/g47Ayw+RqNFE+URvOShmf+f/qwAlA==}
+    engines: {node: '>=6.9.0'}
+
+  '@babel/code-frame@7.26.2':
+    resolution: {integrity: sha512-RJlIHRueQgwWitWgF8OdFYGZX328Ax5BCemNGlqHfplnRT9ESi8JkFlvaVYbS+UubVY6dpv87Fs2u5M29iNFVQ==}
     engines: {node: '>=6.9.0'}
 
   '@babel/compat-data@7.25.4':
@@ -1426,6 +1430,10 @@ packages:
 
   '@babel/helper-validator-identifier@7.24.7':
     resolution: {integrity: sha512-rR+PBcQ1SMQDDyF6X0wxtG8QyLCgUB0eRAGguqRLfkCA87l7yAP7ehq8SNj96OOGTO8OBV70KhuFYcIkHXOg0w==}
+    engines: {node: '>=6.9.0'}
+
+  '@babel/helper-validator-identifier@7.25.9':
+    resolution: {integrity: sha512-Ed61U6XJc3CVRfkERJWDz4dJwKe7iLmmJsbOGu9wSloNSFttHV0I8g6UAgb7qnK5ly5bGLPd4oXZlxCdANBOWQ==}
     engines: {node: '>=6.9.0'}
 
   '@babel/helper-validator-option@7.24.8':
@@ -2896,8 +2904,8 @@ packages:
     peerDependencies:
       semantic-release: '>=20.1.0'
 
-  '@semantic-release/release-notes-generator@14.0.1':
-    resolution: {integrity: sha512-K0w+5220TM4HZTthE5dDpIuFrnkN1NfTGPidJFm04ULT1DEZ9WG89VNXN7F0c+6nMEpWgqmPvb7vY7JkB2jyyA==}
+  '@semantic-release/release-notes-generator@14.0.3':
+    resolution: {integrity: sha512-XxAZRPWGwO5JwJtS83bRdoIhCiYIx8Vhr+u231pQAsdFIAbm19rSVJLdnBN+Avvk7CKvNQE/nJ4y7uqKH6WTiw==}
     engines: {node: '>=20.8.1'}
     peerDependencies:
       semantic-release: '>=20.1.0'
@@ -3256,9 +3264,6 @@ packages:
 
   '@types/semver@7.5.0':
     resolution: {integrity: sha512-G8hZ6XJiHnuhQKR7ZmysCeJWE08o8T0AXtk5darsCaTVsYZhhgUrq53jizaR2FvsoeCwJhlmwTjkXBY5Pn/ZHw==}
-
-  '@types/semver@7.5.8':
-    resolution: {integrity: sha512-I8EUhyrgfLrcTkzV3TSsGyl1tSuPrEDzr0yd5m90UgNxQkyDXULk3b6MlQqTCpZpNtWe1K0hzclnZkTcLBe2UQ==}
 
   '@types/send@0.17.4':
     resolution: {integrity: sha512-x2EM6TJOybec7c52BX0ZspPodMsQUd5L6PRwOunVyVUhXiBSKf3AezDL8Dgvgt5o0UfKNfuA0eMLr2wLT4AiBA==}
@@ -4169,8 +4174,8 @@ packages:
     resolution: {integrity: sha512-CLf+zr6St0wIxos4bmaKHRXWAcsCXrJU6F4VdNDrGRK3B8LDLKoX3zuMV5GhtbGkVR/LohZ6MT6im43vZLSjmA==}
     engines: {node: '>=18'}
 
-  conventional-changelog-writer@8.0.0:
-    resolution: {integrity: sha512-TQcoYGRatlAnT2qEWDON/XSfnVG38JzA7E0wcGScu7RElQBkg9WWgZd1peCWFcWDh1xfb2CfsrcvOn1bbSzztA==}
+  conventional-changelog-writer@8.0.1:
+    resolution: {integrity: sha512-hlqcy3xHred2gyYg/zXSMXraY2mjAYYo0msUCpK+BGyaVJMFCKWVXPIHiaacGO2GGp13kvHWXFhYmxT4QQqW3Q==}
     engines: {node: '>=18'}
     hasBin: true
 
@@ -4181,8 +4186,8 @@ packages:
     resolution: {integrity: sha512-tQMagCOC59EVgNZcC5zl7XqO30Wki9i9J3acbUvkaosCT6JX3EeFwJD7Qqp4MCikRnzS18WXV3BLIQ66ytu6+Q==}
     engines: {node: '>=18'}
 
-  conventional-commits-parser@6.0.0:
-    resolution: {integrity: sha512-TbsINLp48XeMXR8EvGjTnKGsZqBemisPoyWESlpRyR8lif0lcwzqz+NMtYSj1ooF/WYjSuu7wX0CtdeeMEQAmA==}
+  conventional-commits-parser@6.1.0:
+    resolution: {integrity: sha512-5nxDo7TwKB5InYBl4ZC//1g9GRwB/F3TXOGR9hgUjMGfvSP4Vu5NkpNro2+1+TIEy1vwxApl5ircECr2ri5JIw==}
     engines: {node: '>=18'}
     hasBin: true
 
@@ -4952,8 +4957,8 @@ packages:
   find-root@1.1.0:
     resolution: {integrity: sha512-NKfW6bec6GfKc0SGx1e07QZY9PE99u0Bft/0rzSD5k3sO/vwkVUpDUKVm5Gpp5Ue3YfShPFTX2070tDs5kB9Ng==}
 
-  find-up-simple@1.0.0:
-    resolution: {integrity: sha512-q7Us7kcjj2VMePAa02hDAF6d+MzsdsAWEwYyOpwUtlerRBkOEPBCRZrAV4XfcSN8fHAgaD0hP7miwoay6DCprw==}
+  find-up-simple@1.0.1:
+    resolution: {integrity: sha512-afd4O7zpqHeRyg4PfDQsXmlDe2PfdHtJt6Akt8jOWaApLOZk5JXs6VMR29lz03pRe9mpykrRCYIYxaJYcfpncQ==}
     engines: {node: '>=18'}
 
   find-up@2.1.0:
@@ -5339,6 +5344,10 @@ packages:
   import-from-esm@1.3.4:
     resolution: {integrity: sha512-7EyUlPFC0HOlBDpUFGfYstsU7XHxZJKAAMzCT8wZ0hMW7b+hG51LIKTDcsgtz8Pu6YC0HqRVbX+rVUtsGMUKvg==}
     engines: {node: '>=16.20'}
+
+  import-from-esm@2.0.0:
+    resolution: {integrity: sha512-YVt14UZCgsX1vZQ3gKjkWVdBdHQ6eu3MPU1TBgL1H5orXe2+jWD006WCPPtOuwlQm10NuzOW5WawiF1Q9veW8g==}
+    engines: {node: '>=18.20'}
 
   import-lazy@4.0.0:
     resolution: {integrity: sha512-rKtvo6a868b5Hu3heneU+L4yEQ4jYKLtjpnPeUdK7h0yzXGmyBTypknlkCvHFBqfX9YlorEiMM6Dnq/5atfHkw==}
@@ -6667,6 +6676,9 @@ packages:
   picocolors@1.1.0:
     resolution: {integrity: sha512-TQ92mBOW0l3LeMeyLV6mzy/kWr8lkd/hp3mTg7wYK7zJhuBStmGMBG0BdeDZS/dZx1IukaX6Bk11zcln25o1Aw==}
 
+  picocolors@1.1.1:
+    resolution: {integrity: sha512-xceH2snhtb5M9liqDsmEw56le376mTZkEX/jEb/RxNFyegNul7eNslCXP9FDj/Lcu0X8KEyMceP2ntpaHrDEVA==}
+
   picomatch@2.3.1:
     resolution: {integrity: sha512-JU3teHTNjmE2VCGFzuY8EXzCDVwEqB2a8fsIvwaStHhAWJEeVd1o1QD80CU6+ZdEXXSLbSsuLwJjkCBWqRQUVA==}
     engines: {node: '>=8.6'}
@@ -7131,6 +7143,11 @@ packages:
 
   semver@7.6.3:
     resolution: {integrity: sha512-oVekP1cKtI+CTDvHWYFUcMtsK/00wmAEfyqKfNdARm8u1wNVhSgaX7A8d4UuIlUI5e84iEwOhs7ZPYRmzU9U6A==}
+    engines: {node: '>=10'}
+    hasBin: true
+
+  semver@7.7.1:
+    resolution: {integrity: sha512-hlq8tAfn0m/61p4BVRcPzIGr6LKiMwo4VM6dGi6pt4qcRkmNzTcWq6eCEjEh+qXjkMDvPlOFFSGwQjoEa6gyMA==}
     engines: {node: '>=10'}
     hasBin: true
 
@@ -7685,8 +7702,8 @@ packages:
     resolution: {integrity: sha512-RAH822pAdBgcNMAfWnCBU3CFZcfZ/i1eZjwFU/dsLKumyuuP3niueg2UAukXYF0E2AAoc82ZSSf9J0WQBinzHA==}
     engines: {node: '>=12.20'}
 
-  type-fest@4.26.1:
-    resolution: {integrity: sha512-yOGpmOAL7CkKe/91I5O3gPICmJNLJ1G4zFYVAsRHg7M64biSnPtRj0WNQt++bRkjYOqjWXrhnUw1utzmVErAdg==}
+  type-fest@4.36.0:
+    resolution: {integrity: sha512-3T/PUdKTCnkUmhQU6FFJEHsLwadsRegktX3TNHk+2JJB9HlA8gp1/VXblXVDI93kSnXF2rdPx0GMbHtJIV2LPg==}
     engines: {node: '>=16'}
 
   type-is@1.6.18:
@@ -7754,8 +7771,8 @@ packages:
     resolution: {integrity: sha512-k24RCVWlEcjkdOxYmVJgeD/0a1TiSpqLg+ZalVGV9lsnr4yqu0w7tX/x2xX6G4zpkgQnRf89lxuZ1wsbjXM8lw==}
     hasBin: true
 
-  uglify-js@3.17.4:
-    resolution: {integrity: sha512-T9q82TJI9e/C1TAxYvfb16xO120tMVFZrGA3f9/P4424DNu6ypK103y0GPFVa17yotwSyZW5iYXgjYHkGrJW/g==}
+  uglify-js@3.19.3:
+    resolution: {integrity: sha512-v3Xu+yuwBXisp6QYTcH4UbH+xYJXqnq2m/LtQVWKWzYc1iehYnLixoQDN9FH6/j9/oybfd6W9Ghwkl8+UMKTKQ==}
     engines: {node: '>=0.8.0'}
     hasBin: true
 
@@ -8215,6 +8232,12 @@ snapshots:
       '@babel/highlight': 7.24.7
       picocolors: 1.1.0
 
+  '@babel/code-frame@7.26.2':
+    dependencies:
+      '@babel/helper-validator-identifier': 7.25.9
+      js-tokens: 4.0.0
+      picocolors: 1.1.1
+
   '@babel/compat-data@7.25.4': {}
 
   '@babel/core@7.25.2':
@@ -8359,6 +8382,8 @@ snapshots:
   '@babel/helper-string-parser@7.24.8': {}
 
   '@babel/helper-validator-identifier@7.24.7': {}
+
+  '@babel/helper-validator-identifier@7.25.9': {}
 
   '@babel/helper-validator-option@7.24.8': {}
 
@@ -9716,7 +9741,7 @@ snapshots:
       extract-zip: 2.0.1
       progress: 2.0.3
       proxy-agent: 6.4.0
-      semver: 7.6.3
+      semver: 7.7.1
       tar-fs: 3.0.6
       unbzip2-stream: 1.4.3
       yargs: 17.7.2
@@ -9920,9 +9945,9 @@ snapshots:
   '@semantic-release/commit-analyzer@13.0.0(semantic-release@24.0.0(typescript@5.6.2))':
     dependencies:
       conventional-changelog-angular: 8.0.0
-      conventional-changelog-writer: 8.0.0
+      conventional-changelog-writer: 8.0.1
       conventional-commits-filter: 5.0.0
-      conventional-commits-parser: 6.0.0
+      conventional-commits-parser: 6.1.0
       debug: 4.3.7
       import-from-esm: 1.3.4
       lodash-es: 4.17.21
@@ -9934,9 +9959,9 @@ snapshots:
   '@semantic-release/commit-analyzer@13.0.0(semantic-release@24.1.1(typescript@5.6.2))':
     dependencies:
       conventional-changelog-angular: 8.0.0
-      conventional-changelog-writer: 8.0.0
+      conventional-changelog-writer: 8.0.1
       conventional-commits-filter: 5.0.0
-      conventional-commits-parser: 6.0.0
+      conventional-commits-parser: 6.1.0
       debug: 4.3.7
       import-from-esm: 1.3.4
       lodash-es: 4.17.21
@@ -10025,15 +10050,15 @@ snapshots:
       semver: 7.5.4
       tempy: 3.1.0
 
-  '@semantic-release/release-notes-generator@14.0.1(semantic-release@24.0.0(typescript@5.6.2))':
+  '@semantic-release/release-notes-generator@14.0.3(semantic-release@24.0.0(typescript@5.6.2))':
     dependencies:
       conventional-changelog-angular: 8.0.0
-      conventional-changelog-writer: 8.0.0
+      conventional-changelog-writer: 8.0.1
       conventional-commits-filter: 5.0.0
-      conventional-commits-parser: 6.0.0
+      conventional-commits-parser: 6.1.0
       debug: 4.3.7
       get-stream: 7.0.1
-      import-from-esm: 1.3.4
+      import-from-esm: 2.0.0
       into-stream: 7.0.0
       lodash-es: 4.17.21
       read-package-up: 11.0.0
@@ -10041,15 +10066,15 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@semantic-release/release-notes-generator@14.0.1(semantic-release@24.1.1(typescript@5.6.2))':
+  '@semantic-release/release-notes-generator@14.0.3(semantic-release@24.1.1(typescript@5.6.2))':
     dependencies:
       conventional-changelog-angular: 8.0.0
-      conventional-changelog-writer: 8.0.0
+      conventional-changelog-writer: 8.0.1
       conventional-commits-filter: 5.0.0
-      conventional-commits-parser: 6.0.0
+      conventional-commits-parser: 6.1.0
       debug: 4.3.7
       get-stream: 7.0.1
-      import-from-esm: 1.3.4
+      import-from-esm: 2.0.0
       into-stream: 7.0.0
       lodash-es: 4.17.21
       read-package-up: 11.0.0
@@ -10429,8 +10454,6 @@ snapshots:
 
   '@types/semver@7.5.0': {}
 
-  '@types/semver@7.5.8': {}
-
   '@types/send@0.17.4':
     dependencies:
       '@types/mime': 1.3.5
@@ -10640,7 +10663,7 @@ snapshots:
       globby: 11.1.0
       is-glob: 4.0.3
       minimatch: 9.0.3
-      semver: 7.6.3
+      semver: 7.7.1
       ts-api-utils: 1.3.0(typescript@5.6.2)
     optionalDependencies:
       typescript: 5.6.2
@@ -11845,19 +11868,18 @@ snapshots:
     dependencies:
       compare-func: 2.0.0
 
-  conventional-changelog-writer@8.0.0:
+  conventional-changelog-writer@8.0.1:
     dependencies:
-      '@types/semver': 7.5.8
       conventional-commits-filter: 5.0.0
       handlebars: 4.7.8
       meow: 13.2.0
-      semver: 7.6.3
+      semver: 7.7.1
 
   conventional-commit-types@3.0.0: {}
 
   conventional-commits-filter@5.0.0: {}
 
-  conventional-commits-parser@6.0.0:
+  conventional-commits-parser@6.1.0:
     dependencies:
       meow: 13.2.0
 
@@ -12910,7 +12932,7 @@ snapshots:
 
   find-root@1.1.0: {}
 
-  find-up-simple@1.0.0: {}
+  find-up-simple@1.0.1: {}
 
   find-up@2.1.0:
     dependencies:
@@ -13189,7 +13211,7 @@ snapshots:
       source-map: 0.6.1
       wordwrap: 1.0.0
     optionalDependencies:
-      uglify-js: 3.17.4
+      uglify-js: 3.19.3
 
   has-bigints@1.0.2: {}
 
@@ -13348,6 +13370,13 @@ snapshots:
       resolve-from: 4.0.0
 
   import-from-esm@1.3.4:
+    dependencies:
+      debug: 4.3.7
+      import-meta-resolve: 4.1.0
+    transitivePeerDependencies:
+      - supports-color
+
+  import-from-esm@2.0.0:
     dependencies:
       debug: 4.3.7
       import-meta-resolve: 4.1.0
@@ -13646,7 +13675,7 @@ snapshots:
       '@babel/parser': 7.25.6
       '@istanbuljs/schema': 0.1.3
       istanbul-lib-coverage: 3.2.2
-      semver: 7.6.3
+      semver: 7.7.1
     transitivePeerDependencies:
       - supports-color
 
@@ -13985,7 +14014,7 @@ snapshots:
       jest-util: 29.7.0
       natural-compare: 1.4.0
       pretty-format: 29.7.0
-      semver: 7.6.3
+      semver: 7.7.1
     transitivePeerDependencies:
       - supports-color
 
@@ -14364,7 +14393,7 @@ snapshots:
 
   make-dir@4.0.0:
     dependencies:
-      semver: 7.6.3
+      semver: 7.7.1
 
   make-error@1.3.6: {}
 
@@ -14733,9 +14762,9 @@ snapshots:
 
   parse-json@8.1.0:
     dependencies:
-      '@babel/code-frame': 7.24.7
+      '@babel/code-frame': 7.26.2
       index-to-position: 0.1.2
-      type-fest: 4.26.1
+      type-fest: 4.36.0
 
   parse-ms@4.0.0: {}
 
@@ -14788,6 +14817,8 @@ snapshots:
   pend@1.2.0: {}
 
   picocolors@1.1.0: {}
+
+  picocolors@1.1.1: {}
 
   picomatch@2.3.1: {}
 
@@ -15049,16 +15080,16 @@ snapshots:
 
   read-package-up@11.0.0:
     dependencies:
-      find-up-simple: 1.0.0
+      find-up-simple: 1.0.1
       read-pkg: 9.0.1
-      type-fest: 4.26.1
+      type-fest: 4.36.0
 
   read-pkg@9.0.1:
     dependencies:
       '@types/normalize-package-data': 2.4.4
       normalize-package-data: 6.0.2
       parse-json: 8.1.0
-      type-fest: 4.26.1
+      type-fest: 4.36.0
       unicorn-magic: 0.1.0
 
   readable-stream@2.3.8:
@@ -15283,7 +15314,7 @@ snapshots:
       '@semantic-release/error': 4.0.0
       '@semantic-release/github': 10.3.3(semantic-release@24.0.0(typescript@5.6.2))
       '@semantic-release/npm': 12.0.1(semantic-release@24.0.0(typescript@5.6.2))
-      '@semantic-release/release-notes-generator': 14.0.1(semantic-release@24.0.0(typescript@5.6.2))
+      '@semantic-release/release-notes-generator': 14.0.3(semantic-release@24.0.0(typescript@5.6.2))
       aggregate-error: 5.0.0
       cosmiconfig: 9.0.0(typescript@5.6.2)
       debug: 4.3.7
@@ -15318,7 +15349,7 @@ snapshots:
       '@semantic-release/error': 4.0.0
       '@semantic-release/github': 10.3.3(semantic-release@24.1.1(typescript@5.6.2))
       '@semantic-release/npm': 12.0.1(semantic-release@24.1.1(typescript@5.6.2))
-      '@semantic-release/release-notes-generator': 14.0.1(semantic-release@24.1.1(typescript@5.6.2))
+      '@semantic-release/release-notes-generator': 14.0.3(semantic-release@24.1.1(typescript@5.6.2))
       aggregate-error: 5.0.0
       cosmiconfig: 9.0.0(typescript@5.6.2)
       debug: 4.3.7
@@ -15360,6 +15391,8 @@ snapshots:
       lru-cache: 6.0.0
 
   semver@7.6.3: {}
+
+  semver@7.7.1: {}
 
   set-function-length@1.1.1:
     dependencies:
@@ -15966,7 +15999,7 @@ snapshots:
 
   type-fest@2.19.0: {}
 
-  type-fest@4.26.1: {}
+  type-fest@4.36.0: {}
 
   type-is@1.6.18:
     dependencies:
@@ -16046,7 +16079,7 @@ snapshots:
 
   ua-parser-js@1.0.39: {}
 
-  uglify-js@3.17.4:
+  uglify-js@3.19.3:
     optional: true
 
   unbox-primitive@1.0.2:
