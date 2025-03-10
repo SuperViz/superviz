@@ -1,6 +1,6 @@
 {
   "name": "@superviz/collaboration",
-  "version": "1.0.1-lab.1",
+  "version": "1.0.1",
   "description": "SuperViz Collaboration",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
