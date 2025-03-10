@@ -50,7 +50,7 @@
     "@types/jest": "^29.5.12",
     "@types/luxon": "^3.4.2",
     "@types/node": "^20.14.8",
-    "concurrently": "^8.2.2",
+    "concurrently": "^9.1.2",
     "cz-conventional-changelog": "^3.3.0",
     "dotenv": "^16.4.5",
     "esbuild": "^0.21.5",

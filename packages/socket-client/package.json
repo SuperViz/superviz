@@ -42,7 +42,7 @@
     "@superviz/typescript-config": "workspace:*",
     "@types/debug": "^4.1.12",
     "@types/node": "^20.14.8",
-    "concurrently": "^8.2.2",
+    "concurrently": "^9.1.2",
     "esbuild": "^0.25.0",
     "eslint": "8.56.0",
     "semantic-release": "^24.0.0",
