@@ -235,6 +235,7 @@ export default class VideoManager {
     this.updateFrameState(VideoFrameState.INITIALIZED);
     this.updateFrameLocale();
     this.updateMeetingAvatars();
+    this.updateFrameStyle();
     this.onWindowResize();
     this.setCallbacks();
   };
@@ -416,6 +417,17 @@ export default class VideoManager {
     }
 
     this.messageBridge.publish(FrameEvent.FRAME_LOCALE_UPDATE, this.frameLocale);
+  };
+
+  /**
+   * @function updateFrameStyle
+   * @description update frame style
+   * @returns {void}
+   */
+  private updateFrameStyle = (): void => {
+    if (!this.styles) return;
+
+    this.messageBridge.publish(FrameEvent.FRAME_STYLES_UPDATE, this.styles);
   };
 
   /**
