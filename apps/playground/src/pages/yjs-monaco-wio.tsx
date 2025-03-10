@@ -21,6 +21,11 @@ const SUPERVIZ_KEY = getConfig<string>("keys.superviz");
 const SUPERVIZ_ROOM_PREFIX = getConfig<string>("roomPrefix");
 
 const componentName = "yjs-monaco-wio";
+const participantNames = [
+  "Olivia",
+  "Mike",
+  "Greg"
+]
 
 function setStyles(
   states: Map<number, Record<string, any>>,
@@ -78,7 +83,7 @@ export function YjsMonacoWio() {
     room.current = await Room(SUPERVIZ_KEY, {
       roomId: `${SUPERVIZ_ROOM_PREFIX}-${componentName}`,
       participant: {
-        name: "Participant",
+        name: participantNames[Math.floor(Math.random() * participantNames.length)],
         id: uuid,
       },
       group: {
