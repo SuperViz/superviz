@@ -33,11 +33,11 @@
   },
   "dependencies": {
     "@superviz/room": "workspace:*",
-    "react": "^18.2.0",
+    "react": "^19.1.0",
     "react-dom": "^18.2.0"
   },
   "peerDependencies": {
-    "react": "^18.2.0",
+    "react": "^19.1.0",
     "react-dom": "^18.2.0",
     "yjs": ">=13.6.20"
   },
@@ -48,7 +48,7 @@
     "@rollup/plugin-replace": "^6.0.1",
     "@semantic-release/release-notes-generator": "^14.0.1",
     "@types/node": "^20.14.9",
-    "@types/react": "^18.3.3",
+    "@types/react": "^19.1.2",
     "@types/react-dom": "^18.3.0",
     "@typescript-eslint/eslint-plugin": "^7.14.1",
     "@typescript-eslint/parser": "^8.17.0",
