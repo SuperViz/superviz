@@ -39,7 +39,7 @@
     "y-monaco": "^0.1.6",
     "y-protocols": "^1.0.6",
     "y-quill": "^1.0.0",
-    "yjs": "^13.6.20",
+    "yjs": "^13.6.26",
     "zod": "^3.23.8"
   },
   "devDependencies": {
