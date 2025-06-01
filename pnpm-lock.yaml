@@ -103,16 +103,16 @@ importers:
         version: 11.0.3
       y-monaco:
         specifier: ^0.1.6
-        version: 0.1.6(monaco-editor@0.51.0)(yjs@13.6.20)
+        version: 0.1.6(monaco-editor@0.51.0)(yjs@13.6.27)
       y-protocols:
         specifier: ^1.0.6
-        version: 1.0.6(yjs@13.6.20)
+        version: 1.0.6(yjs@13.6.27)
       y-quill:
         specifier: ^1.0.0
-        version: 1.0.0(quill-cursors@4.0.3)(quill@2.0.2)(yjs@13.6.20)
+        version: 1.0.0(quill-cursors@4.0.3)(quill@2.0.2)(yjs@13.6.27)
       yjs:
-        specifier: ^13.6.20
-        version: 13.6.20
+        specifier: ^13.6.27
+        version: 13.6.27
       zod:
         specifier: ^3.23.8
         version: 3.23.8
@@ -5966,6 +5966,11 @@ packages:
     resolution: {integrity: sha512-+bT2uH4E5LGE7h/n3evcS/sQlJXCpIp6ym8OWJ5eV6+67Dsql/LaaT7qJBAt2rzfoa/5QBGBhxDix1dMt2kQKQ==}
     engines: {node: '>= 0.8.0'}
 
+  lib0@0.2.108:
+    resolution: {integrity: sha512-+3eK/B0SqYoZiQu9fNk4VEc6EX8cb0Li96tPGKgugzoGj/OdRdREtuTLvUW+mtinoB2mFiJjSqOJBIaMkAGhxQ==}
+    engines: {node: '>=16'}
+    hasBin: true
+
   lib0@0.2.98:
     resolution: {integrity: sha512-XteTiNO0qEXqqweWx+b21p/fBnNHUA1NwAtJNJek1oPrewEZs2uiT4gWivHKr9GqCjDPAhchz0UQO8NwU3bBNA==}
     engines: {node: '>=16'}
@@ -8137,6 +8142,10 @@ packages:
 
   yjs@13.6.20:
     resolution: {integrity: sha512-Z2YZI+SYqK7XdWlloI3lhMiKnCdFCVC4PchpdO+mCYwtiTwncjUbnRK9R1JmkNfdmHyDXuWN3ibJAt0wsqTbLQ==}
+    engines: {node: '>=16.0.0', npm: '>=8.0.0'}
+
+  yjs@13.6.27:
+    resolution: {integrity: sha512-OIDwaflOaq4wC6YlPBy2L6ceKeKuF7DeTxx+jPzv1FHn9tCZ0ZwSRnUBxD05E3yed46fv/FWJbvR+Ud7x0L7zw==}
     engines: {node: '>=16.0.0', npm: '>=8.0.0'}
 
   ylru@1.4.0:
@@ -14202,6 +14211,10 @@ snapshots:
       prelude-ls: 1.2.1
       type-check: 0.4.0
 
+  lib0@0.2.108:
+    dependencies:
+      isomorphic.js: 0.2.5
+
   lib0@0.2.98:
     dependencies:
       isomorphic.js: 0.2.5
@@ -16345,24 +16358,29 @@ snapshots:
 
   xtend@4.0.2: {}
 
-  y-monaco@0.1.6(monaco-editor@0.51.0)(yjs@13.6.20):
+  y-monaco@0.1.6(monaco-editor@0.51.0)(yjs@13.6.27):
     dependencies:
       lib0: 0.2.98
       monaco-editor: 0.51.0
-      yjs: 13.6.20
+      yjs: 13.6.27
 
   y-protocols@1.0.6(yjs@13.6.20):
     dependencies:
       lib0: 0.2.98
       yjs: 13.6.20
 
-  y-quill@1.0.0(quill-cursors@4.0.3)(quill@2.0.2)(yjs@13.6.20):
+  y-protocols@1.0.6(yjs@13.6.27):
+    dependencies:
+      lib0: 0.2.98
+      yjs: 13.6.27
+
+  y-quill@1.0.0(quill-cursors@4.0.3)(quill@2.0.2)(yjs@13.6.27):
     dependencies:
       lib0: 0.2.98
       quill: 2.0.2
       quill-cursors: 4.0.3
-      y-protocols: 1.0.6(yjs@13.6.20)
-      yjs: 13.6.20
+      y-protocols: 1.0.6(yjs@13.6.27)
+      yjs: 13.6.27
 
   y18n@5.0.8: {}
 
@@ -16404,6 +16422,10 @@ snapshots:
   yjs@13.6.20:
     dependencies:
       lib0: 0.2.98
+
+  yjs@13.6.27:
+    dependencies:
+      lib0: 0.2.108
 
   ylru@1.4.0: {}
 
