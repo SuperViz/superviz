@@ -342,8 +342,8 @@ importers:
         specifier: ^3.0.3
         version: 3.0.3
       playwright:
-        specifier: ^1.49.0
-        version: 1.49.0
+        specifier: ^1.54.2
+        version: 1.54.2
       rimraf:
         specifier: ^5.0.7
         version: 5.0.10
@@ -987,8 +987,8 @@ importers:
         specifier: ^3.0.3
         version: 3.0.3
       playwright:
-        specifier: ^1.49.0
-        version: 1.49.0
+        specifier: ^1.54.2
+        version: 1.54.2
       rimraf:
         specifier: ^5.0.7
         version: 5.0.10
@@ -6696,13 +6696,13 @@ packages:
     resolution: {integrity: sha512-HRDzbaKjC+AOWVXxAU/x54COGeIv9eb+6CkDSQoNTt4XyWoIJvuPsXizxu/Fr23EiekbtZwmh1IcIG/l/a10GQ==}
     engines: {node: '>=8'}
 
-  playwright-core@1.49.0:
-    resolution: {integrity: sha512-R+3KKTQF3npy5GTiKH/T+kdhoJfJojjHESR1YEWhYuEKRVfVaxH3+4+GvXE5xyCngCxhxnykk0Vlah9v8fs3jA==}
+  playwright-core@1.54.2:
+    resolution: {integrity: sha512-n5r4HFbMmWsB4twG7tJLDN9gmBUeSPcsBZiWSE4DnYz9mJMAFqr2ID7+eGC9kpEnxExJ1epttwR59LEWCk8mtA==}
     engines: {node: '>=18'}
     hasBin: true
 
-  playwright@1.49.0:
-    resolution: {integrity: sha512-eKpmys0UFDnfNb3vfsf8Vx2LEOtflgRebl0Im2eQQnYMA4Aqd+Zw8bEOB+7ZKvN76901mRnqdsiOGKxzVTbi7A==}
+  playwright@1.54.2:
+    resolution: {integrity: sha512-Hu/BMoA1NAdRUuulyvQC0pEqZ4vQbGfn8f7wPXcnqQmM+zct9UliKxsIkLNmz/ku7LElUNqmaiv1TG/aL5ACsw==}
     engines: {node: '>=18'}
     hasBin: true
 
@@ -11119,7 +11119,7 @@ snapshots:
     dependencies:
       '@web/test-runner-core': 0.13.3
       '@web/test-runner-coverage-v8': 0.8.0
-      playwright: 1.49.0
+      playwright: 1.54.2
     transitivePeerDependencies:
       - bufferutil
       - supports-color
@@ -14808,11 +14808,11 @@ snapshots:
     dependencies:
       find-up: 4.1.0
 
-  playwright-core@1.49.0: {}
+  playwright-core@1.54.2: {}
 
-  playwright@1.49.0:
+  playwright@1.54.2:
     dependencies:
-      playwright-core: 1.49.0
+      playwright-core: 1.54.2
     optionalDependencies:
       fsevents: 2.3.2
 
